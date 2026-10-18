@@ -121,16 +121,16 @@ export function compileTopicWikiArticle(
   const isChem = topic.subject === 'chemistry';
   const sec1Title = isChem
     ? '1. Khái niệm & Cấu tạo phân tử'
-    : '1. Khái niệm cốt lõi & Bản chất lý thuyết';
+    : '1. Khái niệm cốt lõi & Cơ sở lý thuyết';
   const sec2Title = isChem
     ? '2. Danh pháp IUPAC & Tên thông thường'
-    : '2. Hệ thống Công thức & Quy tắc chuẩn GDPT 2018';
+    : '2. Công thức trọng tâm & Quy tắc áp dụng';
   const sec3Title = isChem
-    ? '3. Tính chất hóa học & Phản ứng thủy phân (Môi trường Acid vs. Kiềm)'
-    : '3. Phân tích Chuyên sâu & Điều kiện áp dụng';
+    ? '3. Tính chất hóa học & Phản ứng thủy phân'
+    : '3. Phân tích bản chất & Điều kiện áp dụng';
   const sec4Title = isChem
-    ? '4. Phương pháp giải nhanh & Định luật bảo toàn (Bảo toàn khối lượng, Ester của Phenol)'
-    : '4. Phương pháp giải nhanh & Các bẫy thường gặp';
+    ? '4. Phương pháp giải nhanh & Các dạng bài then chốt'
+    : '4. Phương pháp giải & Các lỗi hay gặp';
 
   const sections: WikiSection[] = [
     {
@@ -138,7 +138,7 @@ export function compileTopicWikiArticle(
       heading: sec1Title,
       subheadings: [
         {
-          title: 'Trọng tâm kiến thức cần nắm vững (Chuẩn GDPT 2018)',
+          title: 'Mục tiêu kiến thức cần nắm',
           bullets: topic.learningObjectives,
         },
       ],
@@ -183,10 +183,10 @@ export function compileTopicWikiArticle(
       id: 'sec-4-conservation',
       heading: sec4Title,
       subheadings: topic.commonPitfalls.map((p, idx) => ({
-        title: `Lưu ý #${idx + 1}: ${p.mistake}`,
+        title: `Lỗi thường gặp #${idx + 1}: ${p.mistake}`,
         bullets: [
-          `Cách xử lý chuẩn: ${p.correction}`,
-          `Giải thích bản chất: ${p.explanation}`,
+          `Cách hiểu đúng: ${p.correction}`,
+          `Giải thích chi tiết: ${p.explanation}`,
         ],
       })),
     },

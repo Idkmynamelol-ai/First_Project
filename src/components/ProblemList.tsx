@@ -93,33 +93,32 @@ export const ProblemList: React.FC<ProblemListProps> = ({
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-zinc-800/80 pb-5">
         <div className="space-y-1.5">
           <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-            CHƯƠNG TRÌNH GDPT 2018 • LỚP 10 – 11 – 12
+            ÔN THI TRỌNG TÂM • LỚP 10 – 12
           </p>
           <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-zinc-100">
             {viewMode === 'daily'
-              ? 'Thử thách Hàng ngày (Daily Deterministic Engine)'
+              ? 'Thử thách mỗi ngày: Rèn luyện 4 môn thi'
               : viewMode === 'admin'
-              ? 'Quản trị Hệ thống: Kho Nguồn Đề THPTQG • HSA • TSA (2025–2026)'
+              ? 'Kho tài liệu đề thi thử THPTQG, HSA & TSA'
               : viewMode === 'problems'
-              ? `${SUBJECTS_META[selectedSubject].vnName}: Chuyên đề & Bài tập theo mức độ (${rows.length} câu)`
-              : `${SUBJECTS_META[selectedSubject].vnName}: Cẩm nang Lý thuyết Wiki (${topics.length} chuyên đề)`}
+              ? `${SUBJECTS_META[selectedSubject].vnName}: Chuyên đề & bài tập rèn luyện (${rows.length} câu)`
+              : `${SUBJECTS_META[selectedSubject].vnName}: Tóm tắt lý thuyết theo chuyên đề (${topics.length} chuyên đề)`}
           </h1>
           <p className="text-sm text-zinc-400 max-w-2xl leading-relaxed">
             {viewMode === 'admin' ? (
               <>
-                Tự động thu thập &amp; lưu trữ các liên kết đề thi thử{' '}
+                Tổng hợp liên kết đề thi thử{' '}
                 <span className="font-semibold text-zinc-200">
                   THPTQG 2026, HSA 2026, TSA 2026
                 </span>{' '}
-                (kèm năm 2025) có PDF miễn phí hoặc cấu trúc hiển thị rõ.
+                (kèm năm 2025) có file PDF hoặc cấu trúc đề rõ ràng.
               </>
             ) : (
               <>
-                Phân cấp theo cấu trúc{' '}
+                Học theo lộ trình chuyên đề, phân loại bài tập từ cơ bản đến nâng cao:{' '}
                 <span className="font-semibold text-zinc-200">
-                  Môn học &gt; Chuyên đề Wiki &gt; 4 Mức độ nhận thức
-                </span>{' '}
-                (Nhận biết, Thông hiểu, Vận dụng, Vận dụng cao).
+                  Nhận biết, Thông hiểu, Vận dụng và Vận dụng cao
+                </span>.
               </>
             )}
           </p>
@@ -143,7 +142,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             }`}
           >
             <ListChecks className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-            <span>Luyện tập ({PRACTICE_QUESTIONS.length})</span>
+            <span>Luyện bài tập ({PRACTICE_QUESTIONS.length})</span>
           </button>
 
           <button
@@ -158,7 +157,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             }`}
           >
             <BookOpen className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-            <span>Lý thuyết (Wiki)</span>
+            <span>Đọc lý thuyết</span>
           </button>
 
           <button
@@ -173,7 +172,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-            <span>Thử thách Ngày</span>
+            <span>Đề hôm nay</span>
           </button>
 
           <button
@@ -188,7 +187,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-            <span>Admin</span>
+            <span>Kho đề thi</span>
           </button>
         </div>
       </div>
@@ -346,7 +345,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                         </h2>
                       </div>
                       <span className="text-xs font-mono text-zinc-400 shrink-0">
-                        {topicQuestions.length} bài tập phân bậc
+                        {topicQuestions.length} câu hỏi theo mức độ
                       </span>
                     </div>
 
@@ -423,10 +422,10 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                       <div className="lg:w-72 shrink-0 rounded-xl border border-zinc-800/80 bg-zinc-950/70 p-5 space-y-4">
                         <div className="space-y-1">
                           <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-                            Thực hành chuyên đề
+                            Bài tập theo chuyên đề
                           </p>
                           <p className="text-sm font-semibold text-zinc-100">
-                            {topic.sampleQuestionTemplates.length} câu hỏi phân bậc
+                            {topic.sampleQuestionTemplates.length} câu hỏi theo mức độ
                           </p>
                         </div>
 
@@ -454,7 +453,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                           onClick={() => onOpen(firstQuestionId)}
                           className="w-full bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs px-4 py-2.5 rounded-lg inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                         >
-                          <span>Mở Bảng luyện tập</span>
+                          <span>Luyện tập chuyên đề này</span>
                           <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       </div>

@@ -37,7 +37,7 @@ export const WorkedExampleSection: React.FC<WorkedExampleSectionProps> = ({
             Ví dụ mẫu
           </span>
           <span className="text-sm font-semibold text-zinc-100 truncate">
-            Phân tích tư duy &amp; Bài giải mẫu từng bước
+            Bài giải mẫu và hướng dẫn từng bước
           </span>
         </div>
         <ChevronDown
@@ -60,7 +60,7 @@ export const WorkedExampleSection: React.FC<WorkedExampleSectionProps> = ({
         {/* 2. Định hướng tư duy & Lập luận logic */}
         <div className="space-y-1.5">
           <p className="text-xs font-semibold uppercase tracking-wider text-sky-400">
-            2. Định hướng tư duy &amp; Lập luận logic
+            2. Hướng tư duy và suy luận
           </p>
           <div className="p-3.5 rounded-lg bg-sky-500/[0.06] border border-sky-500/20 text-zinc-200">
             <MathText content={ex.logicReasoning} />
@@ -70,7 +70,7 @@ export const WorkedExampleSection: React.FC<WorkedExampleSectionProps> = ({
         {/* 3. Các bước giải chi tiết */}
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-            3. Trình bày các bước giải chi tiết
+            3. Các bước giải chi tiết
           </p>
           <ol className="space-y-2.5">
             {ex.steps.map((step, idx) => (
@@ -201,7 +201,7 @@ export const CompiledWikiArticleView: React.FC<CompiledWikiArticleViewProps> = (
                 <div className="bg-zinc-900/60 border-l-2 border-l-sky-500 border border-zinc-800/80 rounded-r-lg p-4 my-4 space-y-3">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-semibold uppercase tracking-wider text-sky-400">
-                      Định luật bảo toàn &amp; Công thức giải nhanh
+                      Định luật then chốt &amp; Phương pháp giải
                     </span>
                     <span className="text-xs font-mono text-zinc-400">
                       GDPT 2018

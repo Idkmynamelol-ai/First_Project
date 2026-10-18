@@ -160,14 +160,14 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-md bg-sky-500/10 border border-sky-500/20 text-sky-300 font-mono text-xs font-medium">
-              Thử thách Ngày • PRNG
+              Đề luyện tập hôm nay
             </span>
             <span className="text-xs font-mono text-zinc-500">
-              Múi giờ: {dailyData.timezone} (Đổi đề lúc 00:00)
+              Đổi đề mới lúc 00:00 mỗi ngày
             </span>
           </div>
           <p className="text-sm text-zinc-300">
-            Bộ 4 bài toán Lớp 12 tự động sinh theo ngày{' '}
+            4 câu hỏi chọn lọc cho cả 4 môn trong ngày{' '}
             <code className="text-zinc-200 font-mono bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">
               {date}
             </code>

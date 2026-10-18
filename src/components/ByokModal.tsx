@@ -94,10 +94,10 @@ export const ByokModal: React.FC<ByokModalProps> = ({
             </div>
             <div>
               <h2 id="byok-modal-title" className="text-base font-semibold text-zinc-100">
-                Cài đặt Khóa API Gia sư AI (BYOK)
+                Kết nối khóa Gemini API cá nhân
               </h2>
               <p className="text-xs text-zinc-400">
-                Kết nối khóa Gemini API cá nhân để sử dụng Gia sư Socratic trực tiếp
+                Sử dụng khóa cá nhân để trò chuyện thoải mái cùng trợ lý học tập
               </p>
             </div>
           </div>
@@ -120,12 +120,12 @@ export const ByokModal: React.FC<ByokModalProps> = ({
           {isByokActive ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
               <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
-              Đã kết nối (BYOK đang bật)
+              Đã kết nối khóa cá nhân
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-sky-500/10 text-sky-300 border border-sky-500/20">
               <Users className="w-3.5 h-3.5" aria-hidden="true" />
-              Đang dùng cổng nhóm chung
+              Dùng cổng dùng chung mặc định
             </span>
           )}
         </div>

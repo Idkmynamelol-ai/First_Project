@@ -284,19 +284,19 @@ export const AdminTab: React.FC = () => {
           </div>
           <div>
             <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-              CỔNG QUẢN TRỊ HỆ THỐNG
+              KHU VỰC QUẢN LÝ
             </p>
             <h2 className="text-base font-semibold text-zinc-100">
-              Đăng nhập Quản trị viên (Admin)
+              Đăng nhập quản lý tài liệu đề thi
             </h2>
           </div>
         </div>
 
         <p className="text-xs text-zinc-400 leading-relaxed">
-          Khu vực lưu trữ và tự động thu thập nguồn đề thi thử{' '}
+          Khu vực tổng hợp và phân loại liên kết đề thi thử{' '}
           <span className="font-semibold text-zinc-200">THPTQG 2026</span>,{' '}
           <span className="font-semibold text-zinc-200">HSA 2026</span>,{' '}
-          <span className="font-semibold text-zinc-200">TSA 2026</span> (kèm dữ liệu 2025) cho 3 môn{' '}
+          <span className="font-semibold text-zinc-200">TSA 2026</span> (kèm năm 2025) cho 3 môn{' '}
           <strong className="text-zinc-100">Toán Học, Vật Lí, Hóa Học</strong>.
         </p>
 
@@ -368,14 +368,14 @@ export const AdminTab: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md border border-emerald-500/25 bg-emerald-500/10 text-emerald-300 text-xs font-mono font-medium">
               <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-              ADMIN: ĐÃ XÁC THỰC (admin)
+              ĐÃ ĐĂNG NHẬP (admin)
             </span>
             <span className="text-xs font-mono text-zinc-400">
-              • Thu thập tự động: THPTQG 2026 / HSA 2026 / TSA 2026
+              • Đề thi THPTQG 2026 / HSA 2026 / TSA 2026
             </span>
           </div>
           <h2 className="text-base sm:text-lg font-semibold text-zinc-100">
-            Kho lưu trữ Liên kết Đề thi thử &amp; Cấu trúc Đề chuẩn (Toán • Lý • Hóa)
+            Kho liên kết đề thi thử &amp; tài liệu ôn thi (Toán • Lý • Hóa)
           </h2>
         </div>
 

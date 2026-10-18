@@ -60,18 +60,18 @@ const SUBJECTS: {
 const STEPS = [
   {
     n: '01',
-    t: 'Đọc Cẩm nang Lý thuyết chuẩn Wikipedia / Notion',
-    d: 'Mỗi chuyên đề được biên soạn thành một bài viết hoàn chỉnh có mục lục, công thức KaTeX rõ nét và ví dụ mẫu phân tích tư duy từng bước.',
+    t: 'Nắm chắc khái niệm và công thức cốt lõi',
+    d: 'Mỗi bài học được tóm tắt mạch lạc: làm rõ bản chất lý thuyết, nêu bật công thức then chốt và phân tích ví dụ giải mẫu từng bước.',
   },
   {
     n: '02',
-    t: 'Thực hành Bảng luyện tập phân bậc (4 Mức độ)',
-    d: 'Bài tập sắp xếp từ Nhận biết, Thông hiểu đến Vận dụng và Vận dụng cao. Hỗ trợ phím tắt A–D / 1–4 và mở khóa lời giải ngay sau khi nộp.',
+    t: 'Luyện bài tập từ cơ bản đến nâng cao',
+    d: 'Rèn luyện phản xạ qua 4 mức độ: Nhận biết, Thông hiểu, Vận dụng và Vận dụng cao. Hỗ trợ phím tắt A–D / 1–4 và xem lời giải ngay sau khi chọn.',
   },
   {
     n: '03',
-    t: 'Trợ lý Socratic AI đồng hành trong từng bước giải',
-    d: 'Hỏi đáp trực tiếp về định luật bảo toàn, tỉ lệ phản ứng hoặc yêu cầu tạo bài tương tự ngay trong cùng một luồng hội thoại gọn gàng.',
+    t: 'Nhận gợi ý tư duy khi gặp câu hỏi khó',
+    d: 'Trợ lý học tập đưa ra gợi ý từng bước thay vì giải hộ, giúp bạn tự tìm ra đáp án, hiểu sâu bản chất và nhớ bài lâu hơn.',
   },
 ];
 
@@ -98,19 +98,19 @@ export const Landing: React.FC = () => {
   const stats = [
     {
       v: String(grade12Curriculum.length).padStart(2, '0'),
-      l: 'chuyên đề Wiki Lớp 10–11–12 (GDPT 2018)',
+      l: 'chuyên đề trọng tâm Lớp 10–12',
     },
     {
       v: String(totalFormulas).padStart(2, '0'),
-      l: 'công thức & định luật bảo toàn KaTeX',
+      l: 'công thức & định luật then chốt',
     },
     {
       v: String(totalExamples).padStart(2, '0'),
-      l: 'ví dụ mẫu phân tích tư duy chi tiết',
+      l: 'ví dụ mẫu giải chi tiết từng bước',
     },
     {
       v: String(PRACTICE_QUESTIONS.length).padStart(2, '0'),
-      l: 'bài tập phân 4 mức độ nhận thức',
+      l: 'câu hỏi rèn luyện có giải thích',
     },
   ];
 
@@ -141,11 +141,11 @@ export const Landing: React.FC = () => {
             className="hidden md:flex items-center gap-1 text-xs"
           >
             {[
-              ['Danh mục môn học', '#courses'],
-              ['Cẩm nang Lý thuyết Wiki', '#knowledge-base'],
-              ['Quy trình học tập', '#how'],
+              ['Môn học', '#courses'],
+              ['Lý thuyết trọng tâm', '#knowledge-base'],
+              ['Cách học', '#how'],
               ['Tiến độ', '#progress'],
-              ['Admin', '#/admin'],
+              ['Kho đề thi', '#/admin'],
             ].map(([l, h]) => (
               <a
                 key={h}
@@ -161,13 +161,13 @@ export const Landing: React.FC = () => {
               href="#/admin"
               className={`h-8 px-3 rounded-md inline-flex items-center border border-zinc-800/80 bg-zinc-900/60 text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 text-xs font-medium transition-colors ${FOCUS}`}
             >
-              Admin
+              Kho đề
             </a>
             <a
               href="#/app"
               className={`h-8 px-3.5 rounded-md inline-flex items-center gap-1.5 bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium transition-all ${FOCUS}`}
             >
-              <span>Mở Không gian học tập</span>
+              <span>Vào học ngay</span>
               <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
             </a>
           </div>
@@ -180,26 +180,17 @@ export const Landing: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 grid lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-7 space-y-6">
               <span className="inline-flex items-center px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300">
-                Chương trình GDPT 2018 • Lớp 10 – 11 – 12 • Toán · Lý · Hóa · Anh
+                Toán · Vật lý · Hóa học · Tiếng Anh • Lớp 10 – 12
               </span>
               <h1 className="text-3xl sm:text-5xl font-semibold leading-[1.15] tracking-tight text-zinc-100">
-                Cẩm nang tri thức trực quan.
+                Học chắc lý thuyết.
                 <br />
                 <span className="text-zinc-400">
-                  Thực hành phân bậc cùng Gia sư Socratic.
+                  Luyện đúng trọng tâm, hiểu rõ từng bước.
                 </span>
               </h1>
               <p className="text-[15px] leading-7 text-zinc-300 max-w-[62ch]">
-                Kết hợp trình đọc lý thuyết chuyên sâu chuẩn{' '}
-                <strong className="font-semibold text-zinc-100">
-                  Wikipedia / Notion
-                </strong>{' '}
-                với bảng luyện tập tương tác{' '}
-                <strong className="font-semibold text-zinc-100">
-                  Codecademy / Linear
-                </strong>
-                . Công thức toán – hóa hiển thị sắc nét bằng KaTeX, phân tách rõ
-                4 mức độ nhận thức từ Nhận biết đến Vận dụng cao.
+                Không cần học vẹt hay giải đề tràn lan. Scalar gom gọn kiến thức cốt lõi theo từng chuyên đề, sắp xếp bài tập từ dễ đến khó và hỗ trợ gợi ý tư duy ngay khi bạn gặp vướng mắc.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 pt-1">
                 <a
@@ -207,7 +198,7 @@ export const Landing: React.FC = () => {
                   className={`h-11 px-6 rounded-lg inline-flex items-center justify-center gap-2 bg-zinc-100 hover:bg-white text-zinc-950 text-sm font-medium transition-all shadow-sm ${FOCUS}`}
                 >
                   <span>
-                    Bắt đầu luyện tập ({PRACTICE_QUESTIONS.length} bài tập)
+                    Bắt đầu luyện tập
                   </span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </a>
@@ -215,7 +206,7 @@ export const Landing: React.FC = () => {
                   href="#knowledge-base"
                   className={`h-11 px-6 rounded-lg inline-flex items-center justify-center border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 text-sm font-medium text-zinc-200 transition-colors ${FOCUS}`}
                 >
-                  Đọc Cẩm nang Lý thuyết Wiki
+                  Xem tóm tắt lý thuyết
                 </a>
               </div>
             </div>
@@ -224,7 +215,7 @@ export const Landing: React.FC = () => {
             <div className="lg:col-span-5 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-5">
               <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
                 <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                  Cấu trúc Nền tảng Scalar
+                  Nội dung trọng tâm
                 </span>
                 <span className="text-xs font-mono text-emerald-400">
                   GDPT 2018
@@ -258,13 +249,13 @@ export const Landing: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
             <div className="space-y-2">
               <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-                01 / Phân cấp Môn học &gt; Chuyên đề &gt; Mức độ
+                01 / Môn học
               </p>
               <h2
                 id="courses-h"
                 className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100"
               >
-                Bốn môn học trọng tâm ôn thi Tốt nghiệp THPT, HSA &amp; TSA
+                Bốn môn học nền tảng cho các kỳ thi lớn
               </h2>
             </div>
 
@@ -348,13 +339,13 @@ export const Landing: React.FC = () => {
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
               <div className="space-y-2">
                 <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-                  02 / Cẩm nang Lý thuyết chuẩn Wikipedia (Lớp 10 – 11 – 12)
+                  02 / Lý thuyết cô đọng
                 </p>
                 <h2
                   id="kb-h"
                   className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100"
                 >
-                  Bài viết chuyên đề biên soạn liền mạch &amp; Công thức KaTeX
+                  Kiến thức súc tích, trình bày rõ ràng, dễ tra cứu
                 </h2>
               </div>
 
@@ -419,7 +410,7 @@ export const Landing: React.FC = () => {
 
                     <div className="lg:w-72 shrink-0 rounded-xl border border-zinc-800/80 bg-zinc-950/70 p-5 space-y-4">
                       <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-                        Mức độ bài tập trong chuyên đề
+                        Bài tập theo chuyên đề
                       </p>
                       <div className="flex flex-wrap gap-1.5">
                         {Array.from(
@@ -444,7 +435,7 @@ export const Landing: React.FC = () => {
                         className={`w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium transition-all ${FOCUS}`}
                       >
                         <span>
-                          Giải {topic.sampleQuestionTemplates.length} câu hỏi mẫu
+                          Luyện tập {topic.sampleQuestionTemplates.length} câu hỏi mẫu
                         </span>
                         <ArrowUpRight
                           className="w-3.5 h-3.5"
@@ -472,13 +463,13 @@ export const Landing: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
             <div className="space-y-2">
               <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-                03 / Quy trình học tập
+                03 / Cách học hiệu quả
               </p>
               <h2
                 id="how-h"
                 className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100"
               >
-                Ba bước làm chủ kỳ thi Tốt nghiệp THPT
+                Học bài bản qua ba bước đơn giản
               </h2>
             </div>
             <ol className="grid md:grid-cols-3 gap-6">
@@ -509,31 +500,29 @@ export const Landing: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 items-start">
             <div className="space-y-4">
               <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-                04 / Theo dõi tiến độ chương trình THPT
+                04 / Tiến độ cá nhân
               </p>
               <h2
                 id="progress-h"
                 className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100"
               >
-                Theo dõi toàn bộ {grade12Curriculum.length} chuyên đề Lớp
-                10–11–12
+                Biết rõ mình đã nắm vững những gì
               </h2>
               <p className="text-[15px] text-zinc-300 leading-7 max-w-prose">
-                Đánh dấu các chuyên đề GDPT 2018 bạn đã ôn luyện xong để kiểm
-                soát tiến độ trước kỳ thi Tốt nghiệp THPT, HSA và TSA.
+                Đánh dấu các chuyên đề bạn đã ôn xong để luôn tự tin và chủ động kiểm soát kế hoạch ôn thi.
               </p>
               <a
                 href="#/app"
                 className={`h-11 px-6 rounded-lg inline-flex items-center gap-2 bg-zinc-100 hover:bg-white text-zinc-950 text-sm font-medium transition-all ${FOCUS}`}
               >
-                <span>Mở không gian luyện tập</span>
+                <span>Bắt đầu luyện tập ngay</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </a>
             </div>
 
             <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 overflow-hidden">
               <div className="flex items-center justify-between px-5 h-11 border-b border-zinc-800/80 bg-zinc-900/80 text-xs text-zinc-300 font-medium">
-                <span>Lộ trình GDPT 2018 • Lớp 10–11–12</span>
+                <span>Danh sách chuyên đề đã học</span>
                 <span className="font-mono text-zinc-400">
                   {count}/{grade12Curriculum.length} chuyên đề
                 </span>
@@ -605,8 +594,7 @@ export const Landing: React.FC = () => {
       </main>
 
       <footer className="border-t border-zinc-800/80 py-6 text-center text-xs text-zinc-500">
-        Scalar • Cẩm nang Tri thức GDPT 2018 (Lớp 10–11–12) &amp; Bảng luyện tập
-        Gia sư AI Socratic
+        Scalar • Nền tảng học tập và luyện thi Toán, Lý, Hóa, Tiếng Anh cho học sinh THPT
       </footer>
     </div>
   );
