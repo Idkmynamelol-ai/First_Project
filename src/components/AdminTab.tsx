@@ -14,6 +14,11 @@ import {
   RotateCcw,
   Download,
   Globe,
+  BookOpen,
+  BookCheck,
+  ChevronDown,
+  ChevronUp,
+  GraduationCap,
 } from 'lucide-react';
 import {
   ExamType,
@@ -25,6 +30,12 @@ import {
   EXAM_TYPE_LABELS,
 } from '../data/adminExamLinks';
 import { subjectColor } from './Tag';
+import {
+  auditTextbookCoverage,
+  scanAndVerifyTextbookSync,
+  type TextbookAuditReport,
+  type OfficialTextbookEntry,
+} from '../data/curriculum';
 
 const STORAGE_KEY_ADMIN_AUTH = 'apexstem_admin_authenticated_v1';
 const STORAGE_KEY_ADMIN_LINKS = 'apexstem_admin_scoured_links_v1';
@@ -82,6 +93,40 @@ export const AdminTab: React.FC = () => {
   const [newAccessType, setNewAccessType] = useState<AccessType>('both');
   const [newStructureSummary, setNewStructureSummary] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Textbook synchronization state
+  const [textbookAudit, setTextbookAudit] = useState<TextbookAuditReport>(() => auditTextbookCoverage());
+  const [isAuditingTextbooks, setIsAuditingTextbooks] = useState(false);
+  const [auditMessage, setAuditMessage] = useState<string | null>(null);
+  const [textbookSubjectFilter, setTextbookSubjectFilter] = useState<'ALL' | 'math' | 'physics' | 'chemistry' | 'english'>('ALL');
+  const [showTextbookChapters, setShowTextbookChapters] = useState(false);
+  const [textbookSearch, setTextbookSearch] = useState('');
+
+  const handleScanTextbooks = () => {
+    setIsAuditingTextbooks(true);
+    setAuditMessage(null);
+    setTimeout(() => {
+      const result = scanAndVerifyTextbookSync();
+      setTextbookAudit(result.report);
+      setAuditMessage(result.summaryMessage);
+      setIsAuditingTextbooks(false);
+    }, 450);
+  };
+
+  const filteredTextbookChapters = useMemo(() => {
+    const list = [...textbookAudit.integratedChapters, ...textbookAudit.pendingChapters];
+    return list.filter((item) => {
+      if (textbookSubjectFilter !== 'ALL' && item.subject !== textbookSubjectFilter) return false;
+      if (textbookSearch.trim()) {
+        const q = textbookSearch.toLowerCase();
+        const matchTitle = item.chapterTitle.toLowerCase().includes(q);
+        const matchCode = item.code.toLowerCase().includes(q);
+        const matchStandard = item.coreCompetencyStandard.toLowerCase().includes(q);
+        if (!matchTitle && !matchCode && !matchStandard) return false;
+      }
+      return true;
+    });
+  }, [textbookAudit, textbookSubjectFilter, textbookSearch]);
 
   useEffect(() => {
     try {
@@ -481,6 +526,242 @@ export const AdminTab: React.FC = () => {
             </li>
           </ul>
         </div>
+      </div>
+
+      {/* Textbook Curriculum Integration & Audit Dashboard */}
+      <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-5 space-y-5">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800/80 pb-4">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
+              <BookCheck className="w-5 h-5 text-emerald-400" aria-hidden="true" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-mono uppercase tracking-wider text-emerald-400 font-medium">
+                  CHUẨN GDPT 2018 (SGK CHÍNH QUY)
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-mono border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
+                  {textbookAudit.coveragePercentage}% ĐÃ ĐỒNG BỘ
+                </span>
+              </div>
+              <h3 className="text-base font-semibold text-zinc-100">
+                Kiểm định &amp; Đồng bộ Chương trình Sách giáo khoa GDPT 2018
+              </h3>
+              <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed">
+                Đối soát trực tiếp dữ liệu bài giảng Wiki và ngân hàng câu hỏi 4 mức độ với 3 bộ SGK:
+                <strong className="text-zinc-200"> Kết nối tri thức</strong>, <strong className="text-zinc-200">Cánh Diều</strong>, <strong className="text-zinc-200">Chân trời sáng tạo</strong> và <strong className="text-zinc-200">Global Success</strong> (Lớp 10 – 12).
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleScanTextbooks}
+              disabled={isAuditingTextbooks}
+              className="h-9 px-3.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-medium inline-flex items-center gap-2 cursor-pointer transition-colors"
+            >
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${isAuditingTextbooks ? 'animate-spin' : ''}`}
+                aria-hidden="true"
+              />
+              <span>{isAuditingTextbooks ? 'Đang đối soát...' : 'Kiểm tra đồng bộ SGK'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowTextbookChapters((v) => !v)}
+              className="h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-900 text-zinc-300 text-xs font-medium inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+            >
+              <span>{showTextbookChapters ? 'Thu gọn' : 'Xem chi tiết'}</span>
+              {showTextbookChapters ? (
+                <ChevronUp className="w-3.5 h-3.5 text-zinc-400" aria-hidden="true" />
+              ) : (
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400" aria-hidden="true" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Audit notification banner if triggered */}
+        {auditMessage && (
+          <div className="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-300 font-mono flex items-center justify-between">
+            <span>{auditMessage}</span>
+            <span className="text-[10px] text-zinc-400">Vừa cập nhật</span>
+          </div>
+        )}
+
+        {/* 4 Subject Breakdown Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="rounded-lg border border-zinc-800/80 bg-zinc-950/60 p-3 space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-zinc-400 font-medium">Toán học</span>
+              <span className="font-mono text-sky-400 font-semibold">
+                {textbookAudit.subjectBreakdown.math.integrated}/{textbookAudit.subjectBreakdown.math.total}
+              </span>
+            </div>
+            <div className="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="bg-sky-500 h-1.5 rounded-full transition-all duration-500"
+                style={{ width: `${textbookAudit.subjectBreakdown.math.percentage}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-[11px] font-mono text-zinc-500">
+              <span>Lớp 10, 11, 12</span>
+              <span>{textbookAudit.subjectBreakdown.math.percentage}%</span>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800/80 bg-zinc-950/60 p-3 space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-zinc-400 font-medium">Vật lí</span>
+              <span className="font-mono text-indigo-400 font-semibold">
+                {textbookAudit.subjectBreakdown.physics.integrated}/{textbookAudit.subjectBreakdown.physics.total}
+              </span>
+            </div>
+            <div className="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="bg-indigo-500 h-1.5 rounded-full transition-all duration-500"
+                style={{ width: `${textbookAudit.subjectBreakdown.physics.percentage}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-[11px] font-mono text-zinc-500">
+              <span>Lớp 10, 11, 12</span>
+              <span>{textbookAudit.subjectBreakdown.physics.percentage}%</span>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800/80 bg-zinc-950/60 p-3 space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-zinc-400 font-medium">Hóa học</span>
+              <span className="font-mono text-emerald-400 font-semibold">
+                {textbookAudit.subjectBreakdown.chemistry.integrated}/{textbookAudit.subjectBreakdown.chemistry.total}
+              </span>
+            </div>
+            <div className="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500"
+                style={{ width: `${textbookAudit.subjectBreakdown.chemistry.percentage}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-[11px] font-mono text-zinc-500">
+              <span>Lớp 10, 11, 12</span>
+              <span>{textbookAudit.subjectBreakdown.chemistry.percentage}%</span>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800/80 bg-zinc-950/60 p-3 space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-zinc-400 font-medium">Tiếng Anh</span>
+              <span className="font-mono text-amber-400 font-semibold">
+                {textbookAudit.subjectBreakdown.english.integrated}/{textbookAudit.subjectBreakdown.english.total}
+              </span>
+            </div>
+            <div className="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="bg-amber-500 h-1.5 rounded-full transition-all duration-500"
+                style={{ width: `${textbookAudit.subjectBreakdown.english.percentage}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-[11px] font-mono text-zinc-500">
+              <span>Global Success</span>
+              <span>{textbookAudit.subjectBreakdown.english.percentage}%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Expandable Textbook Chapter Directory */}
+        {showTextbookChapters && (
+          <div className="border-t border-zinc-800/80 pt-4 space-y-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {(
+                  [
+                    { id: 'ALL', label: `Tất cả (${textbookAudit.totalOfficialChapters})` },
+                    { id: 'math', label: `Toán (${textbookAudit.subjectBreakdown.math.total})` },
+                    { id: 'physics', label: `Vật lí (${textbookAudit.subjectBreakdown.physics.total})` },
+                    { id: 'chemistry', label: `Hóa học (${textbookAudit.subjectBreakdown.chemistry.total})` },
+                    { id: 'english', label: `Tiếng Anh (${textbookAudit.subjectBreakdown.english.total})` },
+                  ] as const
+                ).map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setTextbookSubjectFilter(tab.id)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors ${
+                      textbookSubjectFilter === tab.id
+                        ? 'bg-zinc-100 text-zinc-950 font-semibold'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative w-full sm:w-64">
+                <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={textbookSearch}
+                  onChange={(e) => setTextbookSearch(e.target.value)}
+                  placeholder="Tìm mã / tên chuyên đề SGK..."
+                  className="w-full h-8 pl-8 pr-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-700"
+                />
+              </div>
+            </div>
+
+            <div className="max-h-96 overflow-y-auto space-y-2 pr-1">
+              {filteredTextbookChapters.map((chapter) => (
+                <div
+                  key={chapter.code}
+                  className="rounded-lg border border-zinc-800/80 bg-zinc-950/70 p-3 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
+                >
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono font-semibold text-zinc-300">
+                        {chapter.code}
+                      </span>
+                      <span className="text-zinc-500">•</span>
+                      <span className="font-medium text-zinc-400">
+                        Lớp {chapter.grade} • {chapter.chapterNumber}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        {chapter.series.map((s) => (
+                          <span
+                            key={s}
+                            className="px-1.5 py-0.5 rounded text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700/60"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <h4 className="font-semibold text-zinc-100 truncate">
+                      {chapter.chapterTitle}
+                    </h4>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed line-clamp-2">
+                      {chapter.coreCompetencyStandard}
+                    </p>
+                  </div>
+
+                  <div className="shrink-0 flex items-center gap-2 self-start md:self-center">
+                    {chapter.isIntegrated ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-[11px] font-mono">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                        Đã tích hợp
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-300 text-[11px] font-mono">
+                        Chờ tích hợp
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Optional Add Custom Link Form */}

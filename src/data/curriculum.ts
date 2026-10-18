@@ -15,6 +15,15 @@ import {
 
 export { grade12Curriculum, grade12BySubject, type Grade12CurriculumTopic };
 
+export {
+  auditTextbookCoverage,
+  scanAndVerifyTextbookSync,
+  OFFICIAL_GDPT2018_TEXTBOOK_CATALOG,
+  type OfficialTextbookEntry,
+  type TextbookAuditReport,
+  type TextbookSeries,
+} from '../../backend/data/curriculum/textbookRegistry';
+
 export const DIFFICULTY_TIER_ORDER: Record<CognitiveLevel, number> = {
   'Nhận biết': 1,
   'Thông hiểu': 2,

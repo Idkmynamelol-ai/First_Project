@@ -3,10 +3,82 @@ import { CurriculumTopic, CurriculumTopicSchema } from './schema';
 
 const rawPhysics10And11Topics: CurriculumTopic[] = [
   {
+    id: 'phys10-kinematics-motion',
+    subject: 'physics',
+    grade: 10,
+    chapter: 'Chương I (SGK Vật lí 10): Mô tả chuyển động & Động học chất điểm',
+    topicName: 'Vận tốc, Gia tốc, Chuyển động thẳng biến đổi đều và Sự rơi tự do',
+    learningObjectives: [
+      'Phân biệt được độ dịch chuyển và quãng đường đi được trong chuyển động thẳng.',
+      'Vận dụng thành thạo phương trình vận tốc, độ dịch chuyển và công thức liên hệ v^2 - v0^2 = 2ad của chuyển động thẳng biến đổi đều.',
+      'Giải bài toán vật rơi tự do và ném thẳng đứng từ độ cao h.',
+    ],
+    keyFormulasAndRules: [
+      {
+        name: 'Hệ phương trình chuyển động thẳng biến đổi đều',
+        latexOrRule: 'v = v_0 + at; \\quad d = v_0 t + \\frac{1}{2}at^2; \\quad v^2 - v_0^2 = 2ad',
+        description: 'Chuyển động nhanh dần đều: a và v0 cùng dấu (a·v0 > 0); chuyển động chậm dần đều: a và v0 trái dấu (a·v0 < 0).',
+      },
+      {
+        name: 'Công thức rơi tự do trong trọng trường',
+        latexOrRule: 'v = gt; \\quad h = \\frac{1}{2}gt^2 \\implies v = \\sqrt{2gh}',
+        description: 'Sự rơi tự do là chuyển động thẳng nhanh dần đều theo phương thẳng đứng với gia tốc rơi tự do g (thường lấy g = 9.8 m/s² hoặc 10 m/s²).',
+      },
+    ],
+    workedExample: {
+      problemStatement:
+        'Một ô tô đang chạy với vận tốc $72\\text{ km/h}$ trên đoạn đường thẳng thì người lái xe phát hiện chướng ngại vật phía trước và hãm phanh khẩn cấp. Xe chuyển động chậm dần đều với độ lớn gia tốc $a = 4.0\\text{ m/s}^2$ cho đến khi dừng hẳn. Tính thời gian từ lúc hãm phanh đến khi xe dừng lại và quãng đường xe đã đi được trong thời gian hãm phanh.',
+      logicReasoning:
+        'Quy đổi vận tốc ban đầu về đơn vị chuẩn SI: $v_0 = 72\\text{ km/h} = 20\\text{ m/s}$. Vì xe chuyển động chậm dần đều theo chiều dương nên gia tốc mang dấu âm: $a = -4.0\\text{ m/s}^2$. Khi xe dừng hẳn thì vận tốc tức thời $v = 0$. Sử dụng phương trình vận tốc để tính thời gian $t$, sau đó áp dụng công thức độc lập với thời gian $v^2 - v_0^2 = 2ad$ để tính quãng đường dừng $d$.',
+      steps: [
+        'Bước 1 (Đổi đơn vị và tính thời gian hãm phanh): $$v_0 = \\frac{72}{3.6} = 20\\text{ m/s}; \\quad v = v_0 + at \\implies 0 = 20 + (-4.0)t \\implies t = \\frac{20}{4.0} = 5.0\\text{ s}$$',
+        'Bước 2 (Tính quãng đường xe chạy trong thời gian hãm phanh): Sử dụng công thức liên hệ: $$v^2 - v_0^2 = 2ad \\implies 0^2 - 20^2 = 2(-4.0)d \\implies -400 = -8.0d \\implies d = \\frac{400}{8.0} = 50.0\\text{ m}$$',
+      ],
+      finalConclusion:
+        'Thời gian hãm phanh cho đến khi xe dừng hẳn là $5.0\\text{ giây}$ và quãng đường xe đi được là $50.0\\text{ mét}$.',
+    },
+    commonPitfalls: [
+      {
+        mistake: 'Quên đổi đơn vị km/h sang m/s (hoặc chia nhầm thay vì nhân) trước khi áp dụng công thức chuyển động biến đổi đều.',
+        correction: 'Luôn đổi 1 km/h = 1/3.6 m/s (ví dụ 36 km/h = 10 m/s; 54 km/h = 15 m/s; 72 km/h = 20 m/s) trước khi tính toán gia tốc và quãng đường.',
+        explanation: 'Gia tốc đơn vị m/s² yêu cầu vận tốc phải theo đơn vị m/s và thời gian theo giây (s).',
+      },
+    ],
+    sampleQuestionTemplates: [
+      {
+        questionText:
+          'Một vật rơi tự do không vận tốc đầu từ độ cao $45\\text{ m}$ so với mặt đất tại nơi có $g = 10\\text{ m/s}^2$. Thời gian vật rơi chạm đất là bao nhiêu?',
+        options: ['3.0\\text{ s}', '4.5\\text{ s}', '2.0\\text{ s}', '9.0\\text{ s}'],
+        correctAnswer: '3.0\\text{ s}',
+        detailedDerivation:
+          'Áp dụng công thức rơi tự do: $h = \\frac{1}{2}gt^2 \\implies t = \\sqrt{\\frac{2h}{g}} = \\sqrt{\\frac{2 \\times 45}{10}} = \\sqrt{9} = 3.0\\text{ s}$.',
+        cognitiveLevel: 'Nhận biết',
+      },
+      {
+        questionText:
+          'Đoàn tàu đang chuyển động với vận tốc $15\\text{ m/s}$ thì tăng tốc chuyển động nhanh dần đều với gia tốc $a = 0.5\\text{ m/s}^2$. Vận tốc của tàu sau $20\\text{ giây}$ kể từ lúc tăng tốc là bao nhiêu?',
+        options: ['25\\text{ m/s}', '30\\text{ m/s}', '20\\text{ m/s}', '10\\text{ m/s}'],
+        correctAnswer: '25\\text{ m/s}',
+        detailedDerivation:
+          'Vận tốc tại thời điểm $t = 20\\text{ s}$: $$v = v_0 + at = 15 + 0.5 \\times 20 = 15 + 10 = 25\\text{ m/s}$$',
+        cognitiveLevel: 'Thông hiểu',
+      },
+      {
+        questionText:
+          'Một viên bi được thả rơi tự do không vận tốc đầu tại nơi có gia tốc trọng trường $g = 10\\text{ m/s}^2$. Quãng đường viên bi rơi được trong giây thứ $3$ bằng bao nhiêu?',
+        options: ['25\\text{ m}', '45\\text{ m}', '20\\text{ m}', '15\\text{ m}'],
+        correctAnswer: '25\\text{ m}',
+        detailedDerivation:
+          'Quãng đường rơi sau $3\\text{ s}$: $s_3 = \\frac{1}{2}g(3)^2 = 45\\text{ m}$. Quãng đường rơi sau $2\\text{ s}$: $s_2 = \\frac{1}{2}g(2)^2 = 20\\text{ m}$. Quãng đường rơi trong giây thứ $3$ là: $\\Delta s = s_3 - s_2 = 45 - 20 = 25\\text{ m}$.',
+        cognitiveLevel: 'Vận dụng',
+      },
+    ],
+  },
+  {
     id: 'phys10-mechanics-energy-momentum',
     subject: 'physics',
     grade: 10,
-    chapter: 'Vật Lí 10 (Nền tảng THPTQG - Hocmai & Tài liệu 365): Động lực học, Công - Năng lượng & Động lượng',
+    chapter: 'Chương II & III (SGK Vật lí 10): Động lực học & Bảo toàn năng lượng',
     topicName: 'Định luật II Newton, Định luật bảo toàn Cơ năng & Bảo toàn Động lượng',
     learningObjectives: [
       'Phân tích lực tác dụng lên vật trên mặt phẳng ngang và mặt phẳng nghiêng có ma sát bằng định luật II Newton.',
@@ -97,7 +169,7 @@ const rawPhysics10And11Topics: CurriculumTopic[] = [
     id: 'phys11-oscillations-waves-electricity',
     subject: 'physics',
     grade: 11,
-    chapter: 'Vật Lí 11 (Nền tảng THPTQG - Hocmai & Tài liệu 365): Dao động điều hòa, Sóng cơ & Dòng điện một chiều',
+    chapter: 'Chương I & II (SGK Vật lí 11): Dao động điều hòa & Sóng cơ',
     topicName: 'Dao động điều hòa, Giao thoa sóng cơ - Sóng dừng & Định luật Ohm cho toàn mạch',
     learningObjectives: [
       'Xác định biên độ, chu kỳ, tần số, pha dao động và sử dụng hệ thức độc lập thời gian giữa x, v, a.',
@@ -191,7 +263,7 @@ const rawChemistry10And11Topics: CurriculumTopic[] = [
     id: 'chem10-redox-thermochemistry',
     subject: 'chemistry',
     grade: 10,
-    chapter: 'Hóa Học 10 (Nền tảng THPTQG - Hocmai & Tài liệu 365): Phản ứng Oxi hóa - Khử & Năng lượng Hóa học',
+    chapter: 'Chương IV & V (SGK Hóa học 10): Phản ứng oxi hóa - khử & Năng lượng hóa học',
     topicName: 'Bảo toàn Electron trong phản ứng Oxi hóa - Khử & Biến thiên Enthalpy chuẩn',
     learningObjectives: [
       'Xác định nhanh số oxi hóa và giải bài toán kim loại tác dụng với dung dịch acid loại 2 (HNO3, H2SO4 đặc) bằng định luật bảo toàn electron.',
@@ -276,7 +348,7 @@ const rawChemistry10And11Topics: CurriculumTopic[] = [
     id: 'chem11-equilibrium-ph-organic',
     subject: 'chemistry',
     grade: 11,
-    chapter: 'Hóa Học 11 (Nền tảng THPTQG - Hocmai & Tài liệu 365): Cân bằng hóa học, pH dung dịch & Hóa hữu cơ cơ sở',
+    chapter: 'Chương I & IV (SGK Hóa học 11): Cân bằng hóa học & Dẫn xuất Hydrocarbon',
     topicName: 'Nguyên lý Le Chatelier, Thuyết acid-base Brønsted-Lowry, pH & Dẫn xuất Hydrocarbon',
     learningObjectives: [
       'Vận dụng nguyên lý chuyển dịch cân bằng Le Chatelier để dự đoán chiều chuyển dịch khi thay đổi nồng độ, áp suất, nhiệt độ.',
@@ -369,7 +441,7 @@ const rawEnglish10And11Topics: CurriculumTopic[] = [
     id: 'eng10-passive-conditionals-relatives',
     subject: 'english',
     grade: 10,
-    chapter: 'Tiếng Anh 10 (Nền tảng THPTQG - Hocmai & Tài liệu 365): Impersonal Passive, Mixed Conditionals & Defining/Non-defining Clauses',
+    chapter: 'Unit 6–8 (SGK Tiếng Anh 10 Global Success): Passive Voice, Conditionals & Relative Clauses',
     topicName: 'Bị động khách quan (It is said that / S is said to...), Câu điều kiện hỗn hợp & Mệnh đề quan hệ',
     learningObjectives: [
       'Chuyển đổi nhuần nhuyễn câu bị động với các động từ tường thuật (say, think, believe, report, rumour) ở cùng thời và lệch thời.',
@@ -459,7 +531,7 @@ const rawEnglish10And11Topics: CurriculumTopic[] = [
     id: 'eng11-perfect-participles-cleft-modals',
     subject: 'english',
     grade: 11,
-    chapter: 'Tiếng Anh 11 (Nền tảng THPTQG - Hocmai & Tài liệu 365): Perfect Participles, Cleft Sentences & Past Modals',
+    chapter: 'Unit 4–6 (SGK Tiếng Anh 11 Global Success): Participle Clauses, Cleft Sentences & Modal Verbs',
     topicName: 'Phân từ hoàn thành (Having + V3/ed), Câu chẻ nhấn mạnh (It is/was... that...) & Động từ khuyết thiếu hoàn thành',
     learningObjectives: [
       'Rút gọn hai mệnh đề cùng chủ ngữ bằng phân từ hoàn thành (Having + V3/ed hoặc Having been + V3/ed) để nhấn mạnh hành động xảy ra trước.',

@@ -1,12 +1,12 @@
 import { CurriculumTopic, CurriculumTopicSchema } from './schema';
 
 const rawMath10And11Topics: CurriculumTopic[] = [
-  /* ==================== TOÁN 10 (Tóm tắt Lý thuyết Ngô Đức Tài - Chương 1, 8, 9) ==================== */
+  /* ==================== TOÁN 10 (SGK GDPT 2018 - KNTT & Cánh Diều) ==================== */
   {
     id: 'math10-ch1-linear-inequality-systems',
     subject: 'math',
     grade: 10,
-    chapter: 'Chương 1 (Toán 10 - Ngô Đức Tài): Hệ bất phương trình bậc nhất hai ẩn',
+    chapter: 'Chương II (SGK Toán 10): Bất phương trình và hệ bất phương trình bậc nhất hai ẩn',
     topicName: 'Miền nghiệm của hệ bất phương trình bậc nhất hai ẩn & Bài toán quy hoạch tuyến tính',
     learningObjectives: [
       'Biểu diễn được miền nghiệm của bất phương trình và hệ bất phương trình bậc nhất hai ẩn trên mặt phẳng tọa độ Oxy.',
@@ -91,7 +91,7 @@ const rawMath10And11Topics: CurriculumTopic[] = [
     id: 'math10-ch8-9-combinatorics-conics',
     subject: 'math',
     grade: 10,
-    chapter: 'Chương 8 & 9 (Toán 10 - Ngô Đức Tài): Đại số tổ hợp & Ba đường Conic trong mặt phẳng Oxy',
+    chapter: 'Chương VIII & IX (SGK Toán 10): Đại số tổ hợp & Ba đường Conic trong mặt phẳng Oxy',
     topicName: 'Hoán vị, Chỉnh hợp, Tổ hợp, Nhị thức Newton & Phương trình chuẩn tắc Elip, Hypebol, Parabol',
     learningObjectives: [
       'Phân biệt và áp dụng chính xác quy tắc cộng, quy tắc nhân, hoán vị P_n, chỉnh hợp A_n^k và tổ hợp C_n^k.',
@@ -172,13 +172,86 @@ const rawMath10And11Topics: CurriculumTopic[] = [
       },
     ],
   },
+  {
+    id: 'math10-ch4-trig-vectors',
+    subject: 'math',
+    grade: 10,
+    chapter: 'Chương IV (SGK Toán 10): Hệ thức lượng trong tam giác & Vectơ',
+    topicName: 'Định lý Cosin, Định lý Sin, Công thức tính diện tích tam giác và Tích vô hướng của hai vectơ',
+    learningObjectives: [
+      'Áp dụng thành thạo định lý cosin, định lý sin và các công thức tính diện tích tam giác (Heron, bán kính R, r) để giải tam giác.',
+      'Tính được tích vô hướng của hai vectơ, góc giữa hai vectơ và chứng minh hai vectơ vuông góc.',
+      'Giải quyết được các bài toán thực tiễn về đo đạc khoảng cách, chiều cao và tổng hợp lực trong đời sống.',
+    ],
+    keyFormulasAndRules: [
+      {
+        name: 'Định lý Cosin & Định lý Sin trong tam giác',
+        latexOrRule: 'a^2 = b^2 + c^2 - 2bc\\cos A; \\quad \\frac{a}{\\sin A} = \\frac{b}{\\sin B} = \\frac{c}{\\sin C} = 2R',
+        description: 'Định lý cosin mở rộng định lý Pythagore cho tam giác bất kỳ; định lý sin liên hệ độ dài cạnh và góc đối diện với bán kính đường tròn ngoại tiếp R.',
+      },
+      {
+        name: 'Tích vô hướng của hai vectơ',
+        latexOrRule: '\\vec{u} \\cdot \\vec{v} = |\\vec{u}| \\cdot |\\vec{v}| \\cos(\\vec{u}, \\vec{v}) = u_1 v_1 + u_2 v_2',
+        description: 'Hai vectơ khác vectơ không vuông góc với nhau khi và chỉ khi tích vô hướng của chúng bằng 0.',
+      },
+    ],
+    workedExample: {
+      problemStatement:
+        'Để đo khoảng cách giữa hai điểm A và B ở hai bờ đối diện của một khúc sông mà không thể qua sông, người ta chọn một điểm C trên cùng bờ với A sao cho $CA = 60\\text{ m}$. Bằng giác kế, người ta đo được các góc $\\widehat{CAB} = 65^\\circ$ và $\\widehat{ACB} = 75^\\circ$. Hãy tính khoảng cách AB giữa hai điểm A và B (làm tròn đến hàng đơn vị mét).',
+      logicReasoning:
+        'Trong tam giác $ABC$, ta đã biết độ dài cạnh $b = AC = 60\\text{ m}$ và hai góc kề $\\widehat{A} = 65^\\circ, \\widehat{C} = 75^\\circ$. Áp dụng định lý tổng ba góc trong một tam giác để tính góc $\\widehat{B}$, sau đó áp dụng định lý sin $\\frac{AB}{\\sin C} = \\frac{AC}{\\sin B}$ để tính trực tiếp khoảng cách $AB$.',
+      steps: [
+        'Bước 1 (Tính góc B đối diện cạnh AC): $$\\widehat{B} = 180^\\circ - (\\widehat{A} + \\widehat{C}) = 180^\\circ - (65^\\circ + 75^\\circ) = 40^\\circ$$',
+        'Bước 2 (Áp dụng định lý Sin để tìm độ dài cạnh AB): $$\\frac{AB}{\\sin C} = \\frac{AC}{\\sin B} \\implies AB = \\frac{AC \\cdot \\sin C}{\\sin B} = \\frac{60 \\cdot \\sin 75^\\circ}{\\sin 40^\\circ}$$',
+        'Bước 3 (Thực hiện tính toán số học): Thay $\\sin 75^\\circ \\approx 0.9659$ và $\\sin 40^\\circ \\approx 0.6428$: $$AB \\approx \\frac{60 \\times 0.9659}{0.6428} \\approx 90.16\\text{ m} \\approx 90\\text{ m}$$',
+      ],
+      finalConclusion:
+        'Khoảng cách giữa hai điểm A và B xấp xỉ bằng $90\\text{ mét}$.',
+    },
+    commonPitfalls: [
+      {
+        mistake: 'Quên góc tù khi tính cosin góc trong định lý Cosin (cos A < 0 khi A > 90°).',
+        correction: 'Nếu góc A tù (90° < A < 180°) thì cos A âm, dấu trừ phía trước trở thành dấu cộng: a^2 = b^2 + c^2 - 2bc cos A > b^2 + c^2.',
+        explanation: 'Nhầm dấu cosin của góc tù là lỗi rất phổ biến khi tính độ dài cạnh đối diện góc tù.',
+      },
+    ],
+    sampleQuestionTemplates: [
+      {
+        questionText:
+          'Cho tam giác $ABC$ có $b = 8, c = 5$ và góc $\\widehat{A} = 60^\\circ$. Độ dài cạnh $a = BC$ bằng bao nhiêu?',
+        options: ['a = 7', 'a = \\sqrt{129}', 'a = 8', 'a = 6'],
+        correctAnswer: 'a = 7',
+        detailedDerivation:
+          'Áp dụng định lý cosin: $$a^2 = b^2 + c^2 - 2bc\\cos A = 8^2 + 5^2 - 2(8)(5)\\cos 60^\\circ = 64 + 25 - 80\\left(\\frac{1}{2}\\right) = 89 - 40 = 49 \\implies a = 7$$',
+        cognitiveLevel: 'Nhận biết',
+      },
+      {
+        questionText:
+          'Trong mặt phẳng tọa độ Oxy, cho hai vectơ $\\vec{u} = (2; -3)$ và $\\vec{v} = (6; 4)$. Khẳng định nào sau đây là đúng?',
+        options: ['\\vec{u} \\perp \\vec{v}', '\\vec{u} \\parallel \\vec{v}', '|\\vec{u}| = |\\vec{v}|', '\\vec{u} \\cdot \\vec{v} = 24'],
+        correctAnswer: '\\vec{u} \\perp \\vec{v}',
+        detailedDerivation:
+          'Tích vô hướng: $\\vec{u} \\cdot \\vec{v} = 2(6) + (-3)(4) = 12 - 12 = 0$. Vì tích vô hướng bằng 0 nên hai vectơ $\\vec{u}$ và $\\vec{v}$ vuông góc với nhau ($\\vec{u} \\perp \\vec{v}$).',
+        cognitiveLevel: 'Thông hiểu',
+      },
+      {
+        questionText:
+          'Tam giác $ABC$ có ba cạnh lần lượt là $a = 13, b = 14, c = 15$. Diện tích $S$ của tam giác $ABC$ bằng bao nhiêu?',
+        options: ['S = 84', 'S = 42', 'S = 96', 'S = 78'],
+        correctAnswer: 'S = 84',
+        detailedDerivation:
+          'Nửa chu vi tam giác: $p = \\frac{13 + 14 + 15}{2} = 21$. Áp dụng công thức Heron: $$S = \\sqrt{p(p-a)(p-b)(p-c)} = \\sqrt{21(21-13)(21-14)(21-15)} = \\sqrt{21 \\times 8 \\times 7 \\times 6} = \\sqrt{7056} = 84$$',
+        cognitiveLevel: 'Vận dụng',
+      },
+    ],
+  },
 
-  /* ==================== TOÁN 11 (Tóm tắt Lý thuyết Ngô Đức Tài - Chương 2, 3, 4, 10) ==================== */
+  /* ==================== TOÁN 11 (SGK GDPT 2018 - KNTT & Cánh Diều) ==================== */
   {
     id: 'math11-ch2-3-trigonometry-sequences',
     subject: 'math',
     grade: 11,
-    chapter: 'Chương 2 & 3 (Toán 11 - Ngô Đức Tài): Phương trình lượng giác, Cấp số cộng & Cấp số nhân',
+    chapter: 'Chương I & II (SGK Toán 11): Hàm số lượng giác, Cấp số cộng & Cấp số nhân',
     topicName: 'Công thức lượng giác, Phương trình lượng giác cơ bản & Dãy số CSC - CSN',
     learningObjectives: [
       'Vận dụng thành thạo công thức cộng, công thức nhân đôi, công thức hạ bậc và giải phương trình lượng giác cơ bản.',
@@ -263,7 +336,7 @@ const rawMath10And11Topics: CurriculumTopic[] = [
     id: 'math11-ch4-exponential-logarithmic',
     subject: 'math',
     grade: 11,
-    chapter: 'Chương 4 (Toán 11 - Ngô Đức Tài): Hàm số mũ và Hàm số logarit',
+    chapter: 'Chương VI (SGK Toán 11): Hàm số mũ và Hàm số logarit',
     topicName: 'Biến đổi Logarit, Phương trình - Bất phương trình Mũ & Logarit, Bài toán lãi kép',
     learningObjectives: [
       'Vận dụng được các quy tắc tính logarit (logarit của tích, thương, lũy thừa, công thức đổi cơ số).',
@@ -348,7 +421,7 @@ const rawMath10And11Topics: CurriculumTopic[] = [
     id: 'math11-ch10-spatial-geometry-volumes',
     subject: 'math',
     grade: 11,
-    chapter: 'Chương 10 (Toán 11 - Ngô Đức Tài): Hình học không gian (Quan hệ vuông góc, Góc, Khoảng cách & Thể tích)',
+    chapter: 'Chương VIII & IX (SGK Toán 11): Quan hệ vuông góc trong không gian, Thể tích khối đa diện',
     topicName: 'Góc, Khoảng cách giữa hai đường thẳng chéo nhau & Thể tích khối chóp, khối lăng trụ',
     learningObjectives: [
       'Chứng minh được đường thẳng vuông góc với mặt phẳng và hai mặt phẳng vuông góc.',

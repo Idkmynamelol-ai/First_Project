@@ -294,6 +294,156 @@ const rawChemistry12Topics: CurriculumTopic[] = [
       },
     ],
   },
+  {
+    id: 'chem12-ch4-polymer',
+    subject: 'chemistry',
+    grade: 12,
+    chapter: 'Chương 4 (SGK Hóa 12): Polymer và Vật liệu polymer',
+    topicName: 'Khái niệm, cấu tạo, phản ứng trùng hợp, trùng ngưng và ứng dụng của Polymer',
+    learningObjectives: [
+      'Phân biệt được polymer thiên nhiên, bán tổng hợp (nhân tạo) và tổng hợp theo chuẩn SGK Hóa học 12 GDPT 2018.',
+      'Viết được phương trình hóa học của phản ứng trùng hợp (PE, PVC, PS, cao su buna) và trùng ngưng (tơ nilon-6,6, tơ lapsan).',
+      'Tính toán được khối lượng monomer hoặc polymer trong quá trình điều chế có hiệu suất phản ứng.',
+    ],
+    keyFormulasAndRules: [
+      {
+        name: 'Phản ứng trùng hợp Monomer có liên kết đôi hoặc vòng kém bền',
+        latexOrRule: 'n\\,\\text{CH}_2=\\text{CH}-\\text{R} \\xrightarrow{t^\\circ, p, xt} -(-\\text{CH}_2-\\text{CH}(\\text{R})-)-_n',
+        description: 'Khối lượng polymer bằng khối lượng monomer tham gia phản ứng nếu không tính đến phân tử phụ; hệ số n là hệ số polymer hóa (độ polymer hóa).',
+      },
+      {
+        name: 'Phản ứng trùng ngưng tạo Polyamide (Tơ Nilon-6,6)',
+        latexOrRule: 'n\\,\\text{H}_2\\text{N}[\\text{CH}_2]_6\\text{NH}_2 + n\\,\\text{HOOC}[\\text{CH}_2]_4\\text{COOH} \\xrightarrow{t^\\circ} -(-\\text{NH}[\\text{CH}_2]_6\\text{NH}-\\text{CO}[\\text{CH}_2]_4\\text{CO}-)-_n + 2n\\,\\text{H}_2\\text{O}',
+        description: 'Trùng ngưng là quá trình kết hợp nhiều phân tử nhỏ thành phân tử lớn đồng thời giải phóng các phân tử nhỏ khác như nước.',
+      },
+    ],
+    workedExample: {
+      problemStatement:
+        'Từ $1.5\\text{ tấn}$ ethylene ($\\text{C}_2\\text{H}_4$, $M = 28$) người ta điều chế được bao nhiêu tấn polyethylene (PE) biết hiệu suất của toàn bộ quá trình trùng hợp đạt $80\\%$?',
+      logicReasoning:
+        'Phản ứng trùng hợp $n\\,\\text{C}_2\\text{H}_4 \\to -(-\\text{C}_2\\text{H}_4-)_n$ bảo toàn toàn bộ khối lượng các nguyên tố tạo nên polymer. Khối lượng PE trên lý thuyết ($H = 100\\%$) chính bằng khối lượng ethylene ban đầu. Do hiệu suất thực tế là $80\\%$, khối lượng PE thu được thực tế bằng $80\\%$ khối lượng lý thuyết.',
+      steps: [
+        'Bước 1 (Xác định khối lượng lý thuyết theo định luật bảo toàn khối lượng): Trong phản ứng trùng hợp hoàn toàn, $1.5\\text{ tấn}$ ethylene sinh ra $1.5\\text{ tấn}$ polyethylene (PE) lý thuyết.',
+        'Bước 2 (Tính khối lượng thực tế theo hiệu suất $H = 80\\%$): $$m_{\\text{PE (thực tế)}} = m_{\\text{lý thuyết}} \\times \\frac{H}{100} = 1.5 \\times 0.80 = 1.20\\text{ tấn}$$',
+      ],
+      finalConclusion:
+        'Khối lượng polyethylene (PE) thực tế thu được là $1.20\\text{ tấn}$.',
+    },
+    commonPitfalls: [
+      {
+        mistake: 'Xếp tơ visco và tơ cellulose acetate vào nhóm tơ tổng hợp.',
+        correction: 'Tơ visco và tơ cellulose acetate là tơ bán tổng hợp (tơ nhân tạo), vì được chế hóa từ polymer thiên nhiên (cellulose) bằng con đường hóa học.',
+        explanation: 'Chỉ những tơ được tổng hợp hoàn toàn từ các monomer nhỏ (như nilon-6,6, tơ olon/nitron) mới gọi là tơ tổng hợp.',
+      },
+    ],
+    sampleQuestionTemplates: [
+      {
+        questionText:
+          'Loại tơ nào sau đây thuộc nhóm tơ bán tổng hợp (tơ nhân tạo)?',
+        options: ['Tơ visco', 'Tơ nilon-6,6', 'Tơ tằm', 'Tơ olon (nitron)'],
+        correctAnswer: 'Tơ visco',
+        detailedDerivation:
+          'Tơ visco và tơ acetate được sản xuất bằng cách chế biến hóa học từ cellulose thiên nhiên nên là tơ bán tổng hợp (tơ nhân tạo). Tơ tằm là tơ thiên nhiên; tơ nilon-6,6 và tơ olon là tơ tổng hợp.',
+        cognitiveLevel: 'Nhận biết',
+      },
+      {
+        questionText:
+          'Monomer dùng để điều chế poly(vinyl chloride) (PVC) bằng phản ứng trùng hợp có công thức phân tử là gì?',
+        options: ['CH_2=CH-Cl', 'CH_2=CH_2', 'CH_2=CH-CH_3', 'C_6H_5-CH=CH_2'],
+        correctAnswer: 'CH_2=CH-Cl',
+        detailedDerivation:
+          'PVC được điều chế từ phản ứng trùng hợp vinyl chloride: $n\\,\\text{CH}_2=\\text{CH}-\\text{Cl} \\xrightarrow{t^\\circ, p, xt} -(-\\text{CH}_2-\\text{CH}(\\text{Cl})-)-_n$.',
+        cognitiveLevel: 'Thông hiểu',
+      },
+      {
+        questionText:
+          'Trùng hợp hoàn toàn $28.0\\text{ kg}$ ethylene thu được m gam polyethylene với hiệu suất phản ứng $85\\%$. Khối lượng m của PE thu được là bao nhiêu?',
+        options: ['m = 23.8\\text{ kg}', 'm = 28.0\\text{ kg}', 'm = 25.2\\text{ kg}', 'm = 21.6\\text{ kg}'],
+        correctAnswer: 'm = 23.8\\text{ kg}',
+        detailedDerivation:
+          'Bảo toàn khối lượng: $m_{\\text{PE lý thuyết}} = 28.0\\text{ kg}$. Với hiệu suất $H = 85\\%$, khối lượng thực tế: $$m = 28.0 \\times 0.85 = 23.8\\text{ kg}$$',
+        cognitiveLevel: 'Vận dụng',
+      },
+    ],
+  },
+  {
+    id: 'chem12-ch6-metal-general',
+    subject: 'chemistry',
+    grade: 12,
+    chapter: 'Chương 6 (SGK Hóa 12): Đại cương về kim loại',
+    topicName: 'Cấu tạo tinh thể kim loại, dãy điện hóa và các phương pháp chống ăn mòn kim loại',
+    learningObjectives: [
+      'Giải thích được các tính chất vật lí chung của kim loại (dẫn điện, dẫn nhiệt, ánh kim, tính dẻo) dựa trên thuyết electron tự do.',
+      'So sánh được tính khử của kim loại và tính oxi hóa của cation kim loại theo quy tắc alpha trong dãy điện hóa chuẩn.',
+      'Phân biệt được ăn mòn hóa học và ăn mòn điện hóa học; áp dụng các biện pháp bảo vệ catot (điện cực hy sinh).',
+    ],
+    keyFormulasAndRules: [
+      {
+        name: 'Dãy điện hóa kim loại & Quy tắc Alpha',
+        latexOrRule: '\\text{Chất oxi hóa mạnh} + \\text{Chất khử mạnh} \\to \\text{Chất oxi hóa yếu} + \\text{Chất khử yếu}',
+        description: 'Quy tắc alpha (α): Cation có thế điện cực lớn hơn phản ứng với kim loại có thế điện cực nhỏ hơn để sinh ra cation yếu hơn và kim loại yếu hơn.',
+      },
+      {
+        name: 'Định luật bảo toàn Electron trong phản ứng kim loại với acid/muối',
+        latexOrRule: '\\sum n_{\\text{e nhường}} = \\sum n_{\\text{e nhận}} \\iff \\sum (n_{\\text{M}} \\cdot z_{\\text{M}}) = \\sum (n_{\\text{sản phẩm khử}} \\cdot z_{\\text{khử}})',
+        description: 'Tổng số mol electron kim loại nhường bằng tổng số mol electron cation hoặc phi kim nhận.',
+      },
+    ],
+    workedExample: {
+      problemStatement:
+        'Nhúng một thanh sắt ($\\text{Fe}$, $M = 56$) có khối lượng $50.0\\text{ g}$ vào $200\\text{ mL}$ dung dịch $\\text{CuSO}_4\\; 1\\text{ M}$. Sau một thời gian lấy thanh sắt ra, rửa sạch, sấy khô cân lại thấy khối lượng thanh sắt tăng lên thành $50.8\\text{ g}$. Giả sử toàn bộ đồng giải phóng bám hoàn toàn vào thanh sắt. Hãy tính số mol $\\text{Fe}$ đã phản ứng.',
+      logicReasoning:
+        'Phản ứng: $\\text{Fe} + \\text{Cu}^{2+} \\to \\text{Fe}^{2+} + \\text{Cu}$. Cứ $1\\text{ mol Fe}$ tan ra ($56\\text{ g}$) thì có $1\\text{ mol Cu}$ bám vào ($64\\text{ g}$), làm khối lượng thanh kim loại tăng: $\\Delta m = 64 - 56 = 8\\text{ g/mol}$. Độ tăng khối lượng thực tế $\\Delta m = 50.8 - 50.0 = 0.8\\text{ g}$, từ đó tính được số mol $\\text{Fe}$ đã phản ứng.',
+      steps: [
+        'Bước 1 (Tính độ tăng khối lượng thực tế của thanh sắt): $$\\Delta m = m_{\\text{sau}} - m_{\\text{trước}} = 50.8 - 50.0 = 0.8\\text{ g}$$',
+        'Bước 2 (Lập tỉ lệ độ tăng theo phương trình phản ứng): Theo phản ứng $\\text{Fe} + \\text{CuSO}_4 \\to \\text{FeSO}_4 + \\text{Cu}$, nếu có $x\\text{ mol Fe}$ phản ứng thì: $$\\Delta m = 64x - 56x = 8x\\text{ (gam)}$$',
+        'Bước 3 (Giải tìm số mol $\\text{Fe}$): $$8x = 0.8 \\implies x = 0.10\\text{ mol}$$',
+      ],
+      finalConclusion:
+        'Số mol $\\text{Fe}$ đã tham gia phản ứng là $0.10\\text{ mol}$.',
+    },
+    commonPitfalls: [
+      {
+        mistake: 'Cho rằng thanh sắt trong không khí khô bị ăn mòn điện hóa.',
+        correction: 'Trong không khí khô không có màng nước điện li nên sắt chỉ bị ăn mòn hóa học bởi oxi. Ăn mòn điện hóa chỉ xảy ra khi có hơi ẩm và chất điện li tạo thành vi pin.',
+        explanation: 'Ăn mòn điện hóa đòi hỏi ba điều kiện đồng thời: 2 điện cực khác nhau, tiếp xúc điện, và cùng tiếp xúc với dung dịch chất điện li.',
+      },
+    ],
+    sampleQuestionTemplates: [
+      {
+        questionText:
+          'Kim loại nào sau đây có tính dẫn điện tốt nhất ở điều kiện thường?',
+        options: ['Bạc (Ag)', 'Đồng (Cu)', 'Vàng (Au)', 'Nhôm (Al)'],
+        correctAnswer: 'Bạc (Ag)',
+        detailedDerivation:
+          'Thứ tự dẫn điện giảm dần của các kim loại thông dụng là: $\\text{Ag} > \\text{Cu} > \\text{Au} > \\text{Al} > \\text{Fe}$. Bạc (Ag) là kim loại dẫn điện và dẫn nhiệt tốt nhất.',
+        cognitiveLevel: 'Nhận biết',
+      },
+      {
+        questionText:
+          'Phương pháp nào sau đây là phương pháp bảo vệ điện hóa để chống ăn mòn vỏ tàu biển bằng thép khi ngâm trong nước biển?',
+        options: [
+          'Gắn các tấm kẽm (Zn) vào vỏ tàu bằng thép',
+          'Sơn phủ bề mặt vỏ tàu biển',
+          'Gắn các tấm đồng (Cu) vào vỏ tàu bằng thép',
+          'Phủ một lớp dầu mỡ lên vỏ tàu',
+        ],
+        correctAnswer: 'Gắn các tấm kẽm (Zn) vào vỏ tàu bằng thép',
+        detailedDerivation:
+          'Kẽm (Zn) có tính khử mạnh hơn sắt (Fe), khi gắn vào vỏ tàu thép thì kẽm đóng vai trò anode bị ăn mòn hy sinh, bảo vệ sắt thép đóng vai trò cathode không bị gỉ.',
+        cognitiveLevel: 'Thông hiểu',
+      },
+      {
+        questionText:
+          'Cho $5.6\\text{ g}$ bột sắt phản ứng hoàn toàn với dung dịch $\\text{AgNO}_3$ dư. Khối lượng bạc ($\\text{Ag}$, $M = 108$) tối đa thu được là bao nhiêu?',
+        options: ['m = 32.4\\text{ g}', 'm = 21.6\\text{ g}', 'm = 10.8\\text{ g}', 'm = 16.2\\text{ g}'],
+        correctAnswer: 'm = 32.4\\text{ g}',
+        detailedDerivation:
+          'Vì $\\text{AgNO}_3$ dư nên sắt bị oxi hóa lên $\\text{Fe}^{3+}$: $\\text{Fe} \\to \\text{Fe}^{3+} + 3e$. Ta có $n_{\\text{Fe}} = \\frac{5.6}{56} = 0.10\\text{ mol} \\implies n_e = 0.30\\text{ mol} \\implies n_{\\text{Ag}} = 0.30\\text{ mol} \\implies m_{\\text{Ag}} = 0.30 \\times 108 = 32.4\\text{ g}$.',
+        cognitiveLevel: 'Vận dụng',
+      },
+    ],
+  },
 ];
 
 export const chemistry12Topics: CurriculumTopic[] = rawChemistry12Topics.map((topic) =>
