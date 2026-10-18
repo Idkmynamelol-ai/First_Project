@@ -1,0 +1,245 @@
+import React, { useState, useEffect } from 'react';
+import {
+  KeyRound,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  ExternalLink,
+  X,
+  CheckCircle2,
+  Users,
+  Trash2,
+  Sparkles,
+} from 'lucide-react';
+
+interface ByokModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  apiKey: string;
+  onSaveKey: (newKey: string) => void;
+}
+
+export const ByokModal: React.FC<ByokModalProps> = ({
+  isOpen,
+  onClose,
+  apiKey,
+  onSaveKey,
+}) => {
+  const [draftKey, setDraftKey] = useState(apiKey);
+  const [showKey, setShowKey] = useState(false);
+  const [savedFeedback, setSavedFeedback] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setDraftKey(apiKey);
+    setValidationError(null);
+  }, [apiKey, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const isByokActive = Boolean(apiKey && apiKey.trim().length > 0);
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = draftKey.trim();
+    if (trimmed.length > 0 && !trimmed.startsWith('AIza') && trimmed.length < 16) {
+      setValidationError(
+        'Vui lòng nhập khóa Google AI Studio hợp lệ bắt đầu bằng "AIza..." hoặc để trống để dùng cổng nhóm chung.'
+      );
+      return;
+    }
+    setValidationError(null);
+    onSaveKey(trimmed);
+    setSavedFeedback(true);
+    setTimeout(() => {
+      setSavedFeedback(false);
+      onClose();
+    }, 650);
+  };
+
+  const handleClear = () => {
+    setDraftKey('');
+    setValidationError(null);
+    onSaveKey('');
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/75 backdrop-blur-sm transition-opacity"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="byok-modal-title"
+    >
+      <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
+
+      <div className="relative z-10 w-full md:max-w-lg bg-[#111111] border-t md:border border-slate-800 rounded-t-3xl md:rounded-xl p-5 sm:p-6 pb-safe">
+        <div
+          className="w-12 h-1.5 bg-slate-700/80 rounded-full mx-auto mb-4 md:hidden"
+          aria-hidden="true"
+        />
+
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 shrink-0">
+              <KeyRound className="w-5 h-5" aria-hidden="true" />
+            </div>
+            <div>
+              <h2 id="byok-modal-title" className="text-lg font-bold text-[#F5F5F5]">
+                Cài đặt Khóa API Gia sư AI (BYOK)
+              </h2>
+              <p className="text-xs text-[#A3A3A3]">
+                Kết nối khóa Gemini API cá nhân để sử dụng Gia sư Socratic trực tiếp
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Đóng cửa sổ cài đặt khóa API"
+            className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-[#A3A3A3] hover:text-[#F5F5F5] hover:bg-slate-800/70 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          >
+            <X className="w-5 h-5" aria-hidden="true" />
+          </button>
+        </div>
+
+        {/* Trạng thái kết nối */}
+        <div className="mb-5 p-3.5 rounded-xl bg-[#0A0A0A] border border-slate-800 flex items-center justify-between gap-3 flex-wrap">
+          <span className="text-xs font-medium text-[#A3A3A3]">
+            Chế độ kết nối hiện tại
+          </span>
+          {isByokActive ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-[#BDBDBD] border border-emerald-500/30">
+              <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+              Đã kết nối (BYOK đang bật)
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30">
+              <Users className="w-3.5 h-3.5" aria-hidden="true" />
+              Đang dùng cổng nhóm chung
+            </span>
+          )}
+        </div>
+
+        <form onSubmit={handleSave} className="space-y-4">
+          <div>
+            <label
+              htmlFor="gemini-api-key-input"
+              className="block text-sm font-medium text-[#F5F5F5] mb-1.5"
+            >
+              Khóa API Google AI Studio
+            </label>
+            <div className="relative flex items-center">
+              <input
+                id="gemini-api-key-input"
+                type={showKey ? 'text' : 'password'}
+                value={draftKey}
+                onChange={(e) => {
+                  setDraftKey(e.target.value);
+                  if (validationError) setValidationError(null);
+                }}
+                placeholder="AIzaSy..."
+                autoComplete="off"
+                spellCheck={false}
+                className="w-full min-h-[48px] pl-4 pr-12 py-2.5 rounded-xl bg-[#0A0A0A] border border-slate-700/80 text-base text-[#F5F5F5] placeholder-[#64748B] font-mono focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus:border-sky-400 transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowKey((prev) => !prev)}
+                aria-label={showKey ? 'Ẩn khóa API' : 'Hiện khóa API'}
+                aria-pressed={showKey}
+                className="absolute right-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#A3A3A3] hover:text-[#F5F5F5] rounded-lg cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              >
+                {showKey ? (
+                  <EyeOff className="w-4 h-4" aria-hidden="true" />
+                ) : (
+                  <Eye className="w-4 h-4" aria-hidden="true" />
+                )}
+              </button>
+            </div>
+            {validationError && (
+              <p role="alert" className="mt-2 text-xs text-rose-400">
+                {validationError}
+              </p>
+            )}
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800/80 flex items-start gap-3">
+            <ShieldCheck
+              className="w-5 h-5 text-[#BDBDBD] shrink-0 mt-0.5"
+              aria-hidden="true"
+            />
+            <div className="text-xs text-[#A3A3A3] space-y-1.5 leading-relaxed">
+              <p className="text-[#F5F5F5] font-medium">
+                Bảo mật tuyệt đối trên trình duyệt của bạn
+              </p>
+              <p>
+                Khóa API chỉ được lưu cục bộ trong{' '}
+                <code className="px-1.5 py-0.5 rounded bg-slate-800 text-indigo-300 font-mono">
+                  localStorage
+                </code>{' '}
+                của trình duyệt và không bao giờ gửi về máy chủ trung gian.
+              </p>
+              <a
+                href="https://aistudio.google.com/app/apikey"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-[#FFFFFF] hover:underline font-medium pt-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
+              >
+                <span>Lấy khóa Gemini API miễn phí tại Google AI Studio</span>
+                <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+              </a>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2">
+            {isByokActive ? (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="min-h-[44px] px-4 py-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 text-sm font-medium inline-flex items-center justify-center gap-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              >
+                <Trash2 className="w-4 h-4" aria-hidden="true" />
+                <span>Xóa khóa &amp; dùng cổng chung</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setDraftKey('AIzaSyDemoHighSchoolStemKey2026')}
+                className="min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-700/80 bg-[#0A0A0A] text-[#A3A3A3] hover:text-[#F5F5F5] hover:border-slate-600 text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-indigo-400" aria-hidden="true" />
+                <span>Điền khóa BYOK mẫu</span>
+              </button>
+            )}
+
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 sm:flex-initial min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-[#A3A3A3] hover:text-[#F5F5F5] text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                className="flex-1 sm:flex-initial min-h-[44px] px-5 py-2.5 rounded-xl bg-white text-black! hover:bg-indigo-500 text-[#F5F5F5] text-sm font-semibold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              >
+                {savedFeedback ? 'Đã lưu!' : 'Lưu cài đặt'}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
