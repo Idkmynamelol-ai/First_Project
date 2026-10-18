@@ -31,8 +31,20 @@ import {
   english10And11Topics,
 } from './stem10_11';
 import { CurriculumTopic } from './schema';
+import { EXTENDED_QUESTION_BANK } from '../questionBank';
 
-export const grade12Curriculum: CurriculumTopic[] = [
+const attachQuestionBank = (topic: CurriculumTopic): CurriculumTopic => {
+  const extraTemplates = EXTENDED_QUESTION_BANK[topic.id] || [];
+  return {
+    ...topic,
+    sampleQuestionTemplates: [
+      ...topic.sampleQuestionTemplates,
+      ...extraTemplates,
+    ],
+  };
+};
+
+const rawCurriculum: CurriculumTopic[] = [
   ...math12Topics,
   ...math10And11Topics,
   ...physics12Topics,
@@ -43,12 +55,14 @@ export const grade12Curriculum: CurriculumTopic[] = [
   ...english10And11Topics,
 ];
 
+export const grade12Curriculum: CurriculumTopic[] = rawCurriculum.map(attachQuestionBank);
+
 export const grade12BySubject: Record<
   CurriculumTopic['subject'],
   CurriculumTopic[]
 > = {
-  math: [...math12Topics, ...math10And11Topics],
-  physics: [...physics12Topics, ...physics10And11Topics],
-  chemistry: [...chemistry12Topics, ...chemistry10And11Topics],
-  english: [...english12Topics, ...english10And11Topics],
+  math: [...math12Topics, ...math10And11Topics].map(attachQuestionBank),
+  physics: [...physics12Topics, ...physics10And11Topics].map(attachQuestionBank),
+  chemistry: [...chemistry12Topics, ...chemistry10And11Topics].map(attachQuestionBank),
+  english: [...english12Topics, ...english10And11Topics].map(attachQuestionBank),
 };
