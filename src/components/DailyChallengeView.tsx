@@ -5,7 +5,6 @@ import {
   XCircle,
   AlertTriangle,
   Sparkles,
-  Play,
   RotateCcw,
   ChevronLeft,
   ChevronRight,
@@ -19,7 +18,7 @@ import {
   getDailyProblemsForDate,
   verifyDailySubmission,
 } from '../../backend/services/dailyEngine';
-import { RichTextWithMath } from './MathRenderer';
+import { MathText } from './MathRenderer';
 
 interface DailyChallengeViewProps {
   selectedSubject: DailySubject;
@@ -155,31 +154,32 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Top Bar: Date Selector & Deterministic PRNG Info */}
-      <div className="border border-neutral-800 bg-[#111111] p-3.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-mono font-bold text-sky-300 bg-sky-500/15 border border-sky-400/50 px-2 py-0.5">
-              DAILY ENGINE • PRNG DETERMINISTIC
+            <span className="px-2.5 py-0.5 rounded-md bg-sky-500/10 border border-sky-500/20 text-sky-300 font-mono text-xs font-medium">
+              Thử thách Ngày • PRNG
             </span>
-            <span className="text-xs font-mono text-neutral-400">
-              Múi giờ: {dailyData.timezone} (Tự động đổi đề lúc 00:00:00)
+            <span className="text-xs font-mono text-zinc-500">
+              Múi giờ: {dailyData.timezone} (Đổi đề lúc 00:00)
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-neutral-300">
-            Mỗi ngày hệ thống tự động sinh bộ 4 bài toán Lớp 12 từ hạt giống ngày{' '}
-            <code className="text-sky-300 font-mono">{date}:{selectedSubject}</code>{' '}
-            (Seed: <code className="text-sky-300 font-mono">{problem.seedHex}</code>).
+          <p className="text-sm text-zinc-300">
+            Bộ 4 bài toán Lớp 12 tự động sinh theo ngày{' '}
+            <code className="text-zinc-200 font-mono bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">
+              {date}
+            </code>
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setDate((d) => shiftDateString(d, -1))}
             aria-label="Xem đề ngày hôm trước"
-            className="h-10 px-2.5 border border-neutral-800 bg-[#0A0A0A] text-xs font-mono text-neutral-300 hover:text-white hover:border-neutral-600 inline-flex items-center gap-1 cursor-pointer"
+            className="h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/70 text-xs font-medium text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 inline-flex items-center gap-1 cursor-pointer transition-colors"
           >
             <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Hôm trước</span>
@@ -188,7 +188,7 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
           <label className="relative inline-flex items-center">
             <span className="sr-only">Chọn ngày xem đề hàng ngày</span>
             <Calendar
-              className="w-3.5 h-3.5 text-sky-400 absolute left-2.5 pointer-events-none"
+              className="w-3.5 h-3.5 text-zinc-400 absolute left-3 pointer-events-none"
               aria-hidden="true"
             />
             <input
@@ -197,7 +197,7 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
               onChange={(e) => {
                 if (e.target.value) setDate(e.target.value);
               }}
-              className="h-10 pl-8 pr-2.5 bg-[#0A0A0A] border border-neutral-700 text-xs font-mono text-white focus:outline-none focus:border-sky-400"
+              className="h-9 pl-8 pr-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs font-mono text-zinc-100 focus:outline-none focus:border-zinc-600"
             />
           </label>
 
@@ -205,7 +205,7 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
             type="button"
             onClick={() => setDate((d) => shiftDateString(d, 1))}
             aria-label="Xem đề ngày kế tiếp"
-            className="h-10 px-2.5 border border-neutral-800 bg-[#0A0A0A] text-xs font-mono text-neutral-300 hover:text-white hover:border-neutral-600 inline-flex items-center gap-1 cursor-pointer"
+            className="h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/70 text-xs font-medium text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 inline-flex items-center gap-1 cursor-pointer transition-colors"
           >
             <span>Hôm sau</span>
             <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -215,7 +215,7 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
             <button
               type="button"
               onClick={() => setDate(todayICT)}
-              className="h-10 px-3 border border-sky-400/60 bg-sky-950/40 text-xs font-mono font-bold text-sky-300 hover:bg-sky-900/50 cursor-pointer"
+              className="h-9 px-3 rounded-lg border border-sky-500/40 bg-sky-500/10 text-xs font-medium text-sky-300 hover:bg-sky-500/20 cursor-pointer transition-colors"
             >
               Hôm nay ({todayICT})
             </button>
@@ -223,9 +223,9 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
         </div>
       </div>
 
-      {/* Subject Switcher (4 Subjects, No ALL category) */}
+      {/* Subject Switcher */}
       <div
-        className="grid grid-cols-2 sm:grid-cols-4 gap-2"
+        className="grid grid-cols-2 sm:grid-cols-4 gap-3"
         role="tablist"
         aria-label="Chọn môn học cho thử thách hàng ngày"
       >
@@ -239,19 +239,21 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
               role="tab"
               aria-selected={active}
               onClick={() => onSelectSubject(tab.id)}
-              className={`min-h-[48px] p-2.5 border text-left transition-colors cursor-pointer ${
+              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                 active
-                  ? 'bg-sky-950/40 border-sky-400 text-white'
-                  : 'bg-[#111111] border-neutral-800 text-neutral-300 hover:border-neutral-600 hover:text-white'
+                  ? 'bg-zinc-900 border-sky-500/60 text-zinc-100'
+                  : 'bg-zinc-900/40 border-zinc-800/80 text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-200'
               }`}
             >
               <div className="flex items-center justify-between gap-1">
-                <span className="font-mono text-xs font-bold">{tab.label}</span>
-                <span className="text-[10px] font-mono text-sky-300">
+                <span className="text-xs font-semibold text-zinc-100">
+                  {tab.label}
+                </span>
+                <span className="text-[11px] font-mono text-amber-400">
                   {p?.difficultyTag}
                 </span>
               </div>
-              <p className="text-[11px] text-neutral-400 truncate mt-0.5">
+              <p className="text-xs text-zinc-500 truncate mt-1">
                 {p?.topicTag}
               </p>
             </button>
@@ -259,36 +261,43 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
         })}
       </div>
 
-      {/* Study Problem Card (Uses Grey-White Border for Study Card) */}
-      <article className="border border-[#D4D4D8]/70 bg-[#111111] p-4 sm:p-6 space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-neutral-800 pb-4">
+      {/* Study Problem Card */}
+      <article className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-5 sm:p-6 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-zinc-800/80 pb-4">
           <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-2">
               {problem.badges.map((b, idx) => (
                 <span
                   key={idx}
-                  className="px-2 py-0.5 text-xs font-mono font-bold bg-[#0A0A0A] border border-neutral-700 text-sky-300"
+                  className="px-2.5 py-0.5 rounded-md text-xs font-mono bg-zinc-900 border border-zinc-800 text-zinc-300"
                 >
                   {b}
                 </span>
               ))}
-              <span className="px-2 py-0.5 text-xs font-mono bg-[#0A0A0A] border border-neutral-800 text-neutral-300">
-                [{problem.topicTag}]
+              <span className="px-2.5 py-0.5 rounded-md text-xs font-mono bg-amber-500/10 border border-amber-500/20 text-amber-300">
+                {problem.topicTag}
               </span>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-white">
+            <h2 className="text-lg sm:text-xl font-semibold text-zinc-100">
               {problem.title}
             </h2>
           </div>
 
-          <span className="text-[11px] font-mono text-neutral-400 border border-neutral-800 bg-[#0A0A0A] px-2.5 py-1 shrink-0">
-            Token: {problem.submissionToken.slice(0, 22)}…
-          </span>
+          {verifyResult && (
+            <button
+              type="button"
+              onClick={() => setVerifyResult(null)}
+              className="text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 px-2.5 py-1 rounded-md transition-colors inline-flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Làm lại</span>
+            </button>
+          )}
         </div>
 
         {/* Problem Statement */}
-        <div className="text-sm sm:text-base text-white leading-7 bg-[#0A0A0A] border border-[#D4D4D8]/60 p-4 font-sans">
-          <RichTextWithMath text={problem.statementMarkdown} />
+        <div className="text-[15px] text-zinc-200 leading-7 bg-zinc-950/60 border border-zinc-800/80 rounded-xl p-5">
+          <MathText content={problem.statementMarkdown} />
         </div>
 
         {/* Interactive Answer Form */}
@@ -297,7 +306,7 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
             <div
               role="radiogroup"
               aria-label="Chọn đáp án trắc nghiệm 4 phương án"
-              className="grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+              className="space-y-2.5"
             >
               {problem.options.map((opt) => {
                 const active = mcChoice === opt.id;
@@ -308,23 +317,23 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
                     role="radio"
                     aria-checked={active}
                     onClick={() => setMcChoice(opt.id)}
-                    className={`min-h-[48px] p-3 border text-left flex items-center gap-3 cursor-pointer transition-colors ${
+                    className={`w-full min-h-[52px] flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-all duration-150 cursor-pointer text-left ${
                       active
-                        ? 'border-sky-400 bg-sky-950/40 text-white'
-                        : 'border-neutral-800 bg-[#0A0A0A] text-neutral-200 hover:border-neutral-600'
+                        ? 'border-sky-500/70 bg-sky-500/[0.06] text-zinc-100'
+                        : 'border-zinc-800/90 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-700 text-zinc-200'
                     }`}
                   >
                     <span
-                      className={`w-7 h-7 font-mono text-xs font-bold flex items-center justify-center border shrink-0 ${
+                      className={`w-7 h-7 rounded-lg font-mono text-xs font-medium flex items-center justify-center border shrink-0 ${
                         active
-                          ? 'border-sky-400 bg-sky-400 text-black'
-                          : 'border-neutral-700 text-neutral-400'
+                          ? 'border-sky-500/50 bg-sky-500/20 text-sky-300'
+                          : 'bg-zinc-800/80 border-zinc-700/50 text-zinc-400'
                       }`}
                     >
                       {opt.id}
                     </span>
-                    <span className="text-sm sm:text-[15px] font-sans overflow-x-auto">
-                      <RichTextWithMath text={opt.text} />
+                    <span className="text-[15px] leading-7 overflow-x-auto">
+                      <MathText content={opt.text} />
                     </span>
                   </button>
                 );
@@ -334,19 +343,19 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
 
           {problem.type === 'true_false_four_part' && problem.subQuestions && (
             <div className="space-y-2.5">
-              <p className="text-xs font-mono text-sky-300 font-bold">
-                Chọn Đúng (Đ) hoặc Sai (S) cho từng mệnh đề a, b, c, d:
+              <p className="text-xs font-medium text-zinc-400">
+                Chọn Đúng hoặc Sai cho từng mệnh đề a, b, c, d:
               </p>
               {problem.subQuestions.map((sq, idx) => (
                 <div
                   key={sq.id}
-                  className="p-3.5 border border-neutral-800 bg-[#0A0A0A] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-950/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                 >
-                  <div className="text-sm text-neutral-100 leading-7 font-sans">
-                    <strong className="text-sky-300 font-mono mr-1.5">
+                  <div className="text-[15px] text-zinc-200 leading-7">
+                    <strong className="text-zinc-100 font-mono mr-2">
                       {sq.id})
                     </strong>
-                    <RichTextWithMath text={sq.statement} />
+                    <MathText content={sq.statement} />
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
@@ -356,10 +365,10 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
                           prev.map((v, i) => (i === idx ? true : v))
                         )
                       }
-                      className={`h-9 px-3 font-mono text-xs font-bold border cursor-pointer ${
+                      className={`h-9 px-3.5 rounded-lg font-mono text-xs font-medium border cursor-pointer transition-colors ${
                         tfChoices[idx]
-                          ? 'bg-sky-400 text-black border-sky-300'
-                          : 'bg-[#111111] text-neutral-400 border-neutral-800'
+                          ? 'bg-sky-500/20 text-sky-300 border-sky-500/60'
+                          : 'bg-zinc-900 text-zinc-400 border-zinc-800'
                       }`}
                     >
                       Đúng
@@ -371,10 +380,10 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
                           prev.map((v, i) => (i === idx ? false : v))
                         )
                       }
-                      className={`h-9 px-3 font-mono text-xs font-bold border cursor-pointer ${
+                      className={`h-9 px-3.5 rounded-lg font-mono text-xs font-medium border cursor-pointer transition-colors ${
                         !tfChoices[idx]
-                          ? 'bg-sky-400 text-black border-sky-300'
-                          : 'bg-[#111111] text-neutral-400 border-neutral-800'
+                          ? 'bg-sky-500/20 text-sky-300 border-sky-500/60'
+                          : 'bg-zinc-900 text-zinc-400 border-zinc-800'
                       }`}
                     >
                       Sai
@@ -386,10 +395,10 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
           )}
 
           {problem.type === 'short_answer' && (
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <label
                 htmlFor="daily-short-answer"
-                className="block text-xs font-mono text-sky-300 font-bold"
+                className="block text-xs font-medium text-zinc-400"
               >
                 Nhập kết quả số (Trả lời ngắn chuẩn cấu trúc đề thi mới):
               </label>
@@ -400,64 +409,46 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
                 value={shortInput}
                 onChange={(e) => setShortInput(e.target.value)}
                 placeholder="Ví dụ: 4 hoặc 21,6"
-                className="w-full sm:max-w-xs h-12 px-3.5 bg-[#0A0A0A] border border-neutral-700 text-base font-mono text-white placeholder:text-neutral-500 focus:outline-none focus:border-sky-400"
+                className="w-full sm:max-w-xs h-11 px-3.5 rounded-lg bg-zinc-950 border border-zinc-800 text-base font-mono text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-600"
               />
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-2.5 pt-1">
+          <div className="pt-1">
             <button
               type="submit"
               disabled={submitting}
-              className="h-12 px-5 bg-white text-black hover:bg-neutral-200 font-mono text-xs sm:text-sm font-bold inline-flex items-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-sm px-6 py-2.5 rounded-lg transition-all shadow-sm cursor-pointer"
             >
-              <Play className="w-4 h-4" aria-hidden="true" />
-              <span>Nộp bài &amp; Kiểm tra đáp án (/api/daily/verify)</span>
+              Nộp bài &amp; Kiểm tra đáp án
             </button>
-
-            {verifyResult && (
-              <button
-                type="button"
-                onClick={() => setVerifyResult(null)}
-                className="h-12 px-4 border border-neutral-800 bg-[#0A0A0A] text-xs font-mono text-neutral-300 hover:text-white inline-flex items-center gap-1.5 cursor-pointer"
-              >
-                <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Làm lại</span>
-              </button>
-            )}
           </div>
         </form>
 
         {/* Verification Output & Unlocked Step-by-Step Derivation */}
         {verifyResult && (
-          <div className="border border-[#D4D4D8]/70 bg-[#0A0A0A] p-4 sm:p-5 space-y-4 font-sans">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-3">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
+            <div
+              className={
+                verifyResult.isCorrect
+                  ? 'bg-emerald-950/40 border-b border-emerald-500/20 px-4 py-2.5 text-sm font-medium text-emerald-300 flex flex-wrap items-center justify-between gap-2'
+                  : 'bg-rose-950/40 border-b border-rose-500/20 px-4 py-2.5 text-sm font-medium text-rose-300 flex flex-wrap items-center justify-between gap-2'
+              }
+            >
               <div className="flex items-center gap-2">
                 {verifyResult.isCorrect ? (
-                  <CheckCircle2
-                    className="w-5 h-5 text-emerald-400 shrink-0"
-                    aria-hidden="true"
-                  />
+                  <CheckCircle2 className="w-4 h-4 shrink-0" aria-hidden="true" />
                 ) : (
-                  <XCircle
-                    className="w-5 h-5 text-rose-400 shrink-0"
-                    aria-hidden="true"
-                  />
+                  <XCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
                 )}
-                <span
-                  className={`font-mono text-sm font-bold ${
-                    verifyResult.isCorrect
-                      ? 'text-emerald-400'
-                      : 'text-rose-400'
-                  }`}
-                >
-                  [{verifyResult.verdict}]{' '}
+                <span>
+                  [{verifyResult.isCorrect ? 'ĐÚNG' : 'CHƯA ĐÚNG'}]{' '}
                   {verifyResult.isCorrect
                     ? 'Chính xác! Đã mở khóa lời giải chi tiết.'
                     : 'Chưa chính xác — Xem phân tích chi tiết bên dưới.'}
                 </span>
               </div>
-              <span className="text-xs font-mono text-sky-300 bg-sky-500/15 border border-sky-400/50 px-2.5 py-0.5">
+              <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-zinc-950/60 border border-zinc-800 text-zinc-200">
                 Đáp án chuẩn:{' '}
                 {Array.isArray(verifyResult.correctAnswer)
                   ? verifyResult.correctAnswer
@@ -467,22 +458,26 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
               </span>
             </div>
 
-            <div className="space-y-1.5">
-              <p className="text-xs font-mono uppercase tracking-wider text-sky-300 font-bold flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
-                <span>Lời giải &amp; Chứng minh từng bước (Step-by-step Derivation):</span>
-              </p>
-              <div className="text-sm sm:text-[15px] text-sky-100 leading-7 bg-sky-950/30 border border-sky-500/50 border-l-4 border-l-sky-400 p-3.5 sm:p-4 whitespace-pre-line font-sans">
-                <RichTextWithMath text={verifyResult.derivationMarkdown} />
+            <div className="p-5 space-y-4">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
+                  <span>Lời giải &amp; Chứng minh từng bước:</span>
+                </p>
+                <div className="text-[15px] text-zinc-200 leading-7 bg-zinc-950/60 border border-zinc-800/80 rounded-lg p-4 whitespace-pre-line">
+                  <MathText content={verifyResult.derivationMarkdown} />
+                </div>
               </div>
-            </div>
 
-            <div className="border border-neutral-800 bg-[#111111] p-3 text-xs sm:text-sm font-sans text-amber-300 flex items-start gap-2">
-              <AlertTriangle
-                className="w-4 h-4 text-amber-400 shrink-0 mt-0.5"
-                aria-hidden="true"
-              />
-              <span>{verifyResult.commonTrapWarning}</span>
+              <div className="rounded-lg border border-amber-500/25 bg-amber-500/[0.06] p-3.5 text-sm text-amber-200 flex items-start gap-2.5">
+                <AlertTriangle
+                  className="w-4 h-4 text-amber-400 shrink-0 mt-1"
+                  aria-hidden="true"
+                />
+                <span>
+                  <MathText content={verifyResult.commonTrapWarning} />
+                </span>
+              </div>
             </div>
           </div>
         )}

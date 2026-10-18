@@ -1,11 +1,25 @@
 import React, { useState, useMemo } from 'react';
 import katex from 'katex';
-import { Copy, Check, Terminal } from 'lucide-react';
+import { Copy, Check } from 'lucide-react';
 
 interface MathRendererProps {
   latex: string;
   displayMode?: boolean;
   className?: string;
+}
+
+/**
+ * Normalizes a LaTeX expression so Vietnamese subscripts and chemical formulas
+ * render cleanly in KaTeX without throwing or clipping.
+ */
+export function normalizeLatexExpression(raw: string): string {
+  let expr = raw.trim();
+  // Ensure bare subscripts with non-ASCII Vietnamese characters are wrapped in \text{...}
+  expr = expr.replace(
+    /_\{([^{}\\]*[^\x00-\x7F][^{}\\]*)\}/g,
+    '_{' + '\\text{$1}' + '}'
+  );
+  return expr;
 }
 
 export const MathRenderer: React.FC<MathRendererProps> = ({
@@ -15,7 +29,8 @@ export const MathRenderer: React.FC<MathRendererProps> = ({
 }) => {
   const html = useMemo(() => {
     try {
-      return katex.renderToString(latex, {
+      const normalized = normalizeLatexExpression(latex);
+      return katex.renderToString(normalized, {
         displayMode,
         throwOnError: false,
         strict: 'ignore',
@@ -27,38 +42,101 @@ export const MathRenderer: React.FC<MathRendererProps> = ({
 
   return (
     <span
-      className={`inline-block max-w-full overflow-x-auto align-middle ${className}`}
+      className={`inline-block max-w-full overflow-x-auto align-middle text-[15px] text-zinc-100 leading-[1.8] ${className}`}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
 };
 
-interface RichTextProps {
-  text: string;
+interface MathTextProps {
+  content?: string;
+  text?: string;
   className?: string;
 }
 
 /**
- * Parses inline $...$ and block $$...$$ LaTeX segments and **bold** text cleanly
- * with blue highlights on important **bold** parts.
+ * Automatically wraps stray LaTeX fragments (e.g., `m = 21.8\text{ g}`, `A (m = 21.8\text{ g})`,
+ * `m_{\text{Ag}} = 32.4\text{ g}`, `Br_2`, `AgNO_3/NH_3`, `\Rightarrow`, `\rightarrow`)
+ * in inline `$...$` delimiters when they are not already inside `$...$` or `$$...$$`.
  */
-export const RichTextWithMath: React.FC<RichTextProps> = ({
+function sanitizeLeakingLatex(input: string): string {
+  if (!input) return '';
+  // If the entire string is a pure LaTeX formula with no $ delimiters (like option strings: `m = 21.8\text{ g}` or `m_{\text{Ag}} = 32.4\text{ g}`)
+  if (
+    !input.includes('$') &&
+    (/\\text\{|\\frac\{|\\sqrt\{|\\xrightarrow|\\rightarrow|\\Rightarrow|\\implies|\\cdot|\\times|_\{/.test(
+      input
+    ) ||
+      /^[a-zA-Z0-9_\\{}^().+\-*/=\s,%]+$/.test(input) &&
+        (/[_^\\]/.test(input) || /\b[mMnV]\s*=/.test(input)))
+  ) {
+    // Check if it's a prefix label like "A (m = 21.8\text{ g})"
+    const parenMatch = input.match(/^([A-D]\s*\()(.+\\text\{.+\})(\))$/);
+    if (parenMatch) {
+      return `${parenMatch[1]}$${parenMatch[2]}$${parenMatch[3]}`;
+    }
+    // Check if the whole string is a math expression like "m = 21.8\text{ g}"
+    if (/^[mMnVpPhHkK_a-zA-Z0-9\\{}\s=.,+\-*/^()]+$/.test(input) && /\\text\{|_\{|=/.test(input)) {
+      return `$${input}$`;
+    }
+  }
+
+  // Segment by existing $$...$$ and $...$ so we only sanitize plain text parts
+  const segments = input.split(/(\$\$[\s\S]+?\$\$|\$[^$]+\$)/g);
+  return segments
+    .map((seg) => {
+      if (seg.startsWith('$')) return seg;
+      let s = seg;
+      // Wrap parenthetical leaking LaTeX like (m = 21.8\text{ g}) or (Br_2) or (AgNO_3/NH_3)
+      s = s.replace(
+        /\(([A-Za-z0-9_\\{}^().+\-*/=\s]+\s*\\text\{[^}]+\}[A-Za-z0-9_\\{}^().+\-*/=\s]*)\)/g,
+        '($$$1$$)'
+      );
+      s = s.replace(
+        /\(([A-Za-z0-9]+_[0-9]+(?:\/[A-Za-z0-9_]+)?)\)/g,
+        '($$$1$$)'
+      );
+      // Wrap standalone chemical/math expressions containing \text{...} outside $
+      s = s.replace(
+        /([a-zA-Z0-9_\\{}^().+\-*/=]+\s*\\text\{[^}]+\})/g,
+        '$$$1$$'
+      );
+      // Wrap stray arrows
+      s = s.replace(/\\Rightarrow/g, '$\\Rightarrow$');
+      s = s.replace(/\\rightarrow/g, '$\\rightarrow$');
+      return s;
+    })
+    .join('');
+}
+
+/**
+ * Deterministic KaTeX text & math renderer (`<MathText />` & `<RichTextWithMath />`).
+ * - Parses `$$...$$` display math, `$...$` inline math, and sanitizes leaking LaTeX macros.
+ * - Uses clean font-semibold text-zinc-100 for `**bold**` without harsh cyan/blue `<mark>` backgrounds.
+ */
+export const MathText: React.FC<MathTextProps> = ({
+  content,
   text,
   className = '',
 }) => {
+  const raw = content ?? text ?? '';
+
   const tokens = useMemo(() => {
-    const parts = text.split(/(\$\$[\s\S]+?\$\$|\$[^$]+\$|\*\*[^*]+\*\*)/g);
+    const sanitized = sanitizeLeakingLatex(raw);
+    const parts = sanitized.split(
+      /(\$\$[\s\S]+?\$\$|\$[^$]+\$|\*\*[^*]+\*\*|\*[^*\n]+\*)/g
+    );
     return parts.filter(Boolean);
-  }, [text]);
+  }, [raw]);
 
   return (
-    <span className={className}>
+    <span className={`leading-7 ${className}`}>
       {tokens.map((part, idx) => {
         if (part.startsWith('$$') && part.endsWith('$$') && part.length > 4) {
           return (
             <span
               key={idx}
-              className="block overflow-x-auto py-2 my-1.5 px-3 bg-slate-900/80 border border-slate-800"
+              className="block overflow-x-auto py-2.5 my-2 px-4 rounded-lg bg-zinc-900/70 border border-zinc-800/80"
             >
               <MathRenderer latex={part.slice(2, -2)} displayMode={true} />
             </span>
@@ -71,18 +149,22 @@ export const RichTextWithMath: React.FC<RichTextProps> = ({
               key={idx}
               latex={rawLatex}
               displayMode={false}
-              className="mx-0.5 text-sky-200"
+              className="mx-0.5 text-zinc-100"
             />
           );
         }
         if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
           return (
-            <strong
-              key={idx}
-              className="font-bold text-sky-300 bg-sky-500/20 border-b border-sky-400 px-1 py-0.5"
-            >
-              {part.slice(2, -2)}
+            <strong key={idx} className="font-semibold text-zinc-100">
+              <MathText content={part.slice(2, -2)} />
             </strong>
+          );
+        }
+        if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
+          return (
+            <em key={idx} className="italic text-zinc-200">
+              {part.slice(1, -1)}
+            </em>
           );
         }
         return <React.Fragment key={idx}>{part}</React.Fragment>;
@@ -91,17 +173,19 @@ export const RichTextWithMath: React.FC<RichTextProps> = ({
   );
 };
 
+export const RichTextWithMath = MathText;
+
 interface CopyableFormulaBlockProps {
   latex: string;
   title?: string;
-  accentHex?: string;
+  description?: string;
   compact?: boolean;
 }
 
 export const CopyableFormulaBlock: React.FC<CopyableFormulaBlockProps> = ({
   latex,
   title,
-  accentHex = '#38BDF8',
+  description,
   compact = false,
 }) => {
   const [copied, setCopied] = useState(false);
@@ -119,21 +203,14 @@ export const CopyableFormulaBlock: React.FC<CopyableFormulaBlockProps> = ({
 
   return (
     <div
-      className={`group relative bg-[#0A0A0A]/90 border border-[#D4D4D8]/60 ${
-        compact ? 'p-3' : 'p-3.5 sm:p-4'
-      } transition-colors hover:border-[#D4D4D8]`}
+      className={`bg-zinc-900/60 border-l-2 border-l-sky-500 border border-zinc-800/80 rounded-r-lg ${
+        compact ? 'p-3.5' : 'p-4'
+      } my-3 transition-colors`}
     >
       <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <span
-            className="w-2 h-2 rounded-full shrink-0"
-            style={{ backgroundColor: accentHex }}
-            aria-hidden="true"
-          />
-          <span className="text-xs font-mono font-bold text-sky-300 bg-sky-500/15 border border-sky-400/40 px-2 py-0.5 truncate">
-            {title || 'Công thức LaTeX'}
-          </span>
-        </div>
+        <span className="text-xs font-semibold text-zinc-200 truncate">
+          {title || 'Công thức & Định luật trọng tâm'}
+        </span>
         <button
           type="button"
           onClick={handleCopy}
@@ -142,7 +219,7 @@ export const CopyableFormulaBlock: React.FC<CopyableFormulaBlockProps> = ({
               ? 'Đã sao chép công thức'
               : 'Sao chép công thức LaTeX vào bộ nhớ tạm'
           }
-          className="inline-flex items-center gap-1.5 min-h-[34px] px-2.5 py-1 text-xs font-medium bg-[#111111] hover:bg-slate-800 text-[#F5F5F5] border border-slate-700/80 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-colors cursor-pointer"
         >
           {copied ? (
             <>
@@ -151,21 +228,22 @@ export const CopyableFormulaBlock: React.FC<CopyableFormulaBlockProps> = ({
             </>
           ) : (
             <>
-              <Copy className="w-3.5 h-3.5 text-[#A3A3A3]" aria-hidden="true" />
-              <span>Chép công thức</span>
+              <Copy className="w-3.5 h-3.5 text-zinc-400" aria-hidden="true" />
+              <span>Chép LaTeX</span>
             </>
           )}
         </button>
       </div>
 
-      <div className="overflow-x-auto py-1 text-center sm:text-left">
+      <div className="overflow-x-auto py-1.5">
         <MathRenderer latex={latex} displayMode={true} />
       </div>
 
-      <div className="mt-2 pt-2 border-t border-slate-800/60 flex items-center gap-1.5 text-[11px] font-mono text-[#64748B] overflow-x-auto no-scrollbar">
-        <Terminal className="w-3 h-3 shrink-0 text-[#64748B]" aria-hidden="true" />
-        <code className="truncate">{latex}</code>
-      </div>
+      {description && (
+        <p className="mt-2 pt-2 border-t border-zinc-800/60 text-xs sm:text-sm text-zinc-300 leading-relaxed">
+          <MathText content={description} />
+        </p>
+      )}
     </div>
   );
 };

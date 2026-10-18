@@ -7,7 +7,6 @@ import {
   FlaskConical,
   BookOpenCheck,
   Check,
-  Terminal,
 } from 'lucide-react';
 import {
   PRACTICE_QUESTIONS,
@@ -15,12 +14,12 @@ import {
   grade12BySubject,
 } from './data/curriculum';
 import { SubjectId, GradeLevel } from './types/edu';
-import { CopyableFormulaBlock } from './components/MathRenderer';
-import { WorkedExampleSection, TopicChatBox } from './components/TopicChatBox';
+import { CompiledWikiArticleView, TopicChatBox } from './components/TopicChatBox';
 import { SubjectDiagram } from './components/InteractiveDiagrams';
+import { getDifficultyBadgeClasses } from './components/Tag';
 
 const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950';
 
 const SUBJECTS: {
   id: SubjectId;
@@ -28,6 +27,13 @@ const SUBJECTS: {
   name: string;
   blurb: string;
 }[] = [
+  {
+    id: 'chemistry',
+    Icon: FlaskConical,
+    name: 'Hóa học 10–11–12',
+    blurb:
+      'Cấu tạo nguyên tử & Enthalpy phản ứng (10); Cân bằng hóa học, pH & Hydrocarbon (11); Ester – Lipid, Carbohydrate, Amine – Peptide & Pin Galvani – Phức chất (12).',
+  },
   {
     id: 'math',
     Icon: Calculator,
@@ -43,13 +49,6 @@ const SUBJECTS: {
       'Động lực học & Bảo toàn năng lượng (10); Dao động điều hòa, Sóng & Điện trường (11); Vật lí nhiệt, Khí lí tưởng, Từ trường & Hạt nhân (12).',
   },
   {
-    id: 'chemistry',
-    Icon: FlaskConical,
-    name: 'Hóa học 10–11–12',
-    blurb:
-      'Cấu tạo nguyên tử & Энthalpy phản ứng (10); Cân bằng hóa học, pH & Hydrocarbon - Dẫn xuất (11); Ester - Lipid, Carbohydrate, Amine - Peptide & Pin Galvani - Phức chất (12).',
-  },
-  {
     id: 'english',
     Icon: BookOpenCheck,
     name: 'Tiếng Anh 10–11–12',
@@ -61,29 +60,23 @@ const SUBJECTS: {
 const STEPS = [
   {
     n: '01',
-    t: 'Nắm vững chuẩn GDPT 2018 (Lớp 10–11–12)',
-    d: 'Tra cứu yêu cầu cần đạt, công thức LaTeX trọng tâm và ví dụ minh họa phân tích tư duy từng bước theo từng môn học.',
+    t: 'Đọc Cẩm nang Lý thuyết chuẩn Wikipedia / Notion',
+    d: 'Mỗi chuyên đề được biên soạn thành một bài viết hoàn chỉnh có mục lục, công thức KaTeX rõ nét và ví dụ mẫu phân tích tư duy từng bước.',
   },
   {
     n: '02',
-    t: 'Luyện tập Ngân hàng câu hỏi & Thử thách Ngày',
-    d: 'Giải bài tập chọn lọc mức độ Vận dụng – Vận dụng cao (Mục tiêu 9+) và mở khóa đáp án kèm lời giải chi tiết sau khi nộp bài.',
+    t: 'Thực hành Bảng luyện tập phân bậc (4 Mức độ)',
+    d: 'Bài tập sắp xếp từ Nhận biết, Thông hiểu đến Vận dụng và Vận dụng cao. Hỗ trợ phím tắt A–D / 1–4 và mở khóa lời giải ngay sau khi nộp.',
   },
   {
     n: '03',
-    t: 'Hỏi đáp trực tiếp & Củng cố Socratic',
-    d: 'Đặt câu hỏi trực tiếp trong khung chat của từng thẻ bài học (Study Card) hoặc trao đổi với Gia sư AI Socratic.',
+    t: 'Trợ lý Socratic AI đồng hành trong từng bước giải',
+    d: 'Hỏi đáp trực tiếp về định luật bảo toàn, tỉ lệ phản ứng hoặc yêu cầu tạo bài tương tự ngay trong cùng một luồng hội thoại gọn gàng.',
   },
 ];
 
-const Label: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <p className="text-xs uppercase tracking-[0.2em] text-sky-300 font-bold">
-    {children}
-  </p>
-);
-
 export const Landing: React.FC = () => {
-  const [selectedSubject, setSelectedSubject] = useState<SubjectId>('math');
+  const [selectedSubject, setSelectedSubject] = useState<SubjectId>('chemistry');
   const [gradeFilter, setGradeFilter] = useState<'all' | GradeLevel>('all');
   const [done, setDone] = useState<boolean[]>(
     () => grade12Curriculum.map((_, idx) => idx < 3)
@@ -98,13 +91,27 @@ export const Landing: React.FC = () => {
     (acc, t) => acc + t.keyFormulasAndRules.length,
     0
   );
-  const totalExamples = grade12Curriculum.filter((t) => Boolean(t.workedExample)).length;
+  const totalExamples = grade12Curriculum.filter((t) =>
+    Boolean(t.workedExample)
+  ).length;
 
   const stats = [
-    { v: String(grade12Curriculum.length).padStart(2, '0'), l: 'chuyên đề Lớp 10–11–12 (GDPT 2018)' },
-    { v: String(totalFormulas).padStart(2, '0'), l: 'công thức & quy tắc cốt lõi' },
-    { v: String(totalExamples).padStart(2, '0'), l: 'ví dụ phân tích tư duy chi tiết' },
-    { v: String(PRACTICE_QUESTIONS.length).padStart(2, '0'), l: 'câu hỏi chọn lọc (Mục tiêu 9+)' },
+    {
+      v: String(grade12Curriculum.length).padStart(2, '0'),
+      l: 'chuyên đề Wiki Lớp 10–11–12 (GDPT 2018)',
+    },
+    {
+      v: String(totalFormulas).padStart(2, '0'),
+      l: 'công thức & định luật bảo toàn KaTeX',
+    },
+    {
+      v: String(totalExamples).padStart(2, '0'),
+      l: 'ví dụ mẫu phân tích tư duy chi tiết',
+    },
+    {
+      v: String(PRACTICE_QUESTIONS.length).padStart(2, '0'),
+      l: 'bài tập phân 4 mức độ nhận thức',
+    },
   ];
 
   const activeSubjectTopics = grade12BySubject[selectedSubject].filter(
@@ -112,23 +119,22 @@ export const Landing: React.FC = () => {
   );
 
   return (
-    <div className="min-h-dvh bg-[#0a0a0a] text-neutral-100 flex flex-col overflow-x-hidden">
+    <div className="min-h-dvh bg-zinc-950 text-zinc-100 flex flex-col overflow-x-hidden">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 bg-white text-black px-4 py-2 font-bold"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 bg-zinc-100 text-zinc-950 px-4 py-2 rounded-md font-semibold"
       >
         Chuyển đến nội dung chính
       </a>
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-[#0a0a0a]/95 backdrop-blur border-b border-neutral-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-40 h-12 bg-zinc-950/95 backdrop-blur border-b border-zinc-800/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
           <a
             href="#/"
-            className={`flex items-center gap-2 h-11 font-extrabold tracking-tight ${FOCUS}`}
+            className={`text-sm font-semibold tracking-tight text-zinc-100 ${FOCUS}`}
           >
-            <Terminal className="w-4 h-4 text-sky-400" aria-hidden="true" />
-            <span>Scalar</span>
+            Scalar
           </a>
           <nav
             aria-label="Điều hướng chính"
@@ -136,15 +142,15 @@ export const Landing: React.FC = () => {
           >
             {[
               ['Danh mục môn học', '#courses'],
-              ['Cơ sở tri thức 10–11–12', '#knowledge-base'],
-              ['Quy trình', '#how'],
+              ['Cẩm nang Lý thuyết Wiki', '#knowledge-base'],
+              ['Quy trình học tập', '#how'],
               ['Tiến độ', '#progress'],
               ['Admin', '#/admin'],
             ].map(([l, h]) => (
               <a
                 key={h}
                 href={h}
-                className={`h-11 px-3 inline-flex items-center text-neutral-300 hover:text-sky-300 hover:bg-neutral-900 ${FOCUS}`}
+                className={`px-3 py-1.5 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 transition-colors ${FOCUS}`}
               >
                 {l}
               </a>
@@ -153,15 +159,15 @@ export const Landing: React.FC = () => {
           <div className="flex items-center gap-2">
             <a
               href="#/admin"
-              className={`h-10 sm:h-11 px-3 inline-flex items-center border border-neutral-800 text-neutral-300 hover:border-sky-400 hover:text-sky-300 text-xs font-mono ${FOCUS}`}
+              className={`h-8 px-3 rounded-md inline-flex items-center border border-zinc-800/80 bg-zinc-900/60 text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 text-xs font-medium transition-colors ${FOCUS}`}
             >
               Admin
             </a>
             <a
               href="#/app"
-              className={`h-10 sm:h-11 px-3.5 sm:px-4 inline-flex items-center gap-2 bg-sky-400 text-black border border-sky-300 text-xs font-bold hover:bg-sky-300 ${FOCUS}`}
+              className={`h-8 px-3.5 rounded-md inline-flex items-center gap-1.5 bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium transition-all ${FOCUS}`}
             >
-              Vào phòng luyện tập
+              <span>Mở Không gian học tập</span>
               <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
             </a>
           </div>
@@ -170,118 +176,99 @@ export const Landing: React.FC = () => {
 
       <main id="main" className="flex-1">
         {/* Hero */}
-        <section className="border-b border-neutral-800 bg-grid">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-20 grid lg:grid-cols-[1.1fr_1fr] gap-8 sm:gap-10 items-center">
-            <div className="space-y-5">
-              <p className="inline-block border border-sky-400/60 bg-sky-500/15 px-3 py-1 text-xs font-bold text-sky-300">
-                CHƯƠNG TRÌNH GDPT 2018 / LỚP 10 – 11 – 12 / TOÁN · LÝ · HÓA · ANH
-              </p>
-              <h1 className="text-3xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight">
-                Hiểu bản chất.
+        <section className="border-b border-zinc-800/80">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 grid lg:grid-cols-12 gap-10 items-center">
+            <div className="lg:col-span-7 space-y-6">
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300">
+                Chương trình GDPT 2018 • Lớp 10 – 11 – 12 • Toán · Lý · Hóa · Anh
+              </span>
+              <h1 className="text-3xl sm:text-5xl font-semibold leading-[1.15] tracking-tight text-zinc-100">
+                Cẩm nang tri thức trực quan.
                 <br />
-                Luyện thực chiến.
-                <br />
-                <span className="inline-block bg-sky-400 text-black border border-sky-300 px-2.5 mt-1.5">
-                  Chinh phục mục tiêu 9+.
+                <span className="text-zinc-400">
+                  Thực hành phân bậc cùng Gia sư Socratic.
                 </span>
               </h1>
-              <p className="text-sm sm:text-base leading-relaxed text-neutral-300 max-w-prose">
-                Tích hợp trọn bộ tóm tắt lý thuyết Lớp 10 – 11 – 12 và ngân hàng câu hỏi trọng tâm theo Chương trình GDPT 2018:{' '}
-                <span className="text-sky-300 bg-sky-500/20 border-b border-sky-400 px-1 font-bold">
-                  ví dụ minh họa giải thích tư duy từng bước
-                </span>
-                , thử thách hàng ngày (Daily PRNG) và Gia sư AI Socratic.
+              <p className="text-[15px] leading-7 text-zinc-300 max-w-[62ch]">
+                Kết hợp trình đọc lý thuyết chuyên sâu chuẩn{' '}
+                <strong className="font-semibold text-zinc-100">
+                  Wikipedia / Notion
+                </strong>{' '}
+                với bảng luyện tập tương tác{' '}
+                <strong className="font-semibold text-zinc-100">
+                  Codecademy / Linear
+                </strong>
+                . Công thức toán – hóa hiển thị sắc nét bằng KaTeX, phân tách rõ
+                4 mức độ nhận thức từ Nhận biết đến Vận dụng cao.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 pt-1">
                 <a
                   href="#/app"
-                  className={`h-12 px-6 inline-flex items-center justify-center gap-2 bg-sky-400 text-black border border-sky-300 text-sm font-bold hover:bg-sky-300 ${FOCUS}`}
+                  className={`h-11 px-6 rounded-lg inline-flex items-center justify-center gap-2 bg-zinc-100 hover:bg-white text-zinc-950 text-sm font-medium transition-all shadow-sm ${FOCUS}`}
                 >
-                  Bắt đầu giải bài ({PRACTICE_QUESTIONS.length} câu chọn lọc)
+                  <span>
+                    Bắt đầu luyện tập ({PRACTICE_QUESTIONS.length} bài tập)
+                  </span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </a>
                 <a
                   href="#knowledge-base"
-                  className={`h-12 px-6 inline-flex items-center justify-center border border-neutral-700 text-sm font-bold hover:bg-neutral-900 hover:border-sky-400 hover:text-sky-300 ${FOCUS}`}
+                  className={`h-11 px-6 rounded-lg inline-flex items-center justify-center border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 text-sm font-medium text-zinc-200 transition-colors ${FOCUS}`}
                 >
-                  Tra cứu tri thức 10–11–12
+                  Đọc Cẩm nang Lý thuyết Wiki
                 </a>
               </div>
             </div>
 
-            <div
-              className="border border-neutral-800 bg-[#0a0a0a] text-sm"
-              aria-label="Minh họa giao diện gia sư Socratic"
-            >
-              <div className="flex items-center justify-between px-4 h-10 border-b border-neutral-800 bg-sky-950/30 text-xs text-sky-300 font-bold">
-                <span>gia-su-socratic — gdpt-2018-thpt</span>
-                <span className="flex gap-1.5" aria-hidden="true">
-                  <span className="w-2.5 h-2.5 border border-neutral-600" />
-                  <span className="w-2.5 h-2.5 border border-neutral-600" />
-                  <span className="w-2.5 h-2.5 bg-sky-400" />
+            {/* Right Hero Summary Card */}
+            <div className="lg:col-span-5 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-5">
+              <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                  Cấu trúc Nền tảng Scalar
+                </span>
+                <span className="text-xs font-mono text-emerald-400">
+                  GDPT 2018
                 </span>
               </div>
-              <div className="p-4 space-y-3 leading-relaxed">
-                <p>
-                  <span className="text-sky-400 font-bold">chuyên-đề&gt;</span> Vật lí nhiệt 12 • Định
-                  luật I Nhiệt động lực học (ΔU = A + Q)
-                </p>
-                <p>
-                  <span className="text-sky-300 font-bold">bạn&gt;</span> Khí nhận nhiệt 120 J và giãn nở
-                  thực hiện công 80 J thì ΔU bằng 200 J hay 40 J?
-                </p>
-                <p className="border-l-4 border-sky-400 bg-sky-950/30 pl-3 py-1">
-                  <span className="text-sky-300 font-bold">gia-sư&gt;</span> Khi hệ thực hiện công đẩy
-                  pit-tông ra ngoài, công A mang dấu âm (-80 J) hay dương (+80 J)?
-                </p>
-                <p className="text-sky-300 font-bold">
-                  &gt; kết quả: ΔU = (-80) + 120 = +40 J
-                  <span
-                    className="inline-block w-2 h-4 bg-sky-400 align-middle ml-1 animate-pulse"
-                    aria-hidden="true"
-                  />
-                </p>
+              <div className="grid grid-cols-2 gap-3">
+                {stats.map((s, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-lg bg-zinc-950/70 border border-zinc-800/80 space-y-1"
+                  >
+                    <p className="text-2xl font-semibold font-mono text-zinc-100">
+                      {s.v}
+                    </p>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      {s.l}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Stats strip */}
-        <section
-          aria-label="Số liệu cơ sở tri thức GDPT 2018"
-          className="border-b border-neutral-800"
-        >
-          <dl className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 p-4 sm:p-6">
-            {stats.map((s) => (
-              <div key={s.l} className="bg-[#0a0a0a] border border-neutral-800 p-4 sm:p-6">
-                <dt className="sr-only">{s.l}</dt>
-                <dd className="text-2xl sm:text-4xl font-extrabold text-sky-300">{s.v}</dd>
-                <p className="text-xs text-neutral-300 mt-1 font-bold" aria-hidden="true">
-                  {s.l}
-                </p>
-              </div>
-            ))}
-          </dl>
-        </section>
-
-        {/* Courses */}
+        {/* Courses / Subjects Taxonomy */}
         <section
           id="courses"
-          className="border-b border-neutral-800 py-12 sm:py-20"
+          className="border-b border-zinc-800/80 py-14 sm:py-20"
           aria-labelledby="courses-h"
         >
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
             <div className="space-y-2">
-              <Label>01 / danh mục môn học lớp 10 – 11 – 12 (gdpt 2018)</Label>
+              <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+                01 / Phân cấp Môn học &gt; Chuyên đề &gt; Mức độ
+              </p>
               <h2
                 id="courses-h"
-                className="text-2xl sm:text-3xl font-extrabold tracking-tight"
+                className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100"
               >
-                Bốn môn học trọng tâm ôn thi Tốt nghiệp THPT
+                Bốn môn học trọng tâm ôn thi Tốt nghiệp THPT, HSA &amp; TSA
               </h2>
             </div>
 
-            <ul className="grid sm:grid-cols-2 gap-5">
+            <ul className="grid sm:grid-cols-2 gap-6">
               {SUBJECTS.map(({ id, Icon, name, blurb }, idx) => {
                 const topics = grade12BySubject[id];
                 const problems = PRACTICE_QUESTIONS.filter(
@@ -290,34 +277,38 @@ export const Landing: React.FC = () => {
                 return (
                   <li
                     key={id}
-                    className="bg-[#0a0a0a] border border-neutral-800 hover:border-sky-400/70 transition-colors p-4 sm:p-6 flex flex-col gap-4"
+                    className="rounded-xl bg-zinc-900/40 border border-zinc-800/80 hover:border-zinc-700 transition-colors p-6 flex flex-col gap-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <span
-                        className="w-11 h-11 border border-neutral-700 bg-sky-500/15 text-sky-300 flex items-center justify-center"
+                        className="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-200 flex items-center justify-center"
                         aria-hidden="true"
                       >
                         <Icon className="w-5 h-5" />
                       </span>
-                      <span className="text-xs font-bold text-sky-300 bg-sky-950/70 border border-sky-400/50 px-2 py-0.5">
-                        {String(idx + 1).padStart(2, '0')} / GDPT 2018
+                      <span className="text-xs font-mono text-zinc-400 bg-zinc-900 border border-zinc-800 rounded-md px-2.5 py-0.5">
+                        {String(idx + 1).padStart(2, '0')} • GDPT 2018
                       </span>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-white">{name}</h3>
-                      <p className="text-xs sm:text-sm text-neutral-300 mt-1">{blurb}</p>
+                      <h3 className="text-lg font-semibold text-zinc-100">
+                        {name}
+                      </h3>
+                      <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
+                        {blurb}
+                      </p>
                     </div>
-                    <ul className="space-y-1.5 text-xs text-neutral-300 border-t border-neutral-800 pt-3 flex-1">
-                      {topics.slice(0, 6).map((t) => (
+                    <ul className="space-y-2 text-xs sm:text-sm text-zinc-300 border-t border-zinc-800/80 pt-4 flex-1">
+                      {topics.slice(0, 5).map((t) => (
                         <li key={t.id} className="flex gap-2">
                           <span
-                            className="text-sky-400 font-bold shrink-0"
+                            className="text-zinc-500 font-mono shrink-0"
                             aria-hidden="true"
                           >
-                            ›
+                            •
                           </span>
                           <span>
-                            <strong className="text-sky-300">
+                            <strong className="font-semibold text-zinc-200">
                               [Lớp {t.grade}] {t.chapter}:
                             </strong>{' '}
                             {t.topicName}
@@ -325,16 +316,19 @@ export const Landing: React.FC = () => {
                         </li>
                       ))}
                     </ul>
-                    <div className="text-xs flex items-center justify-between border-t border-neutral-800 pt-3">
-                      <span className="text-neutral-300 font-bold">
-                        {topics.length} chuyên đề • {problems} câu hỏi chọn lọc
+                    <div className="text-xs flex items-center justify-between border-t border-zinc-800/80 pt-4">
+                      <span className="text-zinc-400 font-mono">
+                        {topics.length} chuyên đề • {problems} câu hỏi
                       </span>
                       <a
                         href="#/app"
-                        className={`inline-flex items-center gap-1 h-9 px-3 border border-sky-400/50 bg-sky-500/15 text-sky-300 font-bold hover:bg-sky-400 hover:text-black ${FOCUS}`}
+                        className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium transition-colors ${FOCUS}`}
                       >
-                        Luyện tập{' '}
-                        <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>Luyện tập</span>
+                        <ArrowUpRight
+                          className="w-3.5 h-3.5"
+                          aria-hidden="true"
+                        />
                       </a>
                     </div>
                   </li>
@@ -344,28 +338,30 @@ export const Landing: React.FC = () => {
           </div>
         </section>
 
-        {/* Interactive Grade 10-11-12 Knowledge Base Explorer */}
+        {/* Compiled Modern Wikipedia Knowledge Base Explorer */}
         <section
           id="knowledge-base"
-          className="border-b border-neutral-800 py-12 sm:py-20"
+          className="border-b border-zinc-800/80 py-14 sm:py-20"
           aria-labelledby="kb-h"
         >
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
               <div className="space-y-2">
-                <Label>02 / cơ sở tri thức gdpt 2018 (lớp 10 – 11 – 12)</Label>
+                <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+                  02 / Cẩm nang Lý thuyết chuẩn Wikipedia (Lớp 10 – 11 – 12)
+                </p>
                 <h2
                   id="kb-h"
-                  className="text-2xl sm:text-3xl font-extrabold tracking-tight"
+                  className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100"
                 >
-                  Thẻ bài học (Study Cards), Trực quan hóa SGK &amp; Ví dụ tư duy
+                  Bài viết chuyên đề biên soạn liền mạch &amp; Công thức KaTeX
                 </h2>
               </div>
 
               <div
-                className="grid grid-cols-2 sm:grid-cols-4 gap-2"
+                className="flex flex-wrap gap-2"
                 role="tablist"
-                aria-label="Chọn môn học để xem cơ sở tri thức"
+                aria-label="Chọn môn học để xem cẩm nang lý thuyết"
               >
                 {SUBJECTS.map((s) => {
                   const active = selectedSubject === s.id;
@@ -376,10 +372,10 @@ export const Landing: React.FC = () => {
                       role="tab"
                       aria-selected={active}
                       onClick={() => setSelectedSubject(s.id)}
-                      className={`min-h-[42px] px-3 border text-xs font-bold cursor-pointer transition-colors ${FOCUS} ${
+                      className={`px-3.5 py-2 rounded-lg border text-xs font-medium cursor-pointer transition-colors ${FOCUS} ${
                         active
-                          ? 'bg-sky-400 text-black border-sky-300'
-                          : 'border-neutral-800 text-neutral-200 bg-[#111111] hover:border-sky-400 hover:text-sky-300'
+                          ? 'bg-zinc-100 text-zinc-950 border-zinc-100 font-semibold'
+                          : 'border-zinc-800/80 text-zinc-300 bg-zinc-900/50 hover:bg-zinc-900'
                       }`}
                     >
                       {s.name}
@@ -389,7 +385,7 @@ export const Landing: React.FC = () => {
               </div>
             </div>
 
-            {/* Bộ lọc khối lớp 10 - 11 - 12 */}
+            {/* Grade Filter */}
             <div className="flex flex-wrap gap-1.5">
               {(['all', 12, 11, 10] as const).map((g) => {
                 const active = gradeFilter === g;
@@ -398,10 +394,10 @@ export const Landing: React.FC = () => {
                     key={String(g)}
                     type="button"
                     onClick={() => setGradeFilter(g)}
-                    className={`h-9 px-3 border font-mono text-xs cursor-pointer transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-colors ${
                       active
-                        ? 'border-sky-400 text-sky-300 bg-sky-950/60 font-bold'
-                        : 'border-neutral-800 text-neutral-300 bg-[#111111] hover:border-neutral-600'
+                        ? 'border-sky-500/60 text-sky-300 bg-sky-500/10'
+                        : 'border-zinc-800/80 text-zinc-400 bg-zinc-900/40 hover:text-zinc-200'
                     }`}
                   >
                     {g === 'all' ? 'Tất cả khối (10–11–12)' : `Khối Lớp ${g}`}
@@ -410,71 +406,56 @@ export const Landing: React.FC = () => {
               })}
             </div>
 
-            {/* Đa dạng hóa trực quan hóa theo dữ liệu chuẩn SGK */}
             <SubjectDiagram subject={selectedSubject} />
 
             <div className="grid grid-cols-1 gap-6">
               {activeSubjectTopics.map((topic) => (
-                /* STUDY CARD ONLY: Grey-White border border-[#D4D4D8]/70 */
                 <article
                   key={topic.id}
-                  className="bg-[#0a0a0a] border border-[#D4D4D8]/70 p-4 sm:p-6 flex flex-col justify-between gap-5"
+                  className="rounded-xl bg-zinc-900/40 border border-zinc-800/80 p-6 sm:p-8 space-y-6"
                 >
-                  <div className="space-y-4">
-                    <div className="space-y-1 border-b border-neutral-800 pb-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-sky-300 bg-sky-500/20 border border-sky-400/60 px-2 py-0.5">
-                          Lớp {topic.grade} • {topic.chapter}
-                        </span>
-                      </div>
-                      <h3 className="text-base sm:text-xl font-bold text-white pt-1">
-                        {topic.topicName}
-                      </h3>
-                    </div>
+                  <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                    <CompiledWikiArticleView topic={topic} />
 
-                    <div className="space-y-1.5 border border-neutral-800 bg-[#111111] p-3.5 sm:p-4">
-                      <p className="text-xs font-mono uppercase tracking-wider text-sky-300 font-bold">
-                        Yêu cầu cần đạt (Chuẩn kiến thức trọng tâm Lớp {topic.grade}):
+                    <div className="lg:w-72 shrink-0 rounded-xl border border-zinc-800/80 bg-zinc-950/70 p-5 space-y-4">
+                      <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+                        Mức độ bài tập trong chuyên đề
                       </p>
-                      <ul className="space-y-1.5 text-sm text-neutral-100 font-sans leading-relaxed">
-                        {topic.learningObjectives.map((obj, idx) => (
-                          <li key={idx} className="flex gap-2">
-                            <span className="text-sky-400 font-bold">•</span>
-                            <span>{obj}</span>
-                          </li>
+                      <div className="flex flex-wrap gap-1.5">
+                        {Array.from(
+                          new Set(
+                            topic.sampleQuestionTemplates.map(
+                              (q) => q.cognitiveLevel
+                            )
+                          )
+                        ).map((lvl) => (
+                          <span
+                            key={lvl}
+                            className={`px-2.5 py-0.5 rounded-md border text-xs font-mono ${getDifficultyBadgeClasses(
+                              lvl
+                            )}`}
+                          >
+                            {lvl}
+                          </span>
                         ))}
-                      </ul>
+                      </div>
+                      <a
+                        href="#/app"
+                        className={`w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium transition-all ${FOCUS}`}
+                      >
+                        <span>
+                          Giải {topic.sampleQuestionTemplates.length} câu hỏi mẫu
+                        </span>
+                        <ArrowUpRight
+                          className="w-3.5 h-3.5"
+                          aria-hidden="true"
+                        />
+                      </a>
                     </div>
-
-                    {topic.keyFormulasAndRules[0] && (
-                      <CopyableFormulaBlock
-                        title={topic.keyFormulasAndRules[0].name}
-                        latex={topic.keyFormulasAndRules[0].latexOrRule}
-                        compact={true}
-                      />
-                    )}
-
-                    {/* Ví dụ minh họa toàn diện & Phân tích tư duy */}
-                    <WorkedExampleSection topic={topic} />
-
-                    {/* Khung chat hỏi đáp chuyên đề */}
-                    <TopicChatBox topic={topic} />
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-800 pt-3 text-xs">
-                    <span className="text-sky-300 font-bold">
-                      Mức độ câu hỏi:{' '}
-                      {Array.from(
-                        new Set(topic.sampleQuestionTemplates.map((q) => q.cognitiveLevel))
-                      ).join(', ')}
-                    </span>
-                    <a
-                      href="#/app"
-                      className={`inline-flex items-center gap-1 px-3 py-1.5 border border-sky-300 bg-sky-400 text-black font-bold hover:bg-sky-300 ${FOCUS}`}
-                    >
-                      Giải {topic.sampleQuestionTemplates.length} câu hỏi mẫu{' '}
-                      <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
-                    </a>
+                  <div className="max-w-[65ch]">
+                    <TopicChatBox topic={topic} />
                   </div>
                 </article>
               ))}
@@ -485,79 +466,89 @@ export const Landing: React.FC = () => {
         {/* How it works */}
         <section
           id="how"
-          className="border-b border-neutral-800 py-12 sm:py-20"
+          className="border-b border-zinc-800/80 py-14 sm:py-20"
           aria-labelledby="how-h"
         >
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
             <div className="space-y-2">
-              <Label>03 / quy trình học tập</Label>
+              <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+                03 / Quy trình học tập
+              </p>
               <h2
                 id="how-h"
-                className="text-2xl sm:text-3xl font-extrabold tracking-tight"
+                className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100"
               >
                 Ba bước làm chủ kỳ thi Tốt nghiệp THPT
               </h2>
             </div>
-            <ol className="grid md:grid-cols-3 gap-5">
+            <ol className="grid md:grid-cols-3 gap-6">
               {STEPS.map((s) => (
-                <li key={s.n} className="bg-[#0a0a0a] border border-neutral-800 p-5 sm:p-6 space-y-3">
-                  <p className="text-4xl font-extrabold text-sky-400">
+                <li
+                  key={s.n}
+                  className="rounded-xl bg-zinc-900/40 border border-zinc-800/80 p-6 space-y-3"
+                >
+                  <p className="text-2xl font-mono font-semibold text-sky-400">
                     {s.n}
                   </p>
-                  <h3 className="font-bold text-white">{s.t}</h3>
-                  <p className="text-sm text-neutral-300 leading-relaxed">
-                    {s.d}
-                  </p>
+                  <h3 className="text-base font-semibold text-zinc-100">
+                    {s.t}
+                  </h3>
+                  <p className="text-sm text-zinc-400 leading-relaxed">{s.d}</p>
                 </li>
               ))}
             </ol>
           </div>
         </section>
 
-        {/* Progress demo across all topics */}
+        {/* Progress Tracker */}
         <section
           id="progress"
-          className="py-12 sm:py-20"
+          className="py-14 sm:py-20"
           aria-labelledby="progress-h"
         >
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 items-start">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 items-start">
             <div className="space-y-4">
-              <Label>04 / theo dõi tiến độ chương trình thpt</Label>
+              <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+                04 / Theo dõi tiến độ chương trình THPT
+              </p>
               <h2
                 id="progress-h"
-                className="text-2xl sm:text-3xl font-extrabold tracking-tight"
+                className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100"
               >
-                Theo dõi toàn bộ {grade12Curriculum.length} chuyên đề Lớp 10–11–12
+                Theo dõi toàn bộ {grade12Curriculum.length} chuyên đề Lớp
+                10–11–12
               </h2>
-              <p className="text-sm text-neutral-300 leading-relaxed max-w-prose">
-                Đánh dấu các chuyên đề GDPT 2018 bạn đã ôn luyện xong để kiểm soát tiến độ trước
-                kỳ thi Tốt nghiệp THPT.
+              <p className="text-[15px] text-zinc-300 leading-7 max-w-prose">
+                Đánh dấu các chuyên đề GDPT 2018 bạn đã ôn luyện xong để kiểm
+                soát tiến độ trước kỳ thi Tốt nghiệp THPT, HSA và TSA.
               </p>
               <a
                 href="#/app"
-                className={`h-12 px-6 inline-flex items-center gap-2 bg-sky-400 text-black border border-sky-300 text-sm font-bold hover:bg-sky-300 ${FOCUS}`}
+                className={`h-11 px-6 rounded-lg inline-flex items-center gap-2 bg-zinc-100 hover:bg-white text-zinc-950 text-sm font-medium transition-all ${FOCUS}`}
               >
-                Mở không gian luyện tập
+                <span>Mở không gian luyện tập</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </a>
             </div>
 
-            <div className="border border-neutral-800 bg-[#0a0a0a]">
-              <div className="flex items-center justify-between px-4 h-10 border-b border-neutral-800 bg-sky-950/30 text-xs text-sky-300 font-bold">
-                <span>LỘ TRÌNH GDPT 2018 / LỚP 10–11–12</span>
-                <span className="border border-sky-400/50 bg-sky-500/20 px-2 py-0.5">
-                  {count}/{grade12Curriculum.length} CHUYÊN ĐỀ
+            <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 overflow-hidden">
+              <div className="flex items-center justify-between px-5 h-11 border-b border-zinc-800/80 bg-zinc-900/80 text-xs text-zinc-300 font-medium">
+                <span>Lộ trình GDPT 2018 • Lớp 10–11–12</span>
+                <span className="font-mono text-zinc-400">
+                  {count}/{grade12Curriculum.length} chuyên đề
                 </span>
               </div>
-              <div className="p-4 sm:p-5 space-y-5">
+              <div className="p-5 space-y-5">
                 <div className="flex items-end justify-between gap-3">
-                  <p className="text-4xl font-extrabold text-sky-300">{pct}%</p>
-                  <p className="text-xs text-neutral-300 font-bold">
+                  <p className="text-3xl font-semibold font-mono text-zinc-100">
+                    {pct}%
+                  </p>
+                  <p className="text-xs text-zinc-400">
                     Đã hoàn thành {count}/{grade12Curriculum.length} chuyên đề
                   </p>
                 </div>
                 <div
-                  className="h-3 border border-neutral-800 bg-[#111111]"
+                  className="h-2.5 rounded-full bg-zinc-950 border border-zinc-800 overflow-hidden"
                   role="progressbar"
                   aria-valuenow={pct}
                   aria-valuemin={0}
@@ -565,11 +556,11 @@ export const Landing: React.FC = () => {
                   aria-label="Tiến độ hoàn thành chuyên đề"
                 >
                   <div
-                    className="h-full bg-sky-400 transition-all duration-300"
+                    className="h-full bg-emerald-500 transition-all duration-300"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <ul className="max-h-80 overflow-y-auto divide-y divide-neutral-800 border border-neutral-800">
+                <ul className="max-h-80 overflow-y-auto divide-y divide-zinc-800/70 rounded-lg border border-zinc-800/80">
                   {grade12Curriculum.map((t, i) => (
                     <li key={t.id}>
                       <button
@@ -577,26 +568,30 @@ export const Landing: React.FC = () => {
                         role="checkbox"
                         aria-checked={done[i]}
                         onClick={() => toggle(i)}
-                        className={`w-full min-h-12 px-3 py-2 bg-[#0a0a0a] hover:bg-neutral-900 flex items-center gap-3 text-left text-xs sm:text-sm cursor-pointer ${FOCUS}`}
+                        className={`w-full px-3.5 py-2.5 bg-zinc-950/60 hover:bg-zinc-900 flex items-center gap-3 text-left text-xs sm:text-sm cursor-pointer transition-colors ${FOCUS}`}
                       >
                         <span
-                          className={`w-5 h-5 border border-neutral-600 flex items-center justify-center shrink-0 ${
-                            done[i] ? 'bg-sky-400 text-black border-sky-300' : ''
+                          className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                            done[i]
+                              ? 'bg-emerald-500 text-zinc-950 border-emerald-400'
+                              : 'border-zinc-700 bg-zinc-900'
                           }`}
                           aria-hidden="true"
                         >
                           {done[i] && (
-                            <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                            <Check className="w-3 h-3" strokeWidth={3} />
                           )}
                         </span>
                         <span
                           className={
-                            done[i] ? 'text-neutral-500 line-through' : 'text-white'
+                            done[i]
+                              ? 'text-zinc-500 line-through'
+                              : 'text-zinc-200'
                           }
                         >
-                          <strong className="text-sky-300">
+                          <strong className="font-mono text-xs text-zinc-400 mr-1.5">
                             [{t.subject.toUpperCase()} {t.grade}]
-                          </strong>{' '}
+                          </strong>
                           {t.topicName}
                         </span>
                       </button>
@@ -609,8 +604,9 @@ export const Landing: React.FC = () => {
         </section>
       </main>
 
-      <footer className="border-t border-neutral-800 py-6 text-center text-xs text-neutral-400">
-        Scalar / Cơ sở tri thức GDPT 2018 (Lớp 10–11–12) &amp; Gia sư AI Socratic
+      <footer className="border-t border-zinc-800/80 py-6 text-center text-xs text-zinc-500">
+        Scalar • Cẩm nang Tri thức GDPT 2018 (Lớp 10–11–12) &amp; Bảng luyện tập
+        Gia sư AI Socratic
       </footer>
     </div>
   );

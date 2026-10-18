@@ -1,637 +1,610 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft,
-  Bot,
-  FileText,
-  MessageSquare,
-  Send,
-  Play,
   RotateCcw,
   CheckCircle2,
   XCircle,
   Sparkles,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
-import { SUBJECTS_META, PRACTICE_QUESTIONS, FORMULA_VAULT } from '../data/curriculum';
-import { CopyableFormulaBlock, MathRenderer, RichTextWithMath } from './MathRenderer';
+import { SUBJECTS_META, PRACTICE_QUESTIONS } from '../data/curriculum';
+import { MathRenderer, MathText } from './MathRenderer';
 import { SubjectDiagram } from './InteractiveDiagrams';
-import { Tag, subjectColor } from './Tag';
-import { WorkedExampleSection, TopicChatBox } from './TopicChatBox';
+import { getDifficultyBadgeClasses } from './Tag';
+import { CompiledWikiArticleView, TopicChatBox } from './TopicChatBox';
 
 interface WorkspaceProps {
   questionId: string;
   apiKey: string;
   onBack: () => void;
   onVerdict: (id: string, correct: boolean) => void;
+  onSelectQuestion?: (id: string) => void;
+  ac?: number;
+  streak?: number;
 }
-
-type Kind = 'sys' | 'ac' | 'wa' | 'diag' | 'user' | 'ai';
-interface Line {
-  id: number;
-  kind: Kind;
-  text: string;
-  streaming: boolean;
-}
-
-const KIND_STYLE: Record<Kind, { prefix: string; color: string }> = {
-  sys: { prefix: '$', color: '#38BDF8' },
-  ac: { prefix: '[ĐÚNG]', color: '#10B981' },
-  wa: { prefix: '[SAI]', color: '#F43F5E' },
-  diag: { prefix: '>', color: '#38BDF8' },
-  user: { prefix: 'bạn@gia-su:~$', color: '#38BDF8' },
-  ai: { prefix: 'gia-sư>', color: '#38BDF8' },
-};
 
 export const Workspace: React.FC<WorkspaceProps> = ({
   questionId,
-  apiKey,
   onBack,
   onVerdict,
+  onSelectQuestion,
+  ac = 0,
+  streak = 0,
 }) => {
   const q =
     PRACTICE_QUESTIONS.find((p) => p.id === questionId) ?? PRACTICE_QUESTIONS[0];
   const meta = SUBJECTS_META[q.subject];
-  const color = subjectColor(q.subject);
-  const topicRules =
-    q.sourceTopic?.keyFormulasAndRules.map((r, i) => ({
-      id: `${q.id}-r-${i}`,
-      title: r.name,
-      latex: r.latexOrRule,
-      variablesNote: r.description,
-    })) ??
-    FORMULA_VAULT.filter((f) => f.subject === q.subject).slice(0, 2);
 
-  const [tab, setTab] = useState<'problem' | 'tutor'>('problem');
+  // Sibling questions in the same Topic (sorted by difficulty tier)
+  const topicQuestions = PRACTICE_QUESTIONS.filter(
+    (item) =>
+      (q.sourceTopic && item.sourceTopic?.id === q.sourceTopic.id) ||
+      item.topic === q.topic
+  );
+  const currentTopicIndex = Math.max(
+    0,
+    topicQuestions.findIndex((item) => item.id === q.id)
+  );
+
+  // Mobile segmented tab ('wiki' | 'practice') & Mobile slide-up Socratic sheet
+  const [mobileTab, setMobileTab] = useState<'wiki' | 'practice'>('practice');
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+
+  // Practice Console State
   const [selected, setSelected] = useState<string | null>(null);
   const [verdict, setVerdict] = useState<'AC' | 'WA' | null>(null);
-  const [lines, setLines] = useState<Line[]>([]);
-  const [reinf, setReinf] = useState(false);
   const [reinfPick, setReinfPick] = useState<string | null>(null);
-  const [input, setInput] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  const idRef = useRef(0);
-  const timers = useRef<number[]>([]);
-  const endRef = useRef<HTMLDivElement | null>(null);
-
-  const stream = (kind: Kind, text: string) =>
-    new Promise<void>((resolve) => {
-      const id = ++idRef.current;
-      setLines((l) => [...l, { id, kind, text: '', streaming: true }]);
-      let i = 0;
-      const t = window.setInterval(() => {
-        i = Math.min(text.length, i + 4);
-        setLines((l) =>
-          l.map((x) =>
-            x.id === id
-              ? { ...x, text: text.slice(0, i), streaming: i < text.length }
-              : x
-          )
-        );
-        if (i >= text.length) {
-          window.clearInterval(t);
-          resolve();
-        }
-      }, 14);
-      timers.current.push(t);
-    });
 
   const reset = () => {
-    timers.current.forEach((t) => window.clearInterval(t));
-    timers.current = [];
     setSelected(null);
     setVerdict(null);
-    setReinf(false);
     setReinfPick(null);
-    setBusy(false);
-    setLines([
-      {
-        id: ++idRef.current,
-        kind: 'sys',
-        text: `Phiên học **GDPT 2018 • Lớp ${q.grade} (${q.cognitiveLevel})** đã sẵn sàng. Hãy chọn phương án trả lời rồi nhấn **Nộp bài** để mở khóa đáp án chuẩn và lời giải chi tiết.`,
-        streaming: false,
-      },
-    ]);
   };
 
   useEffect(() => {
     reset();
-    setTab('problem');
-    return () => timers.current.forEach((t) => window.clearInterval(t));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionId]);
 
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ block: 'end' });
-  }, [lines]);
-
-  const submit = async () => {
-    if (!selected || busy) return;
-    setTab('tutor');
-    setBusy(true);
+  const submit = () => {
+    if (!selected) return;
     const ok = selected === q.correctOptionId;
-    const letter = String.fromCharCode(
-      65 + q.options.findIndex((o) => o.id === selected)
-    );
-    const correctIndex = q.options.findIndex((o) => o.id === q.correctOptionId);
-    const correctLetter = String.fromCharCode(65 + Math.max(0, correctIndex));
-    const correctOptionObj = q.options[Math.max(0, correctIndex)];
-
     setVerdict(ok ? 'AC' : 'WA');
     onVerdict(q.id, ok);
-    await stream('sys', `cham-bai --nop-dap-an ${letter} --muc-do "${q.cognitiveLevel}"`);
-    if (ok) {
-      await stream(
-        'ac',
-        `Chính xác! Đáp án đúng là **${correctLetter} (${correctOptionObj?.text ?? ''})**. **Lời giải chi tiết:**`
-      );
-      for (const step of q.stepByStepSolution) {
-        await stream('diag', step);
-      }
-    } else {
-      const d = q.options.find((o) => o.id === selected)?.diagnostic;
-      await stream(
-        'wa',
-        `Đáp án ${letter} chưa chính xác${d ? ` — **${d.errorLabel}**` : ''}. Đáp án đúng là **${correctLetter} (${correctOptionObj?.text ?? ''})**.`
-      );
-      if (d) {
-        await stream('diag', `**Câu hỏi gợi mở Socratic:** ${d.socraticPrompt}`);
-        await stream('diag', `**Phân tích nguyên nhân:** ${d.whyWrong}`);
-        await stream('diag', `**Cách khắc phục:** ${d.correctiveHint}`);
-      }
-      if (q.stepByStepSolution.length > 0) {
-        await stream('diag', `**Lời giải chi tiết sau thử thách:** ${q.stepByStepSolution.join('\n')}`);
-      }
-    }
-    setBusy(false);
   };
 
-  const ask = async () => {
-    const text = input.trim();
-    if (!text || busy) return;
-    setInput('');
-    setBusy(true);
-    await stream('user', text);
-    let reply = '';
-    if (apiKey.startsWith('AIza') && apiKey !== 'AIzaSyDemoHighSchoolStemKey2026') {
-      try {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(
-            apiKey
-          )}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              systemInstruction: {
-                parts: [
-                  {
-                    text: `Bạn là Gia sư Socratic tiếng Việt ngắn gọn, súc tích cho học sinh Lớp ${q.grade} môn ${meta.vnName} (Chương trình GDPT 2018, chuyên đề: ${q.topic}). Hãy đặt câu hỏi gợi mở để học sinh tự suy luận, không đưa ngay đáp án cuối cùng. Dùng $...$ cho công thức cùng dòng và $$...$$ cho công thức riêng dòng.`,
-                  },
-                ],
-              },
-              contents: [
-                {
-                  role: 'user',
-                  parts: [{ text: `Đề bài: ${q.prompt}\nHọc sinh hỏi: ${text}` }],
-                },
-              ],
-            }),
-          }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          reply = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  // Keyboard shortcuts: 1/2/3/4 or A/B/C/D to select option, Enter to submit
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      const key = e.key.toUpperCase();
+      if (['1', '2', '3', '4'].includes(key)) {
+        const idx = Number(key) - 1;
+        const opt = q.options[idx];
+        if (opt) {
+          e.preventDefault();
+          setSelected(opt.id);
+          setVerdict(null);
         }
-      } catch {
-        /* fall back below */
+      } else if (['A', 'B', 'C', 'D'].includes(key)) {
+        const idx = key.charCodeAt(0) - 65;
+        const opt = q.options[idx];
+        if (opt) {
+          e.preventDefault();
+          setSelected(opt.id);
+          setVerdict(null);
+        }
+      } else if (e.key === 'Enter' && selected && !verdict) {
+        e.preventDefault();
+        submit();
       }
-    }
-    if (!reply) {
-      const d = q.options.find((o) => o.diagnostic)?.diagnostic;
-      reply = `**Gợi ý Socratic (${q.topic}):** ${
-        d ? d.socraticPrompt : 'Hãy đối chiếu với công thức trọng tâm bên dưới.'
-      }\n$$${q.keyFormulaLatex}$$`;
-    }
-    await stream('ai', reply);
-    setBusy(false);
-  };
+    };
 
-  const rc = q.reinforcement;
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q.id, selected, verdict]);
+
   const correctIdx = Math.max(
     0,
     q.options.findIndex((o) => o.id === q.correctOptionId)
   );
   const correctLetter = String.fromCharCode(65 + correctIdx);
   const correctOptionText = q.options[correctIdx]?.text ?? '';
+  const selectedDiag = q.options.find((o) => o.id === selected)?.diagnostic;
+  const rc = q.reinforcement;
 
-  /* ---------------- CỘT TRÁI ---------------- */
-  const left = (
-    <section
-      aria-label="Đề bài và cơ sở tri thức GDPT 2018"
-      className={`${
-        tab === 'problem' ? 'block' : 'hidden'
-      } lg:block lg:w-[48%] overflow-y-auto p-3.5 sm:p-5 lg:p-6 space-y-4 lg:border-r border-slate-800`}
-    >
-      <div className="flex flex-wrap gap-1.5">
-        <Tag>GDPT 2018</Tag>
-        <Tag>Lớp {q.grade}</Tag>
-        <Tag color={color}>{meta.vnName}</Tag>
-        {q.chapter && <Tag>{q.chapter}</Tag>}
-        <Tag>{q.cognitiveLevel}</Tag>
-      </div>
-
-      <h1 className="text-lg font-bold text-white leading-snug">{q.topic}</h1>
-      {/* Study Card: Problem Statement uses Grey-White border & Sans-Serif for readability */}
-      <div className="text-sm sm:text-base text-white leading-7 border border-[#D4D4D8]/70 bg-[#0A0A0A] p-4 font-sans">
-        <RichTextWithMath text={q.prompt} />
-      </div>
-
-      {q.contextFormula && (
-        <div className="overflow-x-auto py-2.5 bg-sky-950/30 p-4 border border-sky-400/70 font-mono text-sm text-center text-white">
-          <MathRenderer latex={q.contextFormula} displayMode={true} />
+  /* ============================================================================
+   * LEFT PANE: COMPILED "MODERN WIKIPEDIA" LESSON VIEW
+   * ============================================================================ */
+  const renderWikiPane = (isMobile: boolean) => (
+    <div className="space-y-6">
+      {q.sourceTopic ? (
+        <CompiledWikiArticleView
+          topic={q.sourceTopic}
+          collapsibleSections={isMobile}
+        />
+      ) : (
+        <div className="max-w-[65ch] space-y-4">
+          <p className="text-xs text-zinc-500">
+            {meta.vnName} {q.grade} / {q.chapter}
+          </p>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+            {q.topic}
+          </h1>
         </div>
       )}
 
-      {/* Trực quan hóa đa dạng (3 chế độ chuẩn SGK) */}
-      <SubjectDiagram subject={q.subject} />
-
-      {/* Mục tiêu cần đạt của chuyên đề (Study Card: Grey-White border) */}
-      {q.sourceTopic && (
-        <div className="space-y-1.5 border border-[#D4D4D8]/70 bg-[#0A0A0A] p-3.5 sm:p-4">
-          <h2 className="font-mono text-xs uppercase tracking-wider text-sky-300 font-bold">
-            Yêu cầu cần đạt (GDPT 2018 • Lớp {q.grade})
-          </h2>
-          <ul className="space-y-1.5 text-sm text-neutral-100 font-sans leading-relaxed">
-            {q.sourceTopic.learningObjectives.map((obj, idx) => (
-              <li key={idx} className="flex gap-2">
-                <span className="text-sky-400 font-bold">•</span>
-                <span>{obj}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Công thức & Quy tắc trọng tâm */}
-      <div className="space-y-2">
-        <h2 className="font-mono text-xs uppercase tracking-wider text-sky-300 font-bold">
-          Công thức &amp; Quy tắc trọng tâm
-        </h2>
-        {topicRules.map((f) => (
-          <div key={f.id} className="space-y-1.5">
-            <CopyableFormulaBlock
-              title={f.title}
-              latex={f.latex}
-              accentHex={color}
-              compact
-            />
-            <p className="text-xs sm:text-sm font-sans text-sky-100 bg-sky-950/30 border-l-2 border-sky-400 px-3 py-1.5 leading-relaxed">
-              {f.variablesNote}
-            </p>
-          </div>
-        ))}
+      {/* Interactive Textbook Visualization inside Wiki flow */}
+      <div className="max-w-[65ch] pt-2">
+        <SubjectDiagram subject={q.subject} />
       </div>
-
-      {/* Ví dụ minh họa toàn diện & Khung chat hỏi đáp chuyên đề */}
-      {q.sourceTopic && (
-        <div className="space-y-4">
-          <WorkedExampleSection topic={q.sourceTopic} />
-          <TopicChatBox topic={q.sourceTopic} />
-        </div>
-      )}
-    </section>
+    </div>
   );
 
-  /* ---------------- CỘT PHẢI ---------------- */
-  const right = (
-    <section
-      aria-label="Khu vực chọn đáp án và Gia sư Socratic"
-      className={`${
-        tab === 'tutor' ? 'flex' : 'hidden'
-      } lg:flex lg:w-[52%] flex-col min-h-0 flex-1`}
-    >
-      <div className="p-3.5 sm:p-5 lg:p-6 space-y-3 border-b border-slate-800 lg:max-h-[54%] overflow-y-auto shrink-0">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="font-mono text-xs uppercase tracking-wider text-sky-300 font-bold">
-            Chọn phương án trả lời ({q.cognitiveLevel})
-          </h2>
-          <button
-            type="button"
-            onClick={reset}
-            className="h-9 px-3 border border-slate-800 bg-[#0A0A0A] text-xs font-mono text-neutral-300 hover:border-sky-400 hover:text-sky-300 inline-flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-          >
-            <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-            làm lại
-          </button>
+  /* ============================================================================
+   * RIGHT PANE: CODECADEMY-STYLE PRACTICE CONSOLE
+   * ============================================================================ */
+  const renderPracticePane = () => (
+    <div className="flex flex-col justify-between min-h-full space-y-6">
+      <div className="space-y-6">
+        {/* 1. Problem Header Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={`rounded-md px-2.5 py-0.5 text-xs font-medium border ${getDifficultyBadgeClasses(
+                q.cognitiveLevel
+              )}`}
+            >
+              Câu {currentTopicIndex + 1}/{topicQuestions.length} •{' '}
+              {q.cognitiveLevel}
+            </span>
+            <span className="text-xs text-zinc-500 font-mono">
+              Lớp {q.grade}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            {onSelectQuestion && topicQuestions.length > 1 && (
+              <div className="flex items-center gap-1 mr-1">
+                <button
+                  type="button"
+                  disabled={currentTopicIndex <= 0}
+                  onClick={() =>
+                    onSelectQuestion(topicQuestions[currentTopicIndex - 1].id)
+                  }
+                  aria-label="Câu trước trong chuyên đề"
+                  className="p-1.5 rounded-md border border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  disabled={currentTopicIndex >= topicQuestions.length - 1}
+                  onClick={() =>
+                    onSelectQuestion(topicQuestions[currentTopicIndex + 1].id)
+                  }
+                  aria-label="Câu tiếp theo trong chuyên đề"
+                  className="p-1.5 rounded-md border border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={reset}
+              className="text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 px-2.5 py-1 rounded-md transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Làm lại</span>
+            </button>
+          </div>
         </div>
 
-        <div role="radiogroup" aria-label="Các phương án trả lời" className="space-y-2">
+        {/* 2. Problem Prompt Card */}
+        <div className="text-[15px] leading-7 text-zinc-200 mb-6 bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-5">
+          <MathText content={q.prompt} />
+        </div>
+
+        {/* 3. Interactive Answer Radio Cards (A, B, C, D) */}
+        <div
+          role="radiogroup"
+          aria-label="Các phương án trả lời"
+          className="space-y-2.5"
+        >
           {q.options.map((o, i) => {
-            const on = selected === o.id;
-            const isRight = verdict && o.id === q.correctOptionId;
-            const isWrong = verdict === 'WA' && on;
-            const border = isRight
-              ? '#10B981'
-              : isWrong
-              ? '#F43F5E'
-              : on
-              ? '#38BDF8'
-              : '#262626';
+            const isSelected = selected === o.id;
+            const isRight = Boolean(verdict && o.id === q.correctOptionId);
+            const isWrong = Boolean(verdict === 'WA' && isSelected);
+
+            let cardStateClasses =
+              'border-zinc-800/90 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-700 text-zinc-200';
+            let keycapClasses =
+              'bg-zinc-800/80 border-zinc-700/50 text-zinc-400';
+
+            if (isRight) {
+              cardStateClasses =
+                'border-emerald-500/60 bg-emerald-500/[0.08] text-emerald-300';
+              keycapClasses =
+                'bg-emerald-500/20 border-emerald-500/50 text-emerald-300';
+            } else if (isWrong) {
+              cardStateClasses =
+                'border-rose-500/60 bg-rose-500/[0.08] text-rose-300';
+              keycapClasses =
+                'bg-rose-500/20 border-rose-500/50 text-rose-300';
+            } else if (isSelected) {
+              cardStateClasses =
+                'border-sky-500/70 bg-sky-500/[0.06] text-zinc-100';
+              keycapClasses =
+                'bg-sky-500/20 border-sky-500/50 text-sky-300';
+            }
+
             return (
               <button
                 key={o.id}
                 type="button"
                 role="radio"
-                aria-checked={on}
-                disabled={busy}
+                aria-checked={isSelected}
                 onClick={() => {
                   setSelected(o.id);
                   setVerdict(null);
                 }}
-                className={`w-full min-h-12 px-3 py-2 border text-left flex items-center gap-3 cursor-pointer transition-colors hover:bg-sky-950/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
-                  on ? 'bg-sky-950/40' : 'bg-[#0A0A0A]'
-                }`}
-                style={{ borderColor: border }}
+                className={`w-full min-h-[52px] flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-all duration-150 cursor-pointer text-left active:scale-[0.99] ${cardStateClasses}`}
               >
                 <span
-                  className="w-7 h-7 border font-mono text-xs font-bold flex items-center justify-center shrink-0"
-                  style={{
-                    borderColor: border,
-                    color: on || isRight ? '#38BDF8' : '#E5E5E5',
-                  }}
+                  className={`w-7 h-7 rounded-lg border font-mono text-xs font-medium flex items-center justify-center shrink-0 ${keycapClasses}`}
                 >
                   {String.fromCharCode(65 + i)}
                 </span>
-                <span className="min-w-0 overflow-x-auto text-sm sm:text-[15px] text-white font-sans">
-                  {o.latex ? <MathRenderer latex={o.latex} /> : <RichTextWithMath text={o.text} />}
+                <span className="min-w-0 flex-1 overflow-x-auto text-[15px] leading-7">
+                  {o.latex ? (
+                    <MathRenderer latex={o.latex} />
+                  ) : (
+                    <MathText content={o.text} />
+                  )}
                 </span>
               </button>
             );
           })}
         </div>
 
-        <button
-          type="button"
-          onClick={submit}
-          disabled={!selected || busy}
-          className="hidden lg:inline-flex h-11 px-5 bg-sky-400 text-black! border border-sky-300 hover:bg-sky-300 disabled:bg-slate-800 disabled:text-[#A3A3A3]! disabled:border-slate-700 disabled:cursor-not-allowed text-sm font-bold items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-        >
-          <Play className="w-4 h-4" aria-hidden="true" />
-          Nộp bài &amp; xem đáp án chi tiết
-        </button>
+        {/* 4. Primary Action Bar (Desktop) */}
+        <div className="hidden lg:flex items-center justify-between gap-4 pt-1">
+          <button
+            type="button"
+            onClick={submit}
+            disabled={!selected}
+            className="w-full sm:w-auto bg-zinc-100 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-medium text-sm px-6 py-2.5 rounded-lg transition-all shadow-sm cursor-pointer disabled:cursor-not-allowed"
+          >
+            Nộp bài &amp; Kiểm tra đáp án
+          </button>
+          <span className="text-xs text-zinc-500 font-mono">
+            Phím tắt: A–D hoặc 1–4 • Enter để nộp
+          </span>
+        </div>
 
-        {/* Mở khóa Đáp án & Lời giải chi tiết sau khi học sinh giải xong */}
-        {verdict && (
-          <div className="border border-[#D4D4D8]/70 bg-[#0A0A0A] p-3.5 sm:p-4 space-y-2.5 font-sans">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-2">
-              <span
-                className={`font-mono text-xs font-bold inline-flex items-center gap-1.5 ${
-                  verdict === 'AC' ? 'text-emerald-400' : 'text-rose-400'
-                }`}
+        {/* 5. Unified Solution & Socratic Tutor Card */}
+        <div className="mt-6 rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
+          {verdict ? (
+            <>
+              {/* Status Banner */}
+              <div
+                className={
+                  verdict === 'AC'
+                    ? 'bg-emerald-950/40 border-b border-emerald-500/20 px-4 py-2.5 text-sm font-medium text-emerald-300 flex items-center gap-2'
+                    : 'bg-rose-950/40 border-b border-rose-500/20 px-4 py-2.5 text-sm font-medium text-rose-300 flex items-center gap-2'
+                }
               >
                 {verdict === 'AC' ? (
                   <CheckCircle2 className="w-4 h-4 shrink-0" aria-hidden="true" />
                 ) : (
                   <XCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
                 )}
-                <span>
-                  {verdict === 'AC'
-                    ? 'Chính xác! Đã mở khóa lời giải chuẩn.'
-                    : 'Chưa chính xác — Đối chiếu đáp án & lời giải bên dưới.'}
-                </span>
-              </span>
-              <span className="text-xs font-mono font-bold text-sky-300 bg-sky-950/70 border border-sky-400/50 px-2 py-0.5">
-                Đáp án đúng: {correctLetter}
-              </span>
-            </div>
-            <div className="text-sm text-sky-100 bg-sky-950/30 border-l-4 border-sky-400 p-3 space-y-1.5 font-sans leading-7">
-              <p className="font-mono text-xs font-bold text-sky-300 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Phương án {correctLetter}: {correctOptionText}</span>
-              </p>
-              {q.stepByStepSolution.map((step, sIdx) => (
-                <div key={sIdx} className="leading-7">
-                  <RichTextWithMath text={step} />
+                <div className="min-w-0 flex-1">
+                  {verdict === 'AC' ? (
+                    <span>
+                      [ĐÚNG] Chính xác! Đáp án đúng là {correctLetter} (
+                      <MathText content={correctOptionText} />)
+                    </span>
+                  ) : (
+                    <span>
+                      [CHƯA ĐÚNG] Đáp án chuẩn là {correctLetter} (
+                      <MathText content={correctOptionText} />)
+                    </span>
+                  )}
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+              </div>
 
-      {/* Bảng điều khiển Gia sư Socratic */}
-      <div className="relative flex-1 min-h-[300px] lg:min-h-0 flex flex-col bg-[#0A0A0A]">
-        <div className="flex items-center justify-between px-4 h-10 border-b border-slate-800 bg-sky-950/20 shrink-0">
-          <span className="font-mono text-xs font-bold text-sky-300">
-            gia-su-socratic — phân tích &amp; lời giải chi tiết
-          </span>
-          {verdict && (
-            <span
-              className="font-mono text-xs font-bold"
-              style={{ color: verdict === 'AC' ? '#10B981' : '#F43F5E' }}
-            >
-              {verdict === 'AC' ? 'Chính xác (AC)' : 'Chưa đúng (WA)'}
-            </span>
-          )}
-        </div>
+              {/* Step-by-Step Derivation & Socratic Diagnostic */}
+              <div className="p-5 space-y-4">
+                {verdict === 'WA' && selectedDiag && (
+                  <div className="p-3.5 rounded-lg bg-rose-500/[0.06] border border-rose-500/20 space-y-1.5 text-sm text-zinc-200 leading-7">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-rose-300">
+                      Chẩn đoán lỗi sai &amp; Gợi ý khắc phục
+                    </p>
+                    <p>
+                      <strong className="font-semibold text-zinc-100">
+                        Nguyên nhân:
+                      </strong>{' '}
+                      <MathText content={selectedDiag.whyWrong} />
+                    </p>
+                    <p>
+                      <strong className="font-semibold text-zinc-100">
+                        Cách khắc phục:
+                      </strong>{' '}
+                      <MathText content={selectedDiag.correctiveHint} />
+                    </p>
+                  </div>
+                )}
 
-        <div
-          role="log"
-          aria-live="polite"
-          aria-label="Kết quả phân tích của Gia sư Socratic"
-          className="flex-1 overflow-y-auto p-4 pr-16 sm:pr-20 space-y-3 font-mono text-xs sm:text-sm leading-relaxed"
-        >
-          {lines.map((l) => {
-            const s = KIND_STYLE[l.kind];
-            return (
-              <div key={l.id} className="break-words">
-                <span style={{ color: s.color }} className="mr-2 font-bold select-none">
-                  {s.prefix}
-                </span>
-                {l.streaming ? (
-                  <span className="text-[#F5F5F5] whitespace-pre-wrap">
-                    {l.text}
-                    <span className="inline-block w-2 h-4 bg-sky-400 align-middle ml-0.5 animate-pulse" />
-                  </span>
-                ) : (
-                  <RichTextWithMath
-                    text={l.text}
-                    className="text-[#F5F5F5] whitespace-pre-wrap"
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                    Lời giải chi tiết từng bước
+                  </p>
+                  <div className="space-y-2.5 text-[15px] leading-7 text-zinc-200">
+                    {q.stepByStepSolution.map((step, sIdx) => (
+                      <div
+                        key={sIdx}
+                        className="p-3.5 rounded-lg bg-zinc-950/60 border border-zinc-800/80"
+                      >
+                        <MathText content={step} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Optional Reinforcement Check */}
+                <details className="group border border-zinc-800/80 rounded-lg bg-zinc-950/50 p-3.5">
+                  <summary className="cursor-pointer list-none flex items-center justify-between text-xs font-semibold text-sky-400 select-none">
+                    <span>Câu hỏi củng cố kiến thức nhanh</span>
+                    <span className="font-mono text-[11px] text-zinc-500">
+                      [Mở rộng]
+                    </span>
+                  </summary>
+                  <div className="pt-3 mt-2 border-t border-zinc-800/60 space-y-2.5 text-sm">
+                    <p className="text-zinc-200">
+                      <MathText content={rc.prompt} />
+                    </p>
+                    <div className="space-y-2">
+                      {rc.options.map((ro) => {
+                        const picked = reinfPick === ro.id;
+                        const right = ro.id === rc.correctOptionId;
+                        let cls = 'border-zinc-800 bg-zinc-900/50 text-zinc-300';
+                        if (reinfPick) {
+                          if (right)
+                            cls =
+                              'border-emerald-500/60 bg-emerald-500/[0.08] text-emerald-300';
+                          else if (picked)
+                            cls =
+                              'border-rose-500/60 bg-rose-500/[0.08] text-rose-300';
+                        }
+                        return (
+                          <button
+                            key={ro.id}
+                            type="button"
+                            onClick={() => setReinfPick(ro.id)}
+                            className={`w-full px-3.5 py-2.5 rounded-lg border text-left text-sm transition-colors cursor-pointer ${cls}`}
+                          >
+                            <MathText content={ro.text} />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </details>
+
+                {/* Unified Socratic Assistant Thread inside the same card */}
+                {q.sourceTopic && (
+                  <TopicChatBox
+                    topic={q.sourceTopic}
+                    questionContext={{
+                      prompt: q.prompt,
+                      correctOptionText,
+                      stepByStepSolution: q.stepByStepSolution,
+                    }}
                   />
                 )}
               </div>
-            );
-          })}
-
-          {verdict && !busy && (
-            <div className="pt-1">
-              {!reinf ? (
-                <button
-                  type="button"
-                  onClick={() => setReinf(true)}
-                  className="h-11 px-4 border border-slate-700 bg-sky-950/40 text-xs font-bold text-sky-300 hover:bg-sky-400 hover:text-black cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-                >
-                  $ kiem-tra-cung-co-kien-thuc --reinforcement
-                </button>
-              ) : (
-                <div className="border border-slate-800 bg-[#111111] p-3.5 space-y-2.5">
-                  <div className="text-xs font-bold text-sky-300">
-                    cau-hoi-cung-co.drill
-                  </div>
-                  <p className="text-white">{rc.prompt}</p>
-                  {rc.latexFormula && (
-                    <div className="overflow-x-auto py-2">
-                      <MathRenderer latex={rc.latexFormula} displayMode={true} />
-                    </div>
-                  )}
-                  {rc.options.map((o) => {
-                    const picked = reinfPick === o.id;
-                    const right = o.id === rc.correctOptionId;
-                    const c = reinfPick
-                      ? right
-                        ? '#10B981'
-                        : picked
-                        ? '#F43F5E'
-                        : '#262626'
-                      : '#262626';
-                    return (
-                      <button
-                        key={o.id}
-                        type="button"
-                        onClick={() => setReinfPick(o.id)}
-                        className="w-full min-h-11 px-3 py-2 border bg-[#0A0A0A] text-left text-xs sm:text-sm text-white cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-                        style={{ borderColor: c }}
-                      >
-                        {o.latex ? <MathRenderer latex={o.latex} /> : o.text}
-                      </button>
-                    );
-                  })}
-                  {reinfPick && (
-                    <p className="text-xs text-sky-200 bg-sky-950/40 border-l-4 border-sky-400 p-2.5">
-                      {rc.explanation}
-                    </p>
-                  )}
-                </div>
+            </>
+          ) : (
+            <div className="p-5">
+              {q.sourceTopic && (
+                <TopicChatBox
+                  topic={q.sourceTopic}
+                  questionContext={{
+                    prompt: q.prompt,
+                  }}
+                />
               )}
             </div>
           )}
-          <div ref={endRef} />
         </div>
-
-        <div
-          className="absolute top-12 right-3 w-11 h-11 md:w-14 md:h-14 border border-slate-700 bg-[#111111] flex items-center justify-center"
-          aria-hidden="true"
-        >
-          <Bot className="w-5 h-5 md:w-7 md:h-7 text-sky-400" />
-        </div>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            ask();
-          }}
-          className="flex items-center gap-2 p-3 border-t border-slate-800 shrink-0"
-        >
-          <label htmlFor="tutor-input" className="sr-only">
-            Đặt câu hỏi cho gia sư
-          </label>
-          <span
-            className="font-mono text-sm font-bold text-sky-400 select-none"
-            aria-hidden="true"
-          >
-            $
-          </span>
-          <input
-            id="tutor-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Nhập câu hỏi hoặc bước giải để nhận gợi ý..."
-            autoComplete="off"
-            className="flex-1 min-w-0 h-11 px-3 bg-[#111111] border border-slate-700 text-sm sm:text-base font-mono text-white placeholder:text-neutral-500 focus:outline-none focus:border-sky-400"
-          />
-          <button
-            type="submit"
-            disabled={!input.trim() || busy}
-            aria-label="Gửi câu hỏi cho gia sư"
-            className="h-11 w-11 border border-sky-300 bg-sky-400 text-black flex items-center justify-center shrink-0 disabled:bg-neutral-800 disabled:text-neutral-500 disabled:border-slate-800 cursor-pointer disabled:cursor-not-allowed hover:bg-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-          >
-            <Send className="w-4 h-4" aria-hidden="true" />
-          </button>
-        </form>
       </div>
-    </section>
+    </div>
   );
 
   return (
-    <div className="flex flex-col lg:h-[calc(100dvh-7rem)] lg:min-h-0 -mx-4 sm:-mx-6 lg:mx-0 lg:border border-slate-800 bg-[#111111] overflow-hidden">
-      <div className="flex items-center gap-2 px-4 h-12 border-b border-slate-800 bg-[#0A0A0A] shrink-0">
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label="Quay lại danh sách câu hỏi"
-          className="h-9 px-2.5 border border-slate-800 flex items-center gap-1.5 text-xs font-mono text-neutral-200 hover:border-sky-400 hover:text-sky-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-        >
-          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-          <span>Danh sách</span>
-        </button>
-        <span className="font-mono text-xs font-bold text-sky-300 truncate">
-          gdpt-2018-lop-{q.grade} / {q.id}
-        </span>
-      </div>
+    <div className="flex flex-col lg:h-[calc(100dvh-3rem)] lg:overflow-hidden bg-zinc-950">
+      {/* ====================================================================
+       * 6. SLEEK MOBILE STICKY HEADER & 2-TAB SEGMENTED SWITCHER (< 1024px)
+       * ==================================================================== */}
+      <div className="lg:hidden bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80 sticky top-12 z-30 px-4 py-2.5 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <button
+              type="button"
+              onClick={onBack}
+              aria-label="Quay lại danh sách"
+              className="p-1.5 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 shrink-0"
+            >
+              <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+            </button>
+            <span className="text-xs font-semibold text-zinc-100 truncate">
+              {q.topic}
+            </span>
+          </div>
+          <span className="bg-zinc-900 border border-zinc-800 rounded-full px-2.5 py-0.5 text-[11px] font-mono text-zinc-300 shrink-0">
+            <span className="text-emerald-400">AC: {ac}</span> •{' '}
+            <span className="text-amber-400">Streak: {streak}</span>
+          </span>
+        </div>
 
-      <div
-        className="lg:hidden grid grid-cols-2 border-b border-slate-800 shrink-0"
-        role="tablist"
-      >
-        {(
-          [
-            ['problem', 'Đề bài & Lý thuyết', FileText],
-            ['tutor', 'Gia sư AI / Chẩn đoán', MessageSquare],
-          ] as const
-        ).map(([id, label, Icon]) => (
+        {/* 2-Tab Segmented Pill Switcher */}
+        <div
+          className="bg-zinc-900 p-1 rounded-lg grid grid-cols-2 text-xs font-medium"
+          role="tablist"
+        >
           <button
-            key={id}
             type="button"
             role="tab"
-            aria-selected={tab === id}
-            onClick={() => setTab(id)}
-            className={`h-12 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold border-b-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-400 ${
-              tab === id
-                ? 'text-sky-300 border-sky-400 bg-sky-950/30'
-                : 'text-neutral-300 border-transparent'
+            aria-selected={mobileTab === 'wiki'}
+            onClick={() => setMobileTab('wiki')}
+            className={`py-1.5 rounded-md transition-colors cursor-pointer ${
+              mobileTab === 'wiki'
+                ? 'bg-zinc-800 text-zinc-100 shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <Icon className="w-4 h-4" aria-hidden="true" />
-            {label}
+            📖 Lý thuyết (Wiki)
           </button>
-        ))}
-      </div>
-
-      <div className="flex flex-col lg:flex-row flex-1 min-h-0">
-        {left}
-        {right}
-      </div>
-
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 p-3 pb-safe bg-[#0A0A0A]/95 backdrop-blur border-t border-slate-800">
-        {tab === 'problem' ? (
           <button
             type="button"
-            onClick={() => setTab('tutor')}
-            className="h-12 w-full bg-sky-400 text-black! border border-sky-300 hover:bg-sky-300 text-sm font-bold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            role="tab"
+            aria-selected={mobileTab === 'practice'}
+            onClick={() => setMobileTab('practice')}
+            className={`py-1.5 rounded-md transition-colors cursor-pointer ${
+              mobileTab === 'practice'
+                ? 'bg-zinc-800 text-zinc-100 shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
           >
-            Chọn đáp án &amp; mở Gia sư AI
+            ✏️ Luyện tập (Bài tập)
           </button>
+        </div>
+      </div>
+
+      {/* ====================================================================
+       * DESKTOP 12-COLUMN SPLIT-SCREEN WORKSPACE (`lg:grid-cols-12`)
+       * ==================================================================== */}
+      <div className="hidden lg:grid lg:grid-cols-12 flex-1 overflow-hidden">
+        {/* Left Pane (Wiki & Theory): col-span-6 */}
+        <section
+          aria-label="Bài viết lý thuyết chuyên đề (Wiki)"
+          className="col-span-6 xl:col-span-6 overflow-y-auto px-8 py-6 border-r border-zinc-800/80 space-y-5"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={onBack}
+              className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 bg-zinc-900/70 hover:bg-zinc-900 border border-zinc-800/80 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Tổng quan chuyên đề</span>
+            </button>
+            <span className="text-xs font-mono text-zinc-500">
+              {meta.vnName} {q.grade} • GDPT 2018
+            </span>
+          </div>
+
+          {renderWikiPane(false)}
+        </section>
+
+        {/* Right Pane (Codecademy Practice Console): col-span-6 */}
+        <section
+          aria-label="Bảng luyện tập tương tác và Gia sư Socratic"
+          className="col-span-6 xl:col-span-6 overflow-y-auto px-8 py-6 bg-zinc-950/50 flex flex-col justify-between"
+        >
+          {renderPracticePane()}
+        </section>
+      </div>
+
+      {/* ====================================================================
+       * MOBILE TABBED VIEWS (< 1024px)
+       * ==================================================================== */}
+      <div className="lg:hidden flex-1 pb-24">
+        {mobileTab === 'wiki' ? (
+          <div className="px-4 py-5 text-[15px] leading-7">
+            {renderWikiPane(true)}
+          </div>
         ) : (
+          <div className="px-4 py-5">{renderPracticePane()}</div>
+        )}
+      </div>
+
+      {/* Mobile Sticky Bottom Action Bar */}
+      {mobileTab === 'practice' && (
+        <div className="lg:hidden fixed bottom-0 inset-x-0 p-3 pb-safe bg-zinc-950/95 backdrop-blur border-t border-zinc-800 z-20 flex items-center gap-2.5">
           <button
             type="button"
             onClick={submit}
-            disabled={!selected || busy}
-            className="h-12 w-full bg-sky-400 text-black! border border-sky-300 hover:bg-sky-300 disabled:bg-slate-800 disabled:text-[#A3A3A3]! text-sm font-bold cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            disabled={!selected}
+            className="flex-1 h-11 bg-zinc-100 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-medium text-sm rounded-lg transition-all cursor-pointer disabled:cursor-not-allowed"
           >
-            {selected ? 'Nộp bài & xem đáp án chi tiết' : 'Hãy chọn một đáp án'}
+            {selected ? 'Nộp bài' : 'Chọn một đáp án'}
           </button>
-        )}
-      </div>
+          <button
+            type="button"
+            onClick={() => setMobileSheetOpen(true)}
+            className="h-11 px-4 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs font-medium inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
+            <span>✨ Hỏi Gia sư</span>
+          </button>
+        </div>
+      )}
+
+      {/* Slide-Up Socratic Tutor Bottom Sheet (Mobile) */}
+      {mobileSheetOpen && q.sourceTopic && (
+        <div
+          className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end bg-black/70 backdrop-blur-xs"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Trợ lý Gia sư Socratic"
+        >
+          <div
+            className="flex-1"
+            onClick={() => setMobileSheetOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="max-h-[80vh] overflow-y-auto rounded-t-2xl bg-zinc-900 border-t border-zinc-800 p-4 pb-safe space-y-3">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-2.5">
+              <span className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-sky-400" aria-hidden="true" />
+                <span>Gia sư AI Socratic • {q.sourceTopic.topicName}</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setMobileSheetOpen(false)}
+                aria-label="Đóng khung chat Gia sư"
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+              >
+                <X className="w-4 h-4" aria-hidden="true" />
+              </button>
+            </div>
+            <TopicChatBox
+              topic={q.sourceTopic}
+              questionContext={{
+                prompt: q.prompt,
+                correctOptionText,
+                stepByStepSolution: q.stepByStepSolution,
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

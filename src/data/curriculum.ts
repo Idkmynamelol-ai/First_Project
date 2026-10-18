@@ -15,15 +15,47 @@ import {
 
 export { grade12Curriculum, grade12BySubject, type Grade12CurriculumTopic };
 
+export const DIFFICULTY_TIER_ORDER: Record<CognitiveLevel, number> = {
+  'Nhận biết': 1,
+  'Thông hiểu': 2,
+  'Vận dụng': 3,
+  'Vận dụng cao': 4,
+};
+
+export interface WikiSection {
+  id: string;
+  heading: string;
+  subheadings: {
+    title: string;
+    bullets: string[];
+  }[];
+  callout?: {
+    title: string;
+    latex: string;
+    description: string;
+  };
+}
+
+export interface CompiledWikiArticle {
+  topicId: string;
+  breadcrumb: string;
+  title: string;
+  estimatedReadingMinutes: number;
+  toc: { id: string; label: string }[];
+  sections: WikiSection[];
+  workedExample: Grade12CurriculumTopic['workedExample'];
+  commonPitfalls: Grade12CurriculumTopic['commonPitfalls'];
+}
+
 export const SUBJECTS_META: Record<SubjectId, SubjectMeta> = {
   math: {
     id: 'math',
     name: 'Toán học',
     vnName: 'Toán học',
-    accentHex: '#FFFFFF',
-    badgeBg: 'bg-sky-500/15',
-    badgeText: 'text-[#FFFFFF]',
-    borderAccent: 'border-sky-400/35',
+    accentHex: '#38bdf8',
+    badgeBg: 'bg-sky-500/10',
+    badgeText: 'text-sky-300',
+    borderAccent: 'border-sky-500/30',
     glowBg: 'from-sky-500/10 to-transparent',
     mastery: 84,
     weeklyDelta: '+6.4%',
@@ -34,11 +66,11 @@ export const SUBJECTS_META: Record<SubjectId, SubjectMeta> = {
     id: 'physics',
     name: 'Vật lý',
     vnName: 'Vật lý',
-    accentHex: '#E5E5E5',
-    badgeBg: 'bg-violet-500/15',
-    badgeText: 'text-[#E5E5E5]',
-    borderAccent: 'border-violet-400/35',
-    glowBg: 'from-indigo-500/10 to-transparent',
+    accentHex: '#a78bfa',
+    badgeBg: 'bg-violet-500/10',
+    badgeText: 'text-violet-300',
+    borderAccent: 'border-violet-500/30',
+    glowBg: 'from-violet-500/10 to-transparent',
     mastery: 78,
     weeklyDelta: '+4.8%',
     streakDays: 11,
@@ -48,10 +80,10 @@ export const SUBJECTS_META: Record<SubjectId, SubjectMeta> = {
     id: 'chemistry',
     name: 'Hóa học',
     vnName: 'Hóa học',
-    accentHex: '#BDBDBD',
-    badgeBg: 'bg-emerald-500/15',
-    badgeText: 'text-[#BDBDBD]',
-    borderAccent: 'border-emerald-400/35',
+    accentHex: '#34d399',
+    badgeBg: 'bg-emerald-500/10',
+    badgeText: 'text-emerald-300',
+    borderAccent: 'border-emerald-500/30',
     glowBg: 'from-emerald-500/10 to-transparent',
     mastery: 81,
     weeklyDelta: '+5.2%',
@@ -62,10 +94,10 @@ export const SUBJECTS_META: Record<SubjectId, SubjectMeta> = {
     id: 'english',
     name: 'Tiếng Anh',
     vnName: 'Tiếng Anh',
-    accentHex: '#A3A3A3',
-    badgeBg: 'bg-amber-500/15',
-    badgeText: 'text-[#A3A3A3]',
-    borderAccent: 'border-amber-400/35',
+    accentHex: '#fbbf24',
+    badgeBg: 'bg-amber-500/10',
+    badgeText: 'text-amber-300',
+    borderAccent: 'border-amber-500/30',
     glowBg: 'from-amber-500/10 to-transparent',
     mastery: 89,
     weeklyDelta: '+3.1%',
@@ -73,6 +105,107 @@ export const SUBJECTS_META: Record<SubjectId, SubjectMeta> = {
     activeTopic: 'So sánh kép, Thể sai khiến, Mệnh đề quan hệ & Đảo ngữ điều kiện',
   },
 };
+
+/**
+ * Compiles any CurriculumTopic into a structured "Modern Wikipedia" long-form article
+ * with 4 canonical H2 sections, H3 subtopics, inline TOC, and integrated formula callouts.
+ */
+export function compileTopicWikiArticle(
+  topic: Grade12CurriculumTopic
+): CompiledWikiArticle {
+  const subjName = SUBJECTS_META[topic.subject].vnName;
+  const breadcrumb = `${subjName} ${topic.grade}  /  ${topic.chapter}`;
+  const firstRule = topic.keyFormulasAndRules[0];
+  const secondRule = topic.keyFormulasAndRules[1] ?? firstRule;
+
+  const isChem = topic.subject === 'chemistry';
+  const sec1Title = isChem
+    ? '1. Khái niệm & Cấu tạo phân tử'
+    : '1. Khái niệm cốt lõi & Bản chất lý thuyết';
+  const sec2Title = isChem
+    ? '2. Danh pháp IUPAC & Tên thông thường'
+    : '2. Hệ thống Công thức & Quy tắc chuẩn GDPT 2018';
+  const sec3Title = isChem
+    ? '3. Tính chất hóa học & Phản ứng thủy phân (Môi trường Acid vs. Kiềm)'
+    : '3. Phân tích Chuyên sâu & Điều kiện áp dụng';
+  const sec4Title = isChem
+    ? '4. Phương pháp giải nhanh & Định luật bảo toàn (Bảo toàn khối lượng, Ester của Phenol)'
+    : '4. Phương pháp giải nhanh & Các bẫy thường gặp';
+
+  const sections: WikiSection[] = [
+    {
+      id: 'sec-1-concept',
+      heading: sec1Title,
+      subheadings: [
+        {
+          title: 'Trọng tâm kiến thức cần nắm vững (Chuẩn GDPT 2018)',
+          bullets: topic.learningObjectives,
+        },
+      ],
+    },
+    {
+      id: 'sec-2-nomenclature',
+      heading: sec2Title,
+      subheadings: [
+        {
+          title: firstRule.name,
+          bullets: [firstRule.description],
+        },
+      ],
+      callout: {
+        title: firstRule.name,
+        latex: firstRule.latexOrRule,
+        description: firstRule.description,
+      },
+    },
+    {
+      id: 'sec-3-properties',
+      heading: sec3Title,
+      subheadings: [
+        {
+          title: secondRule.name,
+          bullets: [
+            secondRule.description,
+            topic.workedExample.logicReasoning,
+          ],
+        },
+      ],
+      callout:
+        topic.keyFormulasAndRules.length > 1
+          ? {
+              title: secondRule.name,
+              latex: secondRule.latexOrRule,
+              description: secondRule.description,
+            }
+          : undefined,
+    },
+    {
+      id: 'sec-4-conservation',
+      heading: sec4Title,
+      subheadings: topic.commonPitfalls.map((p, idx) => ({
+        title: `Lưu ý #${idx + 1}: ${p.mistake}`,
+        bullets: [
+          `Cách xử lý chuẩn: ${p.correction}`,
+          `Giải thích bản chất: ${p.explanation}`,
+        ],
+      })),
+    },
+  ];
+
+  return {
+    topicId: topic.id,
+    breadcrumb,
+    title: topic.topicName,
+    estimatedReadingMinutes: Math.max(
+      4,
+      topic.learningObjectives.length + topic.keyFormulasAndRules.length * 2
+    ),
+    toc: sections.map((s) => ({ id: s.id, label: s.heading })),
+    sections,
+    workedExample: topic.workedExample,
+    commonPitfalls: topic.commonPitfalls,
+  };
+}
 
 export const CURRICULUM_TOPICS: CurriculumTopic[] = grade12Curriculum.map(
   (topic) => ({
@@ -119,9 +252,19 @@ function isLatexOption(opt: string): boolean {
   );
 }
 
+/**
+ * Compiles all practice questions sorted strictly by:
+ * Level 1 (Subject) -> Level 2 (Topic) -> Level 3 (Difficulty Tier: Nhận biết -> Thông hiểu -> Vận dụng -> Vận dụng cao).
+ */
 export const PRACTICE_QUESTIONS: PracticeQuestion[] = grade12Curriculum.flatMap(
-  (topic) =>
-    topic.sampleQuestionTemplates.map((tpl, qIdx) => {
+  (topic) => {
+    const sortedTemplates = [...topic.sampleQuestionTemplates].sort(
+      (a, b) =>
+        DIFFICULTY_TIER_ORDER[a.cognitiveLevel] -
+        DIFFICULTY_TIER_ORDER[b.cognitiveLevel]
+    );
+
+    return sortedTemplates.map((tpl, qIdx) => {
       const pitfall =
         topic.commonPitfalls[qIdx % topic.commonPitfalls.length] ??
         topic.commonPitfalls[0];
@@ -173,23 +316,24 @@ export const PRACTICE_QUESTIONS: PracticeQuestion[] = grade12Curriculum.flatMap(
         sourceTopic: topic,
         reinforcement: {
           id: `${topic.id}-reinf-${qIdx + 1}`,
-          prompt: `Củng cố nhanh (${topic.topicName}): Sai lầm nào cần tránh nhất trong dạng toán này?`,
+          prompt: `Câu hỏi củng cố (${topic.topicName}): Điểm mấu chốt nào cần nhớ để tránh sai sót trong dạng bài này?`,
           latexFormula: primaryRule.latexOrRule,
           options: [
             {
               id: 'r-a',
-              text: `Khắc phục đúng: ${pitfall.correction}`,
+              text: `Quy tắc đúng: ${pitfall.correction}`,
             },
             {
               id: 'r-b',
-              text: `Mắc bẫy phổ biến: ${pitfall.mistake}`,
+              text: `Nhầm lẫn thường gặp: ${pitfall.mistake}`,
             },
           ],
           correctOptionId: 'r-a',
           explanation: pitfall.explanation,
         },
       };
-    })
+    });
+  }
 );
 
 export const INITIAL_TUTOR_MESSAGES: Record<SubjectId, ChatMessage[]> = {

@@ -5,16 +5,18 @@ import {
   ListChecks,
   Sparkles,
   ShieldCheck,
+  ArrowUpRight,
 } from 'lucide-react';
 import { SubjectId, CognitiveLevel, GradeLevel } from '../types/edu';
 import {
   SUBJECTS_META,
   PRACTICE_QUESTIONS,
   grade12BySubject,
+  DIFFICULTY_TIER_ORDER,
 } from '../data/curriculum';
-import { Tag, subjectColor } from './Tag';
-import { CopyableFormulaBlock, RichTextWithMath } from './MathRenderer';
-import { WorkedExampleSection, TopicChatBox } from './TopicChatBox';
+import { Tag, getDifficultyBadgeClasses } from './Tag';
+import { MathText } from './MathRenderer';
+import { CompiledWikiArticleView, TopicChatBox } from './TopicChatBox';
 import { SubjectDiagram } from './InteractiveDiagrams';
 import { DailyChallengeView } from './DailyChallengeView';
 import { AdminTab } from './AdminTab';
@@ -24,6 +26,8 @@ interface ProblemListProps {
   onOpen: (id: string) => void;
   streak: number;
   onStreakUpdate: (nextStreak: number, isCorrect: boolean) => void;
+  externalCogFilter?: 'all' | CognitiveLevel;
+  onExternalCogFilterChange?: (lvl: 'all' | CognitiveLevel) => void;
 }
 
 const SUBJECT_KEYS: SubjectId[] = ['math', 'physics', 'chemistry', 'english'];
@@ -43,13 +47,20 @@ export const ProblemList: React.FC<ProblemListProps> = ({
   onOpen,
   streak,
   onStreakUpdate,
+  externalCogFilter,
+  onExternalCogFilterChange,
 }) => {
   const [viewMode, setViewMode] = useState<
     'daily' | 'problems' | 'knowledge' | 'admin'
   >(() => (window.location.hash === '#/admin' ? 'admin' : 'problems'));
-  const [selectedSubject, setSelectedSubject] = useState<SubjectId>('math');
+  const [selectedSubject, setSelectedSubject] = useState<SubjectId>('chemistry');
   const [gradeFilter, setGradeFilter] = useState<'all' | GradeLevel>('all');
-  const [cogFilter, setCogFilter] = useState<'all' | CognitiveLevel>('all');
+  const [localCogFilter, setLocalCogFilter] = useState<
+    'all' | CognitiveLevel
+  >('all');
+
+  const cogFilter = externalCogFilter ?? localCogFilter;
+  const setCogFilter = onExternalCogFilterChange ?? setLocalCogFilter;
 
   useEffect(() => {
     const syncHash = () => {
@@ -77,102 +88,106 @@ export const ProblemList: React.FC<ProblemListProps> = ({
   );
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Header & Mode Switcher */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-neutral-800 pb-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-sky-300 font-bold mb-1">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-zinc-800/80 pb-5">
+        <div className="space-y-1.5">
+          <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
             CHƯƠNG TRÌNH GDPT 2018 • LỚP 10 – 11 – 12
           </p>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#F5F5F5]">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-zinc-100">
             {viewMode === 'daily'
               ? 'Thử thách Hàng ngày (Daily Deterministic Engine)'
               : viewMode === 'admin'
               ? 'Quản trị Hệ thống: Kho Nguồn Đề THPTQG • HSA • TSA (2025–2026)'
               : viewMode === 'problems'
-              ? `${SUBJECTS_META[selectedSubject].vnName}: Tuyển chọn câu hỏi trọng tâm (${rows.length} câu)`
-              : `${SUBJECTS_META[selectedSubject].vnName}: Cơ sở tri thức chuyên đề (${topics.length} chuyên đề)`}
+              ? `${SUBJECTS_META[selectedSubject].vnName}: Chuyên đề & Bài tập theo mức độ (${rows.length} câu)`
+              : `${SUBJECTS_META[selectedSubject].vnName}: Cẩm nang Lý thuyết Wiki (${topics.length} chuyên đề)`}
           </h1>
-          <p className="text-xs sm:text-sm text-neutral-300 mt-1">
+          <p className="text-sm text-zinc-400 max-w-2xl leading-relaxed">
             {viewMode === 'admin' ? (
               <>
-                Tự động thu thập & lưu trữ các liên kết đề thi thử{' '}
-                <span className="text-sky-300 bg-sky-500/20 border-b border-sky-400 px-1 font-bold">
+                Tự động thu thập &amp; lưu trữ các liên kết đề thi thử{' '}
+                <span className="font-semibold text-zinc-200">
                   THPTQG 2026, HSA 2026, TSA 2026
                 </span>{' '}
-                (kèm năm 2025) có PDF miễn phí hoặc cấu trúc hiển thị rõ cho Toán Học, Vật Lí, Hóa Học.
+                (kèm năm 2025) có PDF miễn phí hoặc cấu trúc hiển thị rõ.
               </>
             ) : (
               <>
-                Tổ chức chuyên đề theo từng môn học chuẩn{' '}
-                <span className="text-sky-300 bg-sky-500/20 border-b border-sky-400 px-1 font-bold">
-                  4 mức độ nhận thức
+                Phân cấp theo cấu trúc{' '}
+                <span className="font-semibold text-zinc-200">
+                  Môn học &gt; Chuyên đề Wiki &gt; 4 Mức độ nhận thức
                 </span>{' '}
-                (Nhận biết, Thông hiểu, Vận dụng, Vận dụng cao) — Mở khóa lời giải chi tiết sau khi hoàn thành.
+                (Nhận biết, Thông hiểu, Vận dụng, Vận dụng cao).
               </>
             )}
           </p>
         </div>
 
+        {/* Segmented Mode Pill Bar */}
         <div
-          className="grid grid-cols-2 sm:grid-cols-4 border border-neutral-800 bg-[#0A0A0A] shrink-0"
+          className="bg-zinc-900/90 border border-zinc-800/80 p-1 rounded-xl grid grid-cols-2 sm:grid-cols-4 gap-1 shrink-0"
           role="tablist"
           aria-label="Chế độ học tập"
         >
           <button
             type="button"
             role="tab"
-            aria-selected={viewMode === 'daily'}
-            onClick={() => setViewMode('daily')}
-            className={`min-h-[44px] px-3 text-xs font-bold inline-flex items-center justify-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
-              viewMode === 'daily'
-                ? 'bg-sky-400 text-black'
-                : 'text-neutral-200 hover:text-sky-300'
-            }`}
-          >
-            <Sparkles className="w-4 h-4 shrink-0" aria-hidden="true" />
-            <span>Thử thách Ngày</span>
-          </button>
-          <button
-            type="button"
-            role="tab"
             aria-selected={viewMode === 'problems'}
             onClick={() => setViewMode('problems')}
-            className={`min-h-[44px] px-3 text-xs font-bold inline-flex items-center justify-center gap-2 border-l border-neutral-800 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
               viewMode === 'problems'
-                ? 'bg-sky-400 text-black'
-                : 'text-neutral-200 hover:text-sky-300'
+                ? 'bg-zinc-100 text-zinc-950 font-semibold shadow-xs'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <ListChecks className="w-4 h-4 shrink-0" aria-hidden="true" />
-            <span>Ngân hàng đề ({PRACTICE_QUESTIONS.length})</span>
+            <ListChecks className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+            <span>Luyện tập ({PRACTICE_QUESTIONS.length})</span>
           </button>
+
           <button
             type="button"
             role="tab"
             aria-selected={viewMode === 'knowledge'}
             onClick={() => setViewMode('knowledge')}
-            className={`min-h-[44px] px-3 text-xs font-bold inline-flex items-center justify-center gap-2 border-t sm:border-t-0 sm:border-l border-neutral-800 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
               viewMode === 'knowledge'
-                ? 'bg-sky-400 text-black'
-                : 'text-neutral-200 hover:text-sky-300'
+                ? 'bg-zinc-100 text-zinc-950 font-semibold shadow-xs'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <BookOpen className="w-4 h-4 shrink-0" aria-hidden="true" />
-            <span>Cơ sở tri thức</span>
+            <BookOpen className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+            <span>Lý thuyết (Wiki)</span>
           </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === 'daily'}
+            onClick={() => setViewMode('daily')}
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+              viewMode === 'daily'
+                ? 'bg-zinc-100 text-zinc-950 font-semibold shadow-xs'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+            <span>Thử thách Ngày</span>
+          </button>
+
           <button
             type="button"
             role="tab"
             aria-selected={viewMode === 'admin'}
             onClick={() => setViewMode('admin')}
-            className={`min-h-[44px] px-3 text-xs font-bold inline-flex items-center justify-center gap-2 border-t sm:border-t-0 border-l border-neutral-800 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
               viewMode === 'admin'
-                ? 'bg-sky-400 text-black'
-                : 'text-neutral-200 hover:text-sky-300'
+                ? 'bg-zinc-100 text-zinc-950 font-semibold shadow-xs'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <ShieldCheck className="w-4 h-4 shrink-0" aria-hidden="true" />
+            <ShieldCheck className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
             <span>Admin</span>
           </button>
         </div>
@@ -188,10 +203,10 @@ export const ProblemList: React.FC<ProblemListProps> = ({
           onStreakUpdate={onStreakUpdate}
         />
       ) : (
-        <>
-          {/* Bộ chọn 4 môn học (Đã bỏ danh mục ALL, chia theo từng môn rõ ràng) */}
+        <div className="space-y-6">
+          {/* Level 1: Subject Selector (4 Subjects) */}
           <div
-            className="grid grid-cols-2 sm:grid-cols-4 gap-2"
+            className="grid grid-cols-2 lg:grid-cols-4 gap-3"
             role="tablist"
             aria-label="Chọn môn học"
           >
@@ -210,29 +225,23 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                   role="tab"
                   aria-selected={active}
                   onClick={() => setSelectedSubject(subj)}
-                  className={`min-h-[54px] p-3 border text-left transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+                  className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
                     active
-                      ? 'bg-sky-950/50 border-sky-400 text-white'
-                      : 'bg-[#111111] border-neutral-800 text-neutral-300 hover:border-neutral-600 hover:text-white'
+                      ? 'bg-zinc-900 border-sky-500/60 text-zinc-100 shadow-xs'
+                      : 'bg-zinc-900/40 border-zinc-800/80 text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-200'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="font-mono text-xs sm:text-sm font-bold">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-semibold text-zinc-100">
                       {subjMeta.vnName}
                     </span>
-                    <span
-                      className={`text-[11px] font-mono px-1.5 py-0.5 border ${
-                        active
-                          ? 'border-sky-400/60 bg-sky-500/20 text-sky-300 font-bold'
-                          : 'border-neutral-800 bg-[#0A0A0A] text-neutral-400'
-                      }`}
-                    >
+                    <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-zinc-950/80 border border-zinc-800 text-zinc-400">
                       {viewMode === 'problems'
                         ? `${subjQuestionsCount} câu`
                         : `${subjTopicsCount} CĐ`}
                     </span>
                   </div>
-                  <p className="text-[11px] text-neutral-400 truncate mt-1">
+                  <p className="text-xs text-zinc-500 truncate mt-1.5">
                     {subjMeta.activeTopic}
                   </p>
                 </button>
@@ -240,10 +249,10 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             })}
           </div>
 
-          {/* Bộ lọc Khối lớp (10 - 11 - 12) & Mức độ nhận thức */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+          {/* Grade & Difficulty Filters */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div
-              className="flex flex-wrap gap-1.5"
+              className="flex flex-wrap items-center gap-1.5"
               role="group"
               aria-label="Lọc theo khối lớp"
             >
@@ -255,10 +264,10 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                     type="button"
                     aria-pressed={active}
                     onClick={() => setGradeFilter(g)}
-                    className={`min-h-[38px] px-3 border font-mono text-xs cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+                    className={`px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-colors ${
                       active
-                        ? 'border-sky-400 text-sky-300 bg-sky-950/60 font-bold'
-                        : 'border-neutral-800 text-neutral-300 bg-[#111111] hover:border-neutral-600 hover:text-white'
+                        ? 'border-zinc-700 bg-zinc-800 text-zinc-100'
+                        : 'border-zinc-800/80 bg-zinc-900/40 text-zinc-400 hover:text-zinc-200'
                     }`}
                   >
                     {g === 'all' ? 'Khối 10–11–12' : `Lớp ${g}`}
@@ -269,7 +278,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
 
             {viewMode === 'problems' && (
               <div
-                className="flex flex-wrap gap-1.5"
+                className="flex flex-wrap items-center gap-1.5"
                 role="group"
                 aria-label="Lọc theo mức độ nhận thức"
               >
@@ -281,13 +290,13 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                       type="button"
                       aria-pressed={active}
                       onClick={() => setCogFilter(lvl)}
-                      className={`min-h-[38px] px-3 border font-mono text-xs cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+                      className={`px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-colors ${
                         active
-                          ? 'border-sky-400 text-sky-300 bg-sky-950/60 font-bold'
-                          : 'border-neutral-800 text-neutral-300 bg-[#111111] hover:border-neutral-600 hover:text-white'
+                          ? 'border-sky-500/60 bg-sky-500/10 text-sky-300'
+                          : 'border-zinc-800/80 bg-zinc-900/40 text-zinc-400 hover:text-zinc-200'
                       }`}
                     >
-                      {lvl === 'all' ? 'Mọi mức độ' : lvl}
+                      {lvl === 'all' ? 'Tất cả mức độ' : lvl}
                     </button>
                   );
                 })}
@@ -295,42 +304,54 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             )}
           </div>
 
+          {/* ================================================================
+           * MODE A: PRACTICE CONSOLE DIRECTORY (Sorted by Topic > Difficulty Tier)
+           * ================================================================ */}
           {viewMode === 'problems' ? (
-            <div className="space-y-4">
-              {/* Nhóm câu hỏi theo từng chuyên đề của môn học đang chọn */}
+            <div className="space-y-6">
               {topics
                 .map((topic) => {
-                  const topicQuestions = rows.filter(
-                    (q) => q.sourceTopic?.id === topic.id || q.topic === topic.topicName
-                  );
+                  const topicQuestions = rows
+                    .filter(
+                      (q) =>
+                        q.sourceTopic?.id === topic.id ||
+                        q.topic === topic.topicName
+                    )
+                    .sort(
+                      (a, b) =>
+                        DIFFICULTY_TIER_ORDER[a.cognitiveLevel] -
+                        DIFFICULTY_TIER_ORDER[b.cognitiveLevel]
+                    );
                   return { topic, topicQuestions };
                 })
                 .filter((group) => group.topicQuestions.length > 0)
                 .map(({ topic, topicQuestions }, gIdx) => (
                   <section
                     key={topic.id}
-                    className="border border-neutral-800 bg-[#111111] overflow-hidden"
+                    className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 overflow-hidden"
                   >
-                    <div className="px-3.5 sm:px-4 py-3 bg-[#0A0A0A] border-b border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div className="space-y-0.5">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[11px] font-mono font-bold text-sky-300 bg-sky-950/60 border border-sky-400/40 px-2 py-0.5">
-                            Chuyên đề {String(gIdx + 1).padStart(2, '0')} • Lớp {topic.grade}
+                    {/* Topic Header */}
+                    <div className="px-5 py-4 bg-zinc-900/70 border-b border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="space-y-1">
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
+                          <span className="font-mono text-zinc-300 font-medium">
+                            Chuyên đề {String(gIdx + 1).padStart(2, '0')} • Lớp{' '}
+                            {topic.grade}
                           </span>
-                          <span className="text-[11px] font-mono text-neutral-400">
-                            {topic.chapter}
-                          </span>
+                          <span>/</span>
+                          <span>{topic.chapter}</span>
                         </div>
-                        <h2 className="text-sm sm:text-base font-bold text-white">
+                        <h2 className="text-base sm:text-lg font-semibold text-zinc-100">
                           {topic.topicName}
                         </h2>
                       </div>
-                      <span className="text-xs font-mono text-sky-300 shrink-0">
-                        {topicQuestions.length} câu hỏi chọn lọc
+                      <span className="text-xs font-mono text-zinc-400 shrink-0">
+                        {topicQuestions.length} bài tập phân bậc
                       </span>
                     </div>
 
-                    <ul className="divide-y divide-neutral-800">
+                    {/* Sorted Problems List */}
+                    <ul className="divide-y divide-zinc-800/70">
                       {topicQuestions.map((q, i) => {
                         const status = solved[q.id];
                         return (
@@ -338,43 +359,39 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                             <button
                               type="button"
                               onClick={() => onOpen(q.id)}
-                              className="w-full min-h-[72px] p-3.5 sm:p-4 text-left flex items-center gap-3 hover:bg-sky-950/25 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-400"
+                              className="w-full px-5 py-4 text-left flex items-center gap-4 hover:bg-zinc-900/80 cursor-pointer transition-colors"
                             >
-                              <span className="w-7 font-mono text-xs font-bold text-sky-300 shrink-0">
-                                {String(i + 1).padStart(2, '0')}
+                              <span className="w-7 h-7 rounded-lg bg-zinc-800/80 border border-zinc-700/50 font-mono text-xs font-medium text-zinc-400 flex items-center justify-center shrink-0">
+                                {i + 1}
                               </span>
-                              <span className="flex-1 min-w-0 space-y-1.5">
-                                <span className="block text-sm sm:text-[15px] text-white line-clamp-2 leading-relaxed font-sans">
-                                  <RichTextWithMath text={q.prompt} />
+
+                              <span className="flex-1 min-w-0 space-y-2">
+                                <span className="block text-[15px] text-zinc-200 line-clamp-2 leading-7">
+                                  <MathText content={q.prompt} />
                                 </span>
-                                <span className="flex flex-wrap gap-1.5 pt-0.5">
-                                  <Tag>GDPT 2018</Tag>
-                                  <Tag>Lớp {q.grade}</Tag>
-                                  <Tag color={subjectColor(q.subject)}>
-                                    {SUBJECTS_META[q.subject].vnName}
+                                <span className="flex flex-wrap items-center gap-2">
+                                  <Tag tier={q.cognitiveLevel}>
+                                    {q.cognitiveLevel}
                                   </Tag>
-                                  <Tag>{q.cognitiveLevel}</Tag>
+                                  <Tag>Lớp {q.grade}</Tag>
+                                  <Tag>{q.chapter}</Tag>
                                 </span>
                               </span>
-                              <span
-                                className="font-mono text-xs shrink-0 w-12 text-right font-bold"
-                                style={{
-                                  color:
+
+                              {status && (
+                                <span
+                                  className={`px-2.5 py-0.5 rounded-md border font-mono text-xs font-medium shrink-0 ${
                                     status === 'AC'
-                                      ? '#10B981'
-                                      : status === 'WA'
-                                      ? '#F43F5E'
-                                      : '#38BDF8',
-                                }}
-                              >
-                                {status === 'AC'
-                                  ? 'ĐÚNG'
-                                  : status === 'WA'
-                                  ? 'SAI'
-                                  : '--'}
-                              </span>
+                                      ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-300'
+                                      : 'border-rose-500/50 bg-rose-500/10 text-rose-300'
+                                  }`}
+                                >
+                                  {status === 'AC' ? 'ĐÚNG' : 'CHƯA ĐÚNG'}
+                                </span>
+                              )}
+
                               <ChevronRight
-                                className="w-4 h-4 text-neutral-400 shrink-0"
+                                className="w-4 h-4 text-zinc-500 shrink-0"
                                 aria-hidden="true"
                               />
                             </button>
@@ -386,88 +403,72 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                 ))}
             </div>
           ) : (
-            <div className="space-y-6">
-              {/* Trực quan hóa đa dạng theo môn học đang chọn */}
+            /* ================================================================
+             * MODE B: COMPILED MODERN WIKIPEDIA LESSON VIEW
+             * ================================================================ */
+            <div className="space-y-8">
               <SubjectDiagram subject={selectedSubject} />
 
-              {topics.map((topic, idx) => {
+              {topics.map((topic) => {
                 const firstQuestionId = `${topic.id}-q1`;
                 return (
-                  /* STUDY CARD: Uses Grey-White border border-[#D4D4D8]/70 */
                   <article
                     key={topic.id}
-                    className="border border-[#D4D4D8]/70 bg-[#111111] p-4 sm:p-5 space-y-5"
+                    className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6 sm:p-8 space-y-6"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-neutral-800 pb-4">
-                      <div className="space-y-1.5">
-                        <div className="flex flex-wrap gap-1.5">
-                          <Tag>#{String(idx + 1).padStart(2, '0')}</Tag>
-                          <Tag>
-                            {SUBJECTS_META[topic.subject].vnName} {topic.grade}
-                          </Tag>
-                          <Tag>{topic.chapter}</Tag>
+                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                      <CompiledWikiArticleView topic={topic} />
+
+                      {/* Right Side Mini Practice Card inside Wiki View */}
+                      <div className="lg:w-72 shrink-0 rounded-xl border border-zinc-800/80 bg-zinc-950/70 p-5 space-y-4">
+                        <div className="space-y-1">
+                          <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+                            Thực hành chuyên đề
+                          </p>
+                          <p className="text-sm font-semibold text-zinc-100">
+                            {topic.sampleQuestionTemplates.length} câu hỏi phân bậc
+                          </p>
                         </div>
-                        <h2 className="text-lg sm:text-xl font-bold text-white">
-                          {topic.topicName}
-                        </h2>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => onOpen(firstQuestionId)}
-                        className="h-10 px-4 bg-sky-400 text-black border border-sky-300 text-xs font-bold hover:bg-sky-300 shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-                      >
-                        Luyện tập chuyên đề (
-                        {topic.sampleQuestionTemplates.length} câu)
-                      </button>
-                    </div>
 
-                    {/* Yêu cầu cần đạt (learningObjectives) */}
-                    <div className="space-y-1.5 border border-neutral-800 bg-[#0A0A0A] p-3.5 sm:p-4">
-                      <h3 className="text-xs font-mono uppercase tracking-wider text-sky-300 font-bold">
-                        Yêu cầu cần đạt (GDPT 2018 • Lớp {topic.grade})
-                      </h3>
-                      <ul className="space-y-1.5 text-sm text-neutral-100 font-sans leading-relaxed">
-                        {topic.learningObjectives.map((obj, oIdx) => (
-                          <li key={oIdx} className="flex gap-2">
-                            <span className="text-sky-400 font-bold">•</span>
-                            <span>{obj}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {Array.from(
+                            new Set(
+                              topic.sampleQuestionTemplates.map(
+                                (q) => q.cognitiveLevel
+                              )
+                            )
+                          ).map((lvl) => (
+                            <span
+                              key={lvl}
+                              className={`px-2 py-0.5 rounded-md border text-xs font-mono ${getDifficultyBadgeClasses(
+                                lvl
+                              )}`}
+                            >
+                              {lvl}
+                            </span>
+                          ))}
+                        </div>
 
-                    {/* Công thức & Quy tắc trọng tâm */}
-                    <div className="space-y-2">
-                      <h3 className="text-xs font-mono uppercase tracking-wider text-sky-300 font-bold">
-                        Công thức &amp; Quy tắc trọng tâm
-                      </h3>
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                        {topic.keyFormulasAndRules.map((rule, rIdx) => (
-                          <div key={rIdx} className="space-y-1.5">
-                            <CopyableFormulaBlock
-                              title={rule.name}
-                              latex={rule.latexOrRule}
-                              compact={true}
-                            />
-                            <p className="text-xs sm:text-sm font-sans text-sky-100 bg-sky-950/30 border-l-2 border-sky-400 px-3 py-1.5 leading-relaxed">
-                              {rule.description}
-                            </p>
-                          </div>
-                        ))}
+                        <button
+                          type="button"
+                          onClick={() => onOpen(firstQuestionId)}
+                          className="w-full bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs px-4 py-2.5 rounded-lg inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                        >
+                          <span>Mở Bảng luyện tập</span>
+                          <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
+                        </button>
                       </div>
                     </div>
 
-                    {/* Ví dụ minh họa toàn diện & Phân tích tư duy */}
-                    <WorkedExampleSection topic={topic} />
-
-                    {/* Khung chat hỏi đáp chuyên đề */}
-                    <TopicChatBox topic={topic} />
+                    <div className="max-w-[65ch]">
+                      <TopicChatBox topic={topic} />
+                    </div>
                   </article>
                 );
               })}
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

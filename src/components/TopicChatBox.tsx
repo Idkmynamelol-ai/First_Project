@@ -1,92 +1,257 @@
 import React, { useState } from 'react';
-import { MessageSquare, Send, Sparkles, Compass, CheckCircle2 } from 'lucide-react';
+import {
+  Send,
+  Sparkles,
+  CheckCircle2,
+  ChevronDown,
+  Clock,
+  BookOpen,
+} from 'lucide-react';
 import { CurriculumTopic } from '../../backend/data/curriculum/grade12';
-import { RichTextWithMath } from './MathRenderer';
+import { compileTopicWikiArticle } from '../data/curriculum';
+import { CopyableFormulaBlock, MathText } from './MathRenderer';
 
 interface WorkedExampleSectionProps {
   topic: CurriculumTopic;
+  defaultOpen?: boolean;
 }
 
+/**
+ * Sleek Wiki Callout + Collapsible Worked Example Accordion
+ */
 export const WorkedExampleSection: React.FC<WorkedExampleSectionProps> = ({
   topic,
+  defaultOpen = true,
 }) => {
   const ex = topic.workedExample;
   if (!ex) return null;
 
   return (
-    <div className="border border-[#D4D4D8]/70 bg-[#0A0A0A] p-4 sm:p-5 space-y-4 font-sans-readable">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-3">
-        <h4 className="text-xs sm:text-sm uppercase tracking-wider text-sky-300 font-bold flex items-center gap-2 font-mono">
-          <Compass className="w-4 h-4 text-sky-400 shrink-0" aria-hidden="true" />
-          <span className="bg-sky-500/20 border border-sky-400/60 px-2.5 py-0.5 text-sky-200">
-            Ví dụ minh họa toàn diện &amp; Phân tích tư duy
+    <details
+      open={defaultOpen}
+      className="group bg-zinc-900/60 border-l-2 border-l-sky-500 border border-zinc-800/80 rounded-r-lg my-4 overflow-hidden"
+    >
+      <summary className="px-4 py-3.5 cursor-pointer list-none flex items-center justify-between gap-3 select-none hover:bg-zinc-900/90 transition-colors">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="px-2 py-0.5 rounded-md bg-sky-500/10 border border-sky-500/20 text-sky-300 font-mono text-xs font-medium shrink-0">
+            Ví dụ mẫu
           </span>
-        </h4>
-        <span className="text-[11px] font-mono font-bold text-sky-300 bg-sky-950/80 border border-sky-400/50 px-2.5 py-0.5">
-          TRỌNG TÂM BÀI HỌC
-        </span>
-      </div>
-
-      {/* 1. Đề bài ví dụ */}
-      <div className="space-y-2">
-        <p className="text-xs font-mono uppercase tracking-wider text-sky-300 font-bold flex items-center gap-2">
-          <span className="inline-flex items-center justify-center w-5 h-5 bg-sky-400 text-black text-[11px] font-bold">
-            1
+          <span className="text-sm font-semibold text-zinc-100 truncate">
+            Phân tích tư duy &amp; Bài giải mẫu từng bước
           </span>
-          <span>Bài toán thực tế / Đề bài minh họa</span>
-        </p>
-        <div className="text-sm sm:text-[15px] text-white leading-7 bg-[#141414] border border-[#D4D4D8]/60 p-3.5 sm:p-4 font-sans">
-          <RichTextWithMath text={ex.problemStatement} />
         </div>
-      </div>
-
-      {/* 2. Phân tích tư duy & lập luận logic */}
-      <div className="space-y-2">
-        <p className="text-xs font-mono uppercase tracking-wider text-sky-300 font-bold flex items-center gap-2">
-          <span className="inline-flex items-center justify-center w-5 h-5 bg-sky-400 text-black text-[11px] font-bold">
-            2
-          </span>
-          <span>Định hướng tư duy &amp; Lập luận logic (Mấu chốt giải quyết)</span>
-        </p>
-        <div className="text-sm sm:text-[15px] text-sky-100 leading-7 bg-sky-950/40 border border-sky-400/60 border-l-4 border-l-sky-400 p-3.5 sm:p-4 font-sans">
-          <RichTextWithMath text={ex.logicReasoning} />
-        </div>
-      </div>
-
-      {/* 3. Các bước giải chi tiết */}
-      <div className="space-y-2">
-        <p className="text-xs font-mono uppercase tracking-wider text-sky-300 font-bold flex items-center gap-2">
-          <span className="inline-flex items-center justify-center w-5 h-5 bg-sky-400 text-black text-[11px] font-bold">
-            3
-          </span>
-          <span>Trình bày các bước giải chi tiết</span>
-        </p>
-        <ol className="space-y-2.5 text-sm sm:text-[15px] text-neutral-100 font-sans">
-          {ex.steps.map((step, idx) => (
-            <li
-              key={idx}
-              className="border border-[#D4D4D8]/50 bg-[#141414] border-l-4 border-l-sky-400 p-3.5 leading-7 flex items-start gap-3"
-            >
-              <span className="font-mono text-xs font-bold text-sky-300 bg-sky-950/80 border border-sky-400/40 px-2 py-0.5 shrink-0 mt-0.5">
-                B{idx + 1}
-              </span>
-              <div className="min-w-0 flex-1">
-                <RichTextWithMath text={step} />
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      {/* 4. Kết luận */}
-      <div className="border border-sky-400 bg-sky-950/50 p-3.5 sm:p-4 flex items-start gap-3 font-sans">
-        <CheckCircle2
-          className="w-5 h-5 text-sky-300 shrink-0 mt-0.5"
+        <ChevronDown
+          className="w-4 h-4 text-zinc-400 shrink-0 transition-transform duration-150 group-open:rotate-180"
           aria-hidden="true"
         />
-        <div className="text-sm sm:text-[15px] text-white font-semibold leading-7">
-          <RichTextWithMath text={ex.finalConclusion} />
+      </summary>
+
+      <div className="p-4 pt-2 border-t border-zinc-800/60 space-y-4 text-[15px] leading-7 text-zinc-300">
+        {/* 1. Đề bài minh họa */}
+        <div className="space-y-1.5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            1. Đề bài minh họa
+          </p>
+          <div className="p-3.5 rounded-lg bg-zinc-950/70 border border-zinc-800/80 text-zinc-200">
+            <MathText content={ex.problemStatement} />
+          </div>
         </div>
+
+        {/* 2. Định hướng tư duy & Lập luận logic */}
+        <div className="space-y-1.5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-sky-400">
+            2. Định hướng tư duy &amp; Lập luận logic
+          </p>
+          <div className="p-3.5 rounded-lg bg-sky-500/[0.06] border border-sky-500/20 text-zinc-200">
+            <MathText content={ex.logicReasoning} />
+          </div>
+        </div>
+
+        {/* 3. Các bước giải chi tiết */}
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            3. Trình bày các bước giải chi tiết
+          </p>
+          <ol className="space-y-2.5">
+            {ex.steps.map((step, idx) => (
+              <li
+                key={idx}
+                className="p-3.5 rounded-lg bg-zinc-950/60 border border-zinc-800/80 flex items-start gap-3"
+              >
+                <span className="w-6 h-6 rounded-md bg-zinc-800/90 border border-zinc-700/60 font-mono text-xs font-medium text-zinc-300 flex items-center justify-center shrink-0 mt-0.5">
+                  {idx + 1}
+                </span>
+                <div className="min-w-0 flex-1 text-zinc-200">
+                  <MathText content={step} />
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {/* 4. Kết luận */}
+        <div className="p-3.5 rounded-lg bg-emerald-500/[0.08] border border-emerald-500/30 flex items-start gap-2.5">
+          <CheckCircle2
+            className="w-4 h-4 text-emerald-400 shrink-0 mt-1"
+            aria-hidden="true"
+          />
+          <div className="text-sm sm:text-[15px] text-emerald-200 font-medium leading-7">
+            <MathText content={ex.finalConclusion} />
+          </div>
+        </div>
+      </div>
+    </details>
+  );
+};
+
+interface CompiledWikiArticleViewProps {
+  topic: CurriculumTopic;
+  collapsibleSections?: boolean;
+}
+
+/**
+ * Compiled "Modern Wikipedia / Notion" Long-Form Lesson Article
+ * - Breadcrumb + Editorial Title + Estimated Reading Time + Inline Mini TOC
+ * - Max reading width `max-w-[65ch]` for optimal eye tracking
+ * - Structured H2 & H3 sections + Integrated Callout Blocks + Collapsible Worked Example
+ */
+export const CompiledWikiArticleView: React.FC<CompiledWikiArticleViewProps> = ({
+  topic,
+  collapsibleSections = false,
+}) => {
+  const wiki = compileTopicWikiArticle(topic);
+  const primaryFormula = topic.keyFormulasAndRules[0];
+
+  return (
+    <div className="max-w-[65ch] space-y-6 text-[15px] leading-7 text-zinc-300">
+      {/* Article Header */}
+      <header className="space-y-3 border-b border-zinc-800/80 pb-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500">
+          <span className="font-medium text-zinc-400">{wiki.breadcrumb}</span>
+          <span className="inline-flex items-center gap-1.5 font-mono text-zinc-400">
+            <Clock className="w-3.5 h-3.5 text-zinc-500" aria-hidden="true" />
+            <span>~{wiki.estimatedReadingMinutes} phút đọc</span>
+          </span>
+        </div>
+
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 leading-snug">
+          {wiki.title}
+        </h1>
+
+        {/* Inline Mini Table of Contents */}
+        <nav
+          aria-label="Mục lục bài viết"
+          className="bg-zinc-900/50 border border-zinc-800/80 rounded-lg p-3.5 space-y-2"
+        >
+          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
+            <BookOpen className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
+            <span>Mục lục bài viết</span>
+          </p>
+          <ol className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-zinc-400">
+            {wiki.toc.map((item) => (
+              <li key={item.id} className="truncate">
+                <a
+                  href={`#${topic.id}-${item.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document
+                      .getElementById(`${topic.id}-${item.id}`)
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className="hover:text-zinc-100 transition-colors"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      </header>
+
+      {/* Wiki Prose Sections */}
+      <div className="space-y-6">
+        {wiki.sections.map((sec, idx) => {
+          const sectionBody = (
+            <div className="space-y-3">
+              {sec.subheadings.map((sub, sIdx) => (
+                <div key={sIdx} className="space-y-2">
+                  <h3 className="text-sm font-semibold text-zinc-200 mt-4 mb-2">
+                    {sub.title}
+                  </h3>
+                  <ul className="space-y-2 text-[15px] leading-7 text-zinc-300 list-disc pl-5 marker:text-zinc-500">
+                    {sub.bullets.map((b, bIdx) => (
+                      <li key={bIdx}>
+                        <MathText content={b} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+
+              {sec.callout && (
+                <CopyableFormulaBlock
+                  title={sec.callout.title}
+                  latex={sec.callout.latex}
+                  description={sec.callout.description}
+                />
+              )}
+
+              {/* Attach the Collapsible Worked Example inside Section 4 (Conservation & Fast Solving) */}
+              {idx === wiki.sections.length - 1 && (
+                <div className="bg-zinc-900/60 border-l-2 border-l-sky-500 border border-zinc-800/80 rounded-r-lg p-4 my-4 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-sky-400">
+                      Định luật bảo toàn &amp; Công thức giải nhanh
+                    </span>
+                    <span className="text-xs font-mono text-zinc-400">
+                      GDPT 2018
+                    </span>
+                  </div>
+                  {primaryFormula && (
+                    <CopyableFormulaBlock
+                      title={primaryFormula.name}
+                      latex={primaryFormula.latexOrRule}
+                      description={primaryFormula.description}
+                      compact
+                    />
+                  )}
+                  <WorkedExampleSection topic={topic} defaultOpen={!collapsibleSections} />
+                </div>
+              )}
+            </div>
+          );
+
+          if (collapsibleSections) {
+            return (
+              <details
+                key={sec.id}
+                id={`${topic.id}-${sec.id}`}
+                open={idx === 0 || idx === wiki.sections.length - 1}
+                className="group border border-zinc-800/80 rounded-xl bg-zinc-900/30 px-4 py-3"
+              >
+                <summary className="cursor-pointer list-none flex items-center justify-between gap-2 text-base font-semibold text-zinc-100 select-none">
+                  <span>{sec.heading}</span>
+                  <ChevronDown
+                    className="w-4 h-4 text-zinc-400 shrink-0 transition-transform group-open:rotate-180"
+                    aria-hidden="true"
+                  />
+                </summary>
+                <div className="pt-3 mt-2 border-t border-zinc-800/60">
+                  {sectionBody}
+                </div>
+              </details>
+            );
+          }
+
+          return (
+            <section key={sec.id} id={`${topic.id}-${sec.id}`}>
+              <h2 className="text-lg font-semibold text-zinc-100 border-b border-zinc-800/80 pb-2 mt-6 mb-3">
+                {sec.heading}
+              </h2>
+              {sectionBody}
+            </section>
+          );
+        })}
       </div>
     </div>
   );
@@ -100,23 +265,32 @@ interface ChatMsg {
 
 interface TopicChatBoxProps {
   topic: CurriculumTopic;
+  questionContext?: {
+    prompt: string;
+    selectedOptionText?: string;
+    correctOptionText?: string;
+    stepByStepSolution?: string[];
+  };
 }
 
-export const TopicChatBox: React.FC<TopicChatBoxProps> = ({ topic }) => {
-  const [messages, setMessages] = useState<ChatMsg[]>([
-    {
-      id: 1,
-      role: 'assistant',
-      text: `Chào bạn! Bạn đang xem chuyên đề **${topic.topicName}** (${topic.chapter}). Bạn có thắc mắc nào về công thức, lập luận logic trong ví dụ trên hay phương pháp giải dạng bài này không?`,
-    },
-  ]);
+/**
+ * Unified Context-Aware Socratic Assistant Thread
+ * - Replaces dual redundant chat panels with a single sleek thread + pill chips + minimal input bar
+ */
+export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
+  topic,
+  questionContext,
+}) => {
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
 
   const quickQuestions = [
-    'Giải thích rõ hơn bước lập luận logic trong ví dụ?',
-    `Khi nào áp dụng công thức "${topic.keyFormulasAndRules[0]?.name ?? 'trọng tâm'}"?`,
-    'Cho mình thêm 1 bài tương tự để tự luyện?',
+    'Giải thích rõ bước lập luận logic',
+    topic.subject === 'chemistry'
+      ? 'Khi nào áp dụng tỉ lệ 1:2 của ester phenol?'
+      : `Khi nào áp dụng công thức "${topic.keyFormulasAndRules[0]?.name ?? 'trọng tâm'}"?`,
+    'Tạo 1 bài tương tự để tự luyện',
   ];
 
   const buildLocalReply = (userQuestion: string): string => {
@@ -132,10 +306,10 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({ topic }) => {
       qLower.includes('vì sao')
     ) {
       return (
-        `**Phân tích sâu lập luận trong ví dụ (${topic.topicName}):**\n` +
+        `**Phân tích lập luận logic (${topic.topicName}):**\n` +
         `• **Cốt lõi tư duy:** ${topic.workedExample.logicReasoning}\n` +
         `• **Bước mấu chốt đầu tiên:** ${topic.workedExample.steps[0]}\n` +
-        `• **Kết quả cần kiểm tra lại:** ${topic.workedExample.finalConclusion}`
+        `• **Kết luận:** ${topic.workedExample.finalConclusion}`
       );
     }
 
@@ -143,27 +317,27 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({ topic }) => {
       qLower.includes('tương tự') ||
       qLower.includes('bài tập') ||
       qLower.includes('luyện') ||
-      qLower.includes('thêm')
+      qLower.includes('tạo')
     ) {
       const sample =
         topic.sampleQuestionTemplates[1] ?? topic.sampleQuestionTemplates[0];
       return (
         `**Bài tập vận dụng tương tự (${sample.cognitiveLevel}):**\n` +
         `${sample.questionText}\n` +
-        `• **Gợi ý hướng giải:** ${sample.detailedDerivation}\n` +
-        `• **Đáp số đối chiếu:** ${sample.correctAnswer}`
+        `• **Hướng dẫn giải:** ${sample.detailedDerivation}\n` +
+        `• **Đáp án chuẩn:** $${sample.correctAnswer}$`
       );
     }
 
     return (
-      `**Giải đáp chuyên đề "${topic.topicName}":**\n` +
+      `**Gợi mở Socratic cho chuyên đề "${topic.topicName}":**\n` +
       (firstRule
-        ? `• **Quy tắc / Công thức cốt lõi (${firstRule.name}):** $${firstRule.latexOrRule}$ — ${firstRule.description}\n`
+        ? `• **Công thức trọng tâm (${firstRule.name}):** $${firstRule.latexOrRule}$ — ${firstRule.description}\n`
         : '') +
       (secondRule
-        ? `• **Bổ trợ (${secondRule.name}):** $${secondRule.latexOrRule}$ — ${secondRule.description}\n`
+        ? `• **Quy tắc bổ trợ (${secondRule.name}):** $${secondRule.latexOrRule}$ — ${secondRule.description}\n`
         : '') +
-      `• **Liên hệ với ví dụ minh họa:** ${topic.workedExample.logicReasoning}`
+      `• **Lưu ý tránh bẫy:** ${topic.commonPitfalls[0]?.correction ?? topic.workedExample.logicReasoning}`
     );
   };
 
@@ -194,6 +368,9 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({ topic }) => {
         const formulasContext = topic.keyFormulasAndRules
           .map((r) => `- ${r.name}: ${r.latexOrRule} (${r.description})`)
           .join('\n');
+        const problemCtx = questionContext
+          ? `\nCâu hỏi đang làm: ${questionContext.prompt}\nĐáp án chuẩn: ${questionContext.correctOptionText ?? ''}`
+          : '';
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(
             storedKey
@@ -206,12 +383,11 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({ topic }) => {
                 parts: [
                   {
                     text:
-                      `Bạn là Gia sư AI chuyên sâu Chương trình GDPT 2018 Lớp 12.\n` +
-                      `Chuyên đề hiện tại: ${topic.chapter} - ${topic.topicName}.\n` +
-                      `Công thức trọng tâm:\n${formulasContext}\n` +
-                      `Ví dụ minh họa trong bài: ${topic.workedExample.problemStatement}\n` +
-                      `Lập luận logic của ví dụ: ${topic.workedExample.logicReasoning}\n` +
-                      `Hãy giải đáp ngắn gọn, rõ ràng bằng tiếng Việt, giải thích từng bước logic và dùng ký hiệu LaTeX $...$ hoặc $$...$$.`,
+                      `Bạn là Gia sư AI Socratic chuyên sâu Chương trình GDPT 2018.\n` +
+                      `Chuyên đề: ${topic.chapter} - ${topic.topicName}.\n` +
+                      `Công thức trọng tâm:\n${formulasContext}` +
+                      problemCtx +
+                      `\nHãy giải đáp ngắn gọn, rõ ràng bằng tiếng Việt, phân tích từng bước và dùng LaTeX $...$ hoặc $$...$$.`,
                   },
                 ],
               },
@@ -229,7 +405,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({ topic }) => {
           reply = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
         }
       } catch {
-        /* fallback to local deterministic tutor reply */
+        /* fallback to deterministic local reply */
       }
     }
 
@@ -251,86 +427,83 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({ topic }) => {
   const inputId = `chat-input-${topic.id}`;
 
   return (
-    <div className="border border-neutral-800 bg-[#0A0A0A] p-3.5 sm:p-4 space-y-3">
-      <div className="flex items-center justify-between gap-2 border-b border-neutral-800 pb-2.5">
-        <h4 className="text-xs uppercase tracking-wider text-white font-bold flex items-center gap-1.5">
-          <MessageSquare className="w-3.5 h-3.5 text-sky-400 shrink-0" aria-hidden="true" />
-          <span>Hỏi đáp trực tiếp về chuyên đề này</span>
-        </h4>
-        <span className="text-[11px] font-mono text-sky-300 flex items-center gap-1">
-          <Sparkles className="w-3 h-3" aria-hidden="true" />
-          <span>Gia sư AI</span>
+    <div className="space-y-3 pt-3 border-t border-zinc-800/60">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs font-medium text-zinc-400 flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
+          <span>Trợ lý Socratic AI • Hỏi đáp bước giải &amp; lý thuyết</span>
         </span>
       </div>
 
-      {/* Gợi ý câu hỏi nhanh */}
-      <div className="flex flex-wrap gap-1.5">
+      {/* Contextual Quick-Prompts (Pills) */}
+      <div className="flex flex-wrap gap-2">
         {quickQuestions.map((qq, idx) => (
           <button
             key={idx}
             type="button"
             disabled={busy}
             onClick={() => sendQuestion(qq)}
-            className="text-left text-xs font-mono px-2.5 py-1.5 border border-neutral-800 bg-[#111111] text-neutral-300 hover:text-white hover:border-neutral-600 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="text-xs text-zinc-400 bg-zinc-900 hover:bg-zinc-800 hover:text-zinc-200 border border-zinc-800 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
           >
-            + {qq}
+            {qq}
           </button>
         ))}
       </div>
 
-      {/* Lịch sử hội thoại của bài viết */}
-      <div
-        role="log"
-        aria-live="polite"
-        aria-label={`Hộp thoại hỏi đáp chuyên đề ${topic.topicName}`}
-        className="max-h-60 overflow-y-auto space-y-2.5 pr-1 font-sans"
-      >
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className={`p-3.5 text-sm leading-7 border ${
-              m.role === 'user'
-                ? 'bg-sky-950/50 text-white border-sky-400/60 ml-4 sm:ml-6 font-medium'
-                : 'bg-[#141414] text-neutral-100 border-neutral-800 mr-1 sm:mr-2'
-            }`}
-          >
-            <p className="text-[10px] font-mono uppercase tracking-wider mb-1 text-sky-300">
-              {m.role === 'user' ? 'Bạn hỏi' : `Gia sư • ${topic.topicName}`}
-            </p>
-            <div className="whitespace-pre-line font-sans">
-              <RichTextWithMath text={m.text} />
+      {/* Conversation Thread */}
+      {messages.length > 0 && (
+        <div
+          role="log"
+          aria-live="polite"
+          aria-label={`Hộp thoại Gia sư AI chuyên đề ${topic.topicName}`}
+          className="max-h-64 overflow-y-auto space-y-2.5 pr-1"
+        >
+          {messages.map((m) => (
+            <div
+              key={m.id}
+              className={`p-3.5 rounded-xl text-sm leading-7 border ${
+                m.role === 'user'
+                  ? 'bg-sky-500/[0.08] text-zinc-100 border-sky-500/30 ml-6'
+                  : 'bg-zinc-900/70 text-zinc-200 border-zinc-800/80 mr-2'
+              }`}
+            >
+              <p className="text-[11px] font-mono text-zinc-400 mb-1">
+                {m.role === 'user' ? 'Bạn' : 'Gia sư AI Socratic'}
+              </p>
+              <div className="whitespace-pre-line">
+                <MathText content={m.text} />
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Form nhập câu hỏi */}
+      {/* Unified Chat Input */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           sendQuestion(input);
         }}
-        className="flex items-center gap-2 pt-1"
+        className="bg-zinc-950 border border-zinc-800 focus-within:border-zinc-600 rounded-lg px-3.5 py-2 flex items-center gap-2 transition-colors"
       >
         <label htmlFor={inputId} className="sr-only">
-          Đặt câu hỏi về chuyên đề {topic.topicName}
+          Hỏi Gia sư AI về bước giải hoặc lý thuyết
         </label>
         <input
           id={inputId}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={`Hỏi về "${topic.topicName}"...`}
+          placeholder="Hỏi Gia sư AI về bước giải hoặc lý thuyết..."
           autoComplete="off"
-          className="flex-1 min-w-0 h-11 px-3.5 bg-[#111111] border border-neutral-700 text-sm sm:text-base font-sans text-white placeholder:text-neutral-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="flex-1 min-w-0 bg-transparent text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none"
         />
         <button
           type="submit"
           disabled={!input.trim() || busy}
           aria-label="Gửi câu hỏi"
-          className="h-11 px-4 bg-white text-black text-xs font-bold inline-flex items-center gap-1.5 shrink-0 hover:bg-neutral-300 disabled:bg-neutral-800 disabled:text-neutral-500 cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="w-8 h-8 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-200 disabled:opacity-40 inline-flex items-center justify-center shrink-0 transition-colors cursor-pointer disabled:cursor-not-allowed"
         >
-          <span>Hỏi</span>
           <Send className="w-3.5 h-3.5" aria-hidden="true" />
         </button>
       </form>

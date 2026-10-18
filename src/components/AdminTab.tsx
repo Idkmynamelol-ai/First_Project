@@ -277,34 +277,34 @@ export const AdminTab: React.FC = () => {
   // =========================================================================
   if (!isAuthenticated) {
     return (
-      <div className="max-w-md mx-auto my-8 border border-neutral-800 bg-[#111111] p-6 space-y-5">
-        <div className="flex items-center gap-3 border-b border-neutral-800 pb-4">
-          <div className="w-10 h-10 border border-sky-400/50 bg-sky-950/40 flex items-center justify-center shrink-0">
+      <div className="max-w-md mx-auto my-8 border border-zinc-800/80 bg-zinc-900/50 rounded-xl p-6 space-y-5">
+        <div className="flex items-center gap-3 border-b border-zinc-800/80 pb-4">
+          <div className="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center shrink-0">
             <Lock className="w-5 h-5 text-sky-400" aria-hidden="true" />
           </div>
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-sky-300 font-bold">
+            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
               CỔNG QUẢN TRỊ HỆ THỐNG
             </p>
-            <h2 className="text-lg font-bold text-white">
+            <h2 className="text-base font-semibold text-zinc-100">
               Đăng nhập Quản trị viên (Admin)
             </h2>
           </div>
         </div>
 
-        <p className="text-xs text-neutral-300 leading-relaxed">
+        <p className="text-xs text-zinc-400 leading-relaxed">
           Khu vực lưu trữ và tự động thu thập nguồn đề thi thử{' '}
-          <span className="text-sky-300 font-bold">THPTQG 2026</span>,{' '}
-          <span className="text-sky-300 font-bold">HSA 2026</span>,{' '}
-          <span className="text-sky-300 font-bold">TSA 2026</span> (kèm dữ liệu 2025) cho 3 môn{' '}
-          <strong className="text-white">Toán Học, Vật Lí, Hóa Học</strong>.
+          <span className="font-semibold text-zinc-200">THPTQG 2026</span>,{' '}
+          <span className="font-semibold text-zinc-200">HSA 2026</span>,{' '}
+          <span className="font-semibold text-zinc-200">TSA 2026</span> (kèm dữ liệu 2025) cho 3 môn{' '}
+          <strong className="text-zinc-100">Toán Học, Vật Lí, Hóa Học</strong>.
         </p>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label
               htmlFor="admin-username"
-              className="block text-xs font-mono uppercase text-neutral-300 mb-1.5"
+              className="block text-xs font-medium text-zinc-300 mb-1.5"
             >
               Tên đăng nhập (Username)
             </label>
@@ -315,14 +315,14 @@ export const AdminTab: React.FC = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Nhập username..."
-              className="w-full h-10 px-3 bg-[#0A0A0A] border border-neutral-800 text-sm text-white font-mono focus:outline-none focus:border-sky-400"
+              className="w-full h-10 px-3.5 rounded-lg bg-zinc-950 border border-zinc-800 text-sm text-zinc-100 font-mono focus:outline-none focus:border-zinc-600"
             />
           </div>
 
           <div>
             <label
               htmlFor="admin-password"
-              className="block text-xs font-mono uppercase text-neutral-300 mb-1.5"
+              className="block text-xs font-medium text-zinc-300 mb-1.5"
             >
               Mật khẩu (Password)
             </label>
@@ -333,14 +333,14 @@ export const AdminTab: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Nhập password..."
-              className="w-full h-10 px-3 bg-[#0A0A0A] border border-neutral-800 text-sm text-white font-mono focus:outline-none focus:border-sky-400"
+              className="w-full h-10 px-3.5 rounded-lg bg-zinc-950 border border-zinc-800 text-sm text-zinc-100 font-mono focus:outline-none focus:border-zinc-600"
             />
           </div>
 
           {authError && (
             <div
               role="alert"
-              className="p-2.5 border border-rose-500/60 bg-rose-950/30 text-xs text-rose-300 font-mono"
+              className="p-2.5 rounded-lg border border-rose-500/25 bg-rose-500/10 text-xs text-rose-300 font-mono"
             >
               {authError}
             </div>
@@ -348,7 +348,7 @@ export const AdminTab: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full h-11 bg-sky-400 hover:bg-sky-300 text-black font-bold text-xs uppercase tracking-wider cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="w-full h-10 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs tracking-wider cursor-pointer transition-all shadow-sm"
           >
             Đăng nhập vào Kho Nguồn Đề
           </button>
@@ -361,21 +361,21 @@ export const AdminTab: React.FC = () => {
   // RENDER AUTHENTICATED ADMIN DASHBOARD
   // =========================================================================
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Top Admin Status Bar */}
-      <div className="border border-neutral-800 bg-[#111111] p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-[11px] font-mono font-bold">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md border border-emerald-500/25 bg-emerald-500/10 text-emerald-300 text-xs font-mono font-medium">
               <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
               ADMIN: ĐÃ XÁC THỰC (admin)
             </span>
-            <span className="text-xs font-mono text-neutral-400">
-              • Bộ thu thập tự động: THPTQG 2026 / HSA 2026 / TSA 2026 (2025–2026)
+            <span className="text-xs font-mono text-zinc-400">
+              • Thu thập tự động: THPTQG 2026 / HSA 2026 / TSA 2026
             </span>
           </div>
-          <h2 className="text-base sm:text-lg font-bold text-white">
-            Kho lưu trữ Liên kết Đề thi thử & Cấu trúc Đề chuẩn (Toán • Lý • Hóa)
+          <h2 className="text-base sm:text-lg font-semibold text-zinc-100">
+            Kho lưu trữ Liên kết Đề thi thử &amp; Cấu trúc Đề chuẩn (Toán • Lý • Hóa)
           </h2>
         </div>
 
@@ -384,30 +384,30 @@ export const AdminTab: React.FC = () => {
             type="button"
             onClick={handleRunAutoScour}
             disabled={isScouring}
-            className="h-9 px-3 bg-sky-400 hover:bg-sky-300 disabled:opacity-60 text-black font-bold text-xs inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+            className="h-9 px-3.5 rounded-lg bg-zinc-100 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-medium text-xs inline-flex items-center gap-1.5 cursor-pointer transition-all shadow-sm"
           >
             <RefreshCw
               className={`w-3.5 h-3.5 ${isScouring ? 'animate-spin' : ''}`}
               aria-hidden="true"
             />
-            <span>{isScouring ? 'Đang quét nguồn đề...' : 'Quét & Đồng bộ tự động'}</span>
+            <span>{isScouring ? 'Đang quét...' : 'Quét & Đồng bộ tự động'}</span>
           </button>
 
           <button
             type="button"
             onClick={() => setShowAddForm((v) => !v)}
-            className="h-9 px-3 border border-neutral-800 bg-[#0A0A0A] hover:border-sky-400 text-neutral-200 hover:text-sky-300 font-mono text-xs inline-flex items-center gap-1.5 cursor-pointer"
+            className="h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-900 text-zinc-200 text-xs font-medium inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
+            <Plus className="w-3.5 h-3.5 text-zinc-400" aria-hidden="true" />
             <span>Thêm nguồn đề</span>
           </button>
 
           <button
             type="button"
             onClick={handleExportJson}
-            className="h-9 px-3 border border-neutral-800 bg-[#0A0A0A] hover:border-sky-400 text-neutral-200 hover:text-sky-300 font-mono text-xs inline-flex items-center gap-1.5 cursor-pointer"
+            className="h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-900 text-zinc-200 text-xs font-medium inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
+            <Download className="w-3.5 h-3.5 text-zinc-400" aria-hidden="true" />
             <span>Xuất JSON</span>
           </button>
 
@@ -415,7 +415,7 @@ export const AdminTab: React.FC = () => {
             type="button"
             onClick={handleResetDefault}
             title="Khôi phục danh sách gốc"
-            className="h-9 px-2.5 border border-neutral-800 bg-[#0A0A0A] hover:border-neutral-600 text-neutral-300 font-mono text-xs inline-flex items-center gap-1 cursor-pointer"
+            className="h-9 px-2.5 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-200 text-xs font-medium inline-flex items-center gap-1 cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
             <span className="hidden sm:inline">Mặc định</span>
@@ -424,7 +424,7 @@ export const AdminTab: React.FC = () => {
           <button
             type="button"
             onClick={handleLogout}
-            className="h-9 px-3 border border-rose-500/40 bg-rose-950/20 hover:bg-rose-950/50 text-rose-300 font-mono text-xs inline-flex items-center gap-1.5 cursor-pointer"
+            className="h-9 px-3 rounded-lg border border-rose-500/25 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium inline-flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Đăng xuất</span>
@@ -433,12 +433,12 @@ export const AdminTab: React.FC = () => {
       </div>
 
       {/* Criteria & Scour Log Banner */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        <div className="border border-neutral-800 bg-[#111111] p-3.5 space-y-2 lg:col-span-2">
-          <p className="text-[11px] font-mono uppercase tracking-wider text-sky-300 font-bold">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4 space-y-2 lg:col-span-2">
+          <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
             NHẬT KÝ QUÉT TỰ ĐỘNG (AUTO-SCOUR LOG)
           </p>
-          <div className="bg-[#0A0A0A] border border-neutral-800 p-2.5 font-mono text-xs text-neutral-300 space-y-1 max-h-28 overflow-y-auto">
+          <div className="rounded-lg bg-zinc-950 border border-zinc-800/80 p-3 font-mono text-xs text-zinc-400 space-y-1 max-h-28 overflow-y-auto">
             {scourLog.map((line, idx) => (
               <p key={idx} className="leading-relaxed">
                 {line}
@@ -447,18 +447,18 @@ export const AdminTab: React.FC = () => {
           </div>
         </div>
 
-        <div className="border border-neutral-800 bg-[#111111] p-3.5 space-y-2">
-          <p className="text-[11px] font-mono uppercase tracking-wider text-emerald-400 font-bold">
+        <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4 space-y-2">
+          <p className="text-xs font-mono uppercase tracking-wider text-emerald-400">
             3 TIÊU CHÍ BẮT BUỘC ĐÃ KIỂM ĐỊNH
           </p>
-          <ul className="space-y-1.5 text-xs text-neutral-300">
+          <ul className="space-y-2 text-xs text-zinc-300">
             <li className="flex items-start gap-2">
               <CheckCircle2
                 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"
                 aria-hidden="true"
               />
               <span>
-                <strong>PDF miễn phí / Cấu trúc rõ ràng:</strong> Link PDF trực tiếp, Google Drive hoặc ma trận đề chi tiết.
+                <strong>PDF miễn phí / Cấu trúc rõ ràng:</strong> Link PDF trực tiếp hoặc thư mục Google Drive.
               </span>
             </li>
             <li className="flex items-start gap-2">
@@ -467,7 +467,7 @@ export const AdminTab: React.FC = () => {
                 aria-hidden="true"
               />
               <span>
-                <strong>Tổ hợp môn STEM:</strong> Toán Học ({countsBySubject.math}), Vật Lí ({countsBySubject.physics}), Hóa Học ({countsBySubject.chemistry}).
+                <strong>Tổ hợp môn STEM:</strong> Toán ({countsBySubject.math}), Vật Lí ({countsBySubject.physics}), Hóa Học ({countsBySubject.chemistry}).
               </span>
             </li>
             <li className="flex items-start gap-2">
@@ -476,7 +476,7 @@ export const AdminTab: React.FC = () => {
                 aria-hidden="true"
               />
               <span>
-                <strong>Độ mới dữ liệu:</strong> Kỳ thi năm <strong>2026</strong> và <strong>2025</strong>.
+                <strong>Năm dữ liệu:</strong> Kỳ thi năm <strong>2026</strong> và <strong>2025</strong>.
               </span>
             </li>
           </ul>
@@ -487,16 +487,16 @@ export const AdminTab: React.FC = () => {
       {showAddForm && (
         <form
           onSubmit={handleAddLink}
-          className="border border-sky-400/50 bg-[#111111] p-4 space-y-4"
+          className="rounded-xl border border-zinc-700 bg-zinc-900/60 p-5 space-y-4"
         >
-          <div className="flex items-center justify-between border-b border-neutral-800 pb-2.5">
-            <h3 className="text-sm font-bold text-sky-300 font-mono uppercase">
-              + Thêm Liên kết Đề thi thử Mới vào Kho Quản trị
+          <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+            <h3 className="text-sm font-semibold text-zinc-100">
+              Thêm liên kết Đề thi thử mới vào Kho Quản trị
             </h3>
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="text-xs font-mono text-neutral-400 hover:text-white cursor-pointer"
+              className="text-xs text-zinc-400 hover:text-zinc-200 cursor-pointer"
             >
               [Đóng]
             </button>
@@ -504,27 +504,27 @@ export const AdminTab: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="md:col-span-2">
-              <label className="block text-xs font-mono text-neutral-300 mb-1">
+              <label className="block text-xs text-zinc-300 mb-1">
                 Tiêu đề bộ đề / tài liệu *
               </label>
               <input
                 type="text"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="VD: Đề thi thử THPTQG 2026 môn Vật lí - THPT Chuyên KHTN..."
-                className="w-full h-9 px-3 bg-[#0A0A0A] border border-neutral-800 text-xs text-white focus:outline-none focus:border-sky-400"
+                placeholder="VD: Đề thi thử THPTQG 2026 môn Vật lí..."
+                className="w-full h-9 px-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 focus:outline-none focus:border-zinc-600"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs font-mono text-neutral-300 mb-1">
+                <label className="block text-xs text-zinc-300 mb-1">
                   Kỳ thi *
                 </label>
                 <select
                   value={newExamType}
                   onChange={(e) => setNewExamType(e.target.value as ExamType)}
-                  className="w-full h-9 px-2 bg-[#0A0A0A] border border-neutral-800 text-xs text-white font-mono focus:outline-none focus:border-sky-400"
+                  className="w-full h-9 px-2 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 font-mono focus:outline-none focus:border-zinc-600"
                 >
                   <option value="THPTQG">THPTQG</option>
                   <option value="HSA">HSA (ĐHQGHN)</option>
@@ -532,7 +532,7 @@ export const AdminTab: React.FC = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-mono text-neutral-300 mb-1">
+                <label className="block text-xs text-zinc-300 mb-1">
                   Năm *
                 </label>
                 <select
@@ -540,7 +540,7 @@ export const AdminTab: React.FC = () => {
                   onChange={(e) =>
                     setNewYear(Number(e.target.value) as 2025 | 2026)
                   }
-                  className="w-full h-9 px-2 bg-[#0A0A0A] border border-neutral-800 text-xs text-white font-mono focus:outline-none focus:border-sky-400"
+                  className="w-full h-9 px-2 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 font-mono focus:outline-none focus:border-zinc-600"
                 >
                   <option value={2026}>2026</option>
                   <option value={2025}>2025</option>
@@ -551,7 +551,7 @@ export const AdminTab: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-mono text-neutral-300 mb-1">
+              <label className="block text-xs text-zinc-300 mb-1">
                 URL bài viết / Trang cấu trúc đề *
               </label>
               <input
@@ -559,26 +559,26 @@ export const AdminTab: React.FC = () => {
                 value={newWebsiteUrl}
                 onChange={(e) => setNewWebsiteUrl(e.target.value)}
                 placeholder="https://..."
-                className="w-full h-9 px-3 bg-[#0A0A0A] border border-neutral-800 text-xs text-white font-mono focus:outline-none focus:border-sky-400"
+                className="w-full h-9 px-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 font-mono focus:outline-none focus:border-zinc-600"
               />
             </div>
             <div>
-              <label className="block text-xs font-mono text-neutral-300 mb-1">
+              <label className="block text-xs text-zinc-300 mb-1">
                 URL File PDF trực tiếp / Google Drive (Tùy chọn)
               </label>
               <input
                 type="url"
                 value={newDirectPdfUrl}
                 onChange={(e) => setNewDirectPdfUrl(e.target.value)}
-                placeholder="https://.../de-thi.pdf hoặc https://drive.google.com/..."
-                className="w-full h-9 px-3 bg-[#0A0A0A] border border-neutral-800 text-xs text-white font-mono focus:outline-none focus:border-sky-400"
+                placeholder="https://..."
+                className="w-full h-9 px-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 font-mono focus:outline-none focus:border-zinc-600"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <span className="block text-xs font-mono text-neutral-300 mb-1">
+              <span className="block text-xs text-zinc-300 mb-1">
                 Môn học bao phủ (Toán / Lý / Hóa) *
               </span>
               <div className="flex flex-wrap gap-2">
@@ -590,10 +590,10 @@ export const AdminTab: React.FC = () => {
                         key={subj}
                         type="button"
                         onClick={() => toggleNewSubject(subj)}
-                        className={`h-8 px-3 border font-mono text-xs cursor-pointer ${
+                        className={`h-8 px-3 rounded-md font-mono text-xs cursor-pointer transition-colors ${
                           checked
-                            ? 'border-sky-400 bg-sky-950/60 text-sky-300 font-bold'
-                            : 'border-neutral-800 bg-[#0A0A0A] text-neutral-400'
+                            ? 'border-sky-500/60 bg-sky-500/10 text-sky-300'
+                            : 'border-zinc-800 bg-zinc-950 text-zinc-400'
                         }`}
                       >
                         {SUBJECT_LABELS[subj]}
@@ -605,13 +605,13 @@ export const AdminTab: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-neutral-300 mb-1">
+              <label className="block text-xs text-zinc-300 mb-1">
                 Quyền truy cập *
               </label>
               <select
                 value={newAccessType}
                 onChange={(e) => setNewAccessType(e.target.value as AccessType)}
-                className="w-full h-8 px-2 bg-[#0A0A0A] border border-neutral-800 text-xs text-white font-mono focus:outline-none focus:border-sky-400"
+                className="w-full h-8 px-2 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 font-mono focus:outline-none focus:border-zinc-600"
               >
                 <option value="both">Có cả PDF miễn phí & Cấu trúc đề hiển thị</option>
                 <option value="free_pdf">Tải PDF miễn phí trực tiếp</option>
@@ -621,15 +621,15 @@ export const AdminTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-mono text-neutral-300 mb-1">
-              Tóm tắt Cấu trúc Đề & Nội dung chi tiết *
+            <label className="block text-xs text-zinc-300 mb-1">
+              Tóm tắt Cấu trúc Đề &amp; Nội dung chi tiết *
             </label>
             <textarea
               rows={2}
               value={newStructureSummary}
               onChange={(e) => setNewStructureSummary(e.target.value)}
-              placeholder="Mô tả cấu trúc đề (số câu, thời gian, phân bố chuyên đề Toán/Lý/Hóa)..."
-              className="w-full p-2.5 bg-[#0A0A0A] border border-neutral-800 text-xs text-white focus:outline-none focus:border-sky-400"
+              placeholder="Mô tả cấu trúc đề..."
+              className="w-full p-2.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 focus:outline-none focus:border-zinc-600"
             />
           </div>
 
@@ -641,13 +641,13 @@ export const AdminTab: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="h-9 px-4 border border-neutral-800 bg-[#0A0A0A] text-xs font-mono text-neutral-300 cursor-pointer"
+              className="h-9 px-4 rounded-lg border border-zinc-800 bg-zinc-950 text-xs text-zinc-400 hover:text-zinc-200 cursor-pointer"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="h-9 px-4 bg-sky-400 hover:bg-sky-300 text-black font-bold text-xs cursor-pointer"
+              className="h-9 px-4 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs cursor-pointer shadow-sm"
             >
               Lưu vào Kho Đề
             </button>
@@ -656,7 +656,7 @@ export const AdminTab: React.FC = () => {
       )}
 
       {/* Filter Bar */}
-      <div className="border border-neutral-800 bg-[#111111] p-3.5 space-y-3">
+      <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4 space-y-3">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           {/* Exam Type Tabs */}
           <div
@@ -666,10 +666,10 @@ export const AdminTab: React.FC = () => {
           >
             {(
               [
-                ['ALL', `Tất cả kỳ thi (${links.length})`],
-                ['THPTQG', `Đề thi thử THPTQG (${countsByExam.THPTQG})`],
-                ['HSA', `Đề thi thử HSA (${countsByExam.HSA})`],
-                ['TSA', `Đề thi thử TSA (${countsByExam.TSA})`],
+                ['ALL', `Tất cả (${links.length})`],
+                ['THPTQG', `THPTQG (${countsByExam.THPTQG})`],
+                ['HSA', `HSA (${countsByExam.HSA})`],
+                ['TSA', `TSA (${countsByExam.TSA})`],
               ] as const
             ).map(([key, label]) => {
               const active = examFilter === key;
@@ -678,10 +678,10 @@ export const AdminTab: React.FC = () => {
                   key={key}
                   type="button"
                   onClick={() => setExamFilter(key)}
-                  className={`min-h-[36px] px-3 border font-mono text-xs cursor-pointer transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
                     active
-                      ? 'border-sky-400 bg-sky-950/60 text-sky-300 font-bold'
-                      : 'border-neutral-800 bg-[#0A0A0A] text-neutral-300 hover:border-neutral-600'
+                      ? 'border-sky-500/60 bg-sky-500/10 text-sky-300'
+                      : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
                   {label}
@@ -693,30 +693,30 @@ export const AdminTab: React.FC = () => {
           {/* Search Input */}
           <div className="relative min-w-[240px] sm:min-w-[300px]">
             <Search
-              className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2"
+              className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2"
               aria-hidden="true"
             />
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm theo tên trường, cấu trúc đề, tên miền..."
-              className="w-full h-9 pl-8 pr-3 bg-[#0A0A0A] border border-neutral-800 text-xs text-white focus:outline-none focus:border-sky-400"
+              placeholder="Tìm theo tên trường, cấu trúc đề..."
+              className="w-full h-9 pl-8 pr-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 focus:outline-none focus:border-zinc-600"
             />
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2 border-t border-neutral-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-3 border-t border-zinc-800/80">
           {/* Subject Filter */}
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-mono text-neutral-400 inline-flex items-center gap-1 mr-1">
+            <span className="text-xs font-medium text-zinc-400 inline-flex items-center gap-1 mr-1">
               <Filter className="w-3 h-3" aria-hidden="true" />
               Môn học:
             </span>
             {(
               [
                 ['ALL', 'Tất cả (Toán • Lý • Hóa)'],
-                ['math', `Toán Học (${countsBySubject.math})`],
+                ['math', `Toán (${countsBySubject.math})`],
                 ['physics', `Vật Lí (${countsBySubject.physics})`],
                 ['chemistry', `Hóa Học (${countsBySubject.chemistry})`],
               ] as const
@@ -727,10 +727,10 @@ export const AdminTab: React.FC = () => {
                   key={key}
                   type="button"
                   onClick={() => setSubjectFilter(key)}
-                  className={`min-h-[32px] px-2.5 border font-mono text-xs cursor-pointer transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors ${
                     active
-                      ? 'border-sky-400 bg-sky-950/60 text-sky-300 font-bold'
-                      : 'border-neutral-800 bg-[#0A0A0A] text-neutral-300 hover:border-neutral-600'
+                      ? 'border-sky-500/60 bg-sky-500/10 text-sky-300'
+                      : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
                   {label}
@@ -741,8 +741,8 @@ export const AdminTab: React.FC = () => {
 
           {/* Year Filter */}
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-mono text-neutral-400 mr-1">
-              Năm dữ liệu:
+            <span className="text-xs font-medium text-zinc-400 mr-1">
+              Năm:
             </span>
             {(['ALL', 2026, 2025] as const).map((yr) => {
               const active = yearFilter === yr;
@@ -751,10 +751,10 @@ export const AdminTab: React.FC = () => {
                   key={String(yr)}
                   type="button"
                   onClick={() => setYearFilter(yr)}
-                  className={`min-h-[32px] px-2.5 border font-mono text-xs cursor-pointer transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors ${
                     active
-                      ? 'border-sky-400 bg-sky-950/60 text-sky-300 font-bold'
-                      : 'border-neutral-800 bg-[#0A0A0A] text-neutral-300 hover:border-neutral-600'
+                      ? 'border-sky-500/60 bg-sky-500/10 text-sky-300'
+                      : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
                   {yr === 'ALL' ? '2026 & 2025' : `Năm ${yr}`}
@@ -767,17 +767,17 @@ export const AdminTab: React.FC = () => {
 
       {/* Results List */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between text-xs font-mono text-neutral-400 px-1">
+        <div className="flex items-center justify-between text-xs font-mono text-zinc-400 px-1">
           <span>
-            Hiển thị <strong className="text-white">{filteredLinks.length}</strong> /{' '}
+            Hiển thị <strong className="text-zinc-100">{filteredLinks.length}</strong> /{' '}
             {links.length} nguồn đề thi đã lưu
           </span>
-          <span>Chuẩn cấu trúc 2025–2026 • Free PDF & Visible Matrix</span>
+          <span>Chuẩn cấu trúc 2025–2026 • Free PDF</span>
         </div>
 
         {filteredLinks.length === 0 ? (
-          <div className="border border-neutral-800 bg-[#111111] p-8 text-center space-y-2">
-            <p className="text-sm font-bold text-neutral-200">
+          <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-8 text-center space-y-2">
+            <p className="text-sm font-medium text-zinc-300">
               Không tìm thấy nguồn đề phù hợp với bộ lọc hiện tại.
             </p>
             <button
@@ -788,7 +788,7 @@ export const AdminTab: React.FC = () => {
                 setYearFilter('ALL');
                 setSearchQuery('');
               }}
-              className="mt-2 h-9 px-4 border border-sky-400 text-sky-300 text-xs font-mono cursor-pointer"
+              className="mt-2 px-3 py-1.5 rounded-lg border border-zinc-700 text-zinc-200 text-xs cursor-pointer"
             >
               Xóa bộ lọc
             </button>
@@ -798,41 +798,38 @@ export const AdminTab: React.FC = () => {
             {filteredLinks.map((item) => (
               <div
                 key={item.id}
-                className="border border-neutral-800 bg-[#111111] hover:border-neutral-600 p-4 transition-colors space-y-3"
+                className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 hover:border-zinc-700 p-5 transition-colors space-y-3"
               >
                 <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-3">
                   <div className="space-y-1.5">
                     {/* Top badges */}
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="px-2 py-0.5 border border-sky-400/60 bg-sky-500/15 text-sky-300 font-mono text-[11px] font-bold">
+                      <span className="px-2 py-0.5 rounded-md border border-sky-500/20 bg-sky-500/10 text-sky-300 font-mono text-xs">
                         {EXAM_TYPE_LABELS[item.examType]}
                       </span>
-                      <span className="px-2 py-0.5 border border-amber-400/50 bg-amber-500/10 text-amber-300 font-mono text-[11px] font-bold">
+                      <span className="px-2 py-0.5 rounded-md border border-amber-500/20 bg-amber-500/10 text-amber-300 font-mono text-xs">
                         Năm {item.year}
                       </span>
                       {item.subjects.map((subj) => (
                         <span
                           key={subj}
-                          className="px-2 py-0.5 border font-mono text-[11px] font-bold"
+                          className="px-2 py-0.5 rounded-md border font-mono text-xs font-medium"
                           style={{
-                            borderColor: `${subjectColor(subj)}66`,
-                            backgroundColor: `${subjectColor(subj)}18`,
+                            borderColor: `${subjectColor(subj)}40`,
+                            backgroundColor: `${subjectColor(subj)}10`,
                             color: subjectColor(subj),
                           }}
                         >
                           {SUBJECT_LABELS[subj]}
                         </span>
                       ))}
-                      <span className="px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/30 text-emerald-300 font-mono text-[11px]">
+                      <span className="px-2 py-0.5 rounded-md border border-emerald-500/20 bg-emerald-500/10 text-emerald-300 font-mono text-xs">
                         {item.pageCountOrFormat}
-                      </span>
-                      <span className="px-2 py-0.5 border border-neutral-800 bg-[#0A0A0A] text-neutral-400 font-mono text-[11px]">
-                        Query: &quot;{item.searchQueryMatched}&quot;
                       </span>
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-sm sm:text-base font-bold text-white leading-snug font-sans">
+                    <h3 className="text-sm sm:text-base font-semibold text-zinc-100 leading-snug">
                       {item.title}
                     </h3>
                   </div>
@@ -843,11 +840,11 @@ export const AdminTab: React.FC = () => {
                       href={item.websiteUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="h-9 px-3 border border-neutral-700 bg-[#0A0A0A] hover:border-sky-400 hover:text-sky-300 text-neutral-200 font-mono text-xs inline-flex items-center gap-1.5 transition-colors"
+                      className="h-8 px-3 rounded-lg border border-zinc-800 bg-zinc-950 hover:bg-zinc-900 text-zinc-300 hover:text-zinc-100 text-xs font-medium inline-flex items-center gap-1.5 transition-colors"
                     >
-                      <Globe className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
+                      <Globe className="w-3.5 h-3.5 text-zinc-400" aria-hidden="true" />
                       <span>Mở Trang Đề</span>
-                      <ExternalLink className="w-3 h-3 opacity-70" aria-hidden="true" />
+                      <ExternalLink className="w-3 h-3 opacity-60" aria-hidden="true" />
                     </a>
 
                     {item.directPdfUrl && (
@@ -855,7 +852,7 @@ export const AdminTab: React.FC = () => {
                         href={item.directPdfUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="h-9 px-3 bg-sky-400 hover:bg-sky-300 text-black font-mono font-bold text-xs inline-flex items-center gap-1.5 transition-colors"
+                        className="h-8 px-3 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs inline-flex items-center gap-1.5 transition-all shadow-sm"
                       >
                         <FileText className="w-3.5 h-3.5" aria-hidden="true" />
                         <span>Mở PDF / Kho Drive</span>
@@ -868,7 +865,7 @@ export const AdminTab: React.FC = () => {
                         href={item.secondaryPdfUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="h-9 px-3 border border-emerald-500/50 bg-emerald-950/30 hover:bg-emerald-950/60 text-emerald-300 font-mono text-xs inline-flex items-center gap-1.5 transition-colors"
+                        className="h-8 px-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-medium inline-flex items-center gap-1.5 transition-colors"
                       >
                         <FileText className="w-3.5 h-3.5" aria-hidden="true" />
                         <span>PDF Giải chi tiết</span>
@@ -881,7 +878,7 @@ export const AdminTab: React.FC = () => {
                       onClick={() => handleDeleteLink(item.id)}
                       title="Xóa liên kết này"
                       aria-label={`Xóa ${item.title}`}
-                      className="h-9 w-9 border border-neutral-800 bg-[#0A0A0A] hover:border-rose-500/60 hover:text-rose-400 text-neutral-400 inline-flex items-center justify-center cursor-pointer transition-colors"
+                      className="h-8 w-8 rounded-lg border border-zinc-800 bg-zinc-950 hover:border-rose-500/40 hover:text-rose-400 text-zinc-500 inline-flex items-center justify-center cursor-pointer transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
@@ -889,28 +886,28 @@ export const AdminTab: React.FC = () => {
                 </div>
 
                 {/* Visible Structure Summary */}
-                <div className="bg-[#0A0A0A] border border-neutral-800 p-3.5 text-xs sm:text-sm text-neutral-200 leading-relaxed font-sans">
-                  <span className="font-mono text-xs text-sky-300 font-bold uppercase mr-1.5">
-                    [Cấu trúc & Nội dung]:
+                <div className="rounded-lg bg-zinc-950/80 border border-zinc-800/80 p-3.5 text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                  <span className="font-mono text-xs text-sky-400 font-semibold uppercase mr-1.5">
+                    [Cấu trúc &amp; Nội dung]:
                   </span>
                   {item.structureSummary}
                 </div>
 
                 {/* Raw URLs footer */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] font-mono text-neutral-400 pt-1">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] font-mono text-zinc-500 pt-1">
                   <div className="truncate">
-                    <span className="text-neutral-500">Nguồn: </span>
+                    <span>Nguồn: </span>
                     <a
                       href={item.websiteUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sky-400 hover:underline"
+                      className="text-zinc-400 hover:text-zinc-200 hover:underline"
                     >
                       {item.websiteUrl}
                     </a>
                   </div>
-                  <div className="shrink-0 text-neutral-500">
-                    Tên miền: <span className="text-neutral-300">{item.sourceDomain}</span> • Xác thực: {item.verifiedAt}
+                  <div className="shrink-0">
+                    Tên miền: <span className="text-zinc-300">{item.sourceDomain}</span> • Xác thực: {item.verifiedAt}
                   </div>
                 </div>
               </div>
