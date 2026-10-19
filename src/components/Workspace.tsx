@@ -14,6 +14,133 @@ import { MathRenderer, MathText } from './MathRenderer';
 import { SubjectDiagram } from './InteractiveDiagrams';
 import { getDifficultyBadgeClasses } from './Tag';
 import { CompiledWikiArticleView, TopicChatBox } from './TopicChatBox';
+import { OptionDiagnostic, PracticeQuestion } from '../types/edu';
+
+export interface ActiveShuffledOption {
+  id: string;
+  keycap: string;
+  text: string;
+  latex?: string;
+  diagnostic?: OptionDiagnostic;
+  isCorrect: boolean;
+}
+
+export interface ActiveReinforcement {
+  id: string;
+  prompt: string;
+  latexFormula?: string;
+  options: {
+    id: string;
+    text: string;
+    isCorrect: boolean;
+  }[];
+  correctOptionId: string;
+  explanation: string;
+}
+
+export interface DynamicAttemptState {
+  options: ActiveShuffledOption[];
+  correctOptionId: string;
+  reinforcement?: ActiveReinforcement;
+  shuffleKey: number;
+}
+
+/**
+ * Generates a dynamic attempt with shuffled options.
+ * If prevCorrectIdx is supplied, guarantees that the correct answer
+ * shifts to a DIFFERENT position (A/B/C/D) on redo.
+ */
+function generateDynamicAttempt(
+  question: PracticeQuestion,
+  prevCorrectIdx?: number
+): DynamicAttemptState {
+  const baseCorrect =
+    question.options.find((o) => o.id === question.correctOptionId) ??
+    question.options[0];
+  const correctText = baseCorrect.text;
+
+  // Clone options
+  const items = question.options.map((o) => ({ ...o }));
+
+  // Fisher-Yates shuffle
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+
+  // If redoing, shift the correct answer to a different slot if possible
+  if (prevCorrectIdx !== undefined && items.length > 1) {
+    const currentIdx = items.findIndex((o) => o.text === correctText);
+    if (currentIdx === prevCorrectIdx) {
+      const otherIndices = items
+        .map((_, idx) => idx)
+        .filter((idx) => idx !== prevCorrectIdx);
+      const swapWith =
+        otherIndices[Math.floor(Math.random() * otherIndices.length)];
+      [items[currentIdx], items[swapWith]] = [
+        items[swapWith],
+        items[currentIdx],
+      ];
+    }
+  }
+
+  // Assign clean option IDs opt-a, opt-b, opt-c, opt-d with keycaps A, B, C, D
+  const options: ActiveShuffledOption[] = items.map((item, idx) => {
+    const isCorrect = item.text === correctText;
+    return {
+      id: `opt-${String.fromCharCode(97 + idx)}`,
+      keycap: String.fromCharCode(65 + idx),
+      text: item.text,
+      latex: item.latex,
+      diagnostic: isCorrect ? undefined : item.diagnostic,
+      isCorrect,
+    };
+  });
+
+  const correctIdx = Math.max(
+    0,
+    options.findIndex((o) => o.isCorrect)
+  );
+  const correctOptionId = options[correctIdx].id;
+
+  // Dynamic reinforcement question shuffle (A vs B)
+  let reinforcement: ActiveReinforcement | undefined = undefined;
+  if (question.reinforcement) {
+    const rc = question.reinforcement;
+    const correctRuleText =
+      rc.options.find((o) => o.id === rc.correctOptionId)?.text ??
+      rc.options[0].text;
+    const wrongRuleText =
+      rc.options.find((o) => o.id !== rc.correctOptionId)?.text ??
+      rc.options[1]?.text ??
+      '';
+
+    const pickAIsCorrect = Math.random() < 0.5;
+    reinforcement = {
+      id: rc.id,
+      prompt: rc.prompt,
+      latexFormula: rc.latexFormula,
+      options: pickAIsCorrect
+        ? [
+            { id: 'r-a', text: correctRuleText, isCorrect: true },
+            { id: 'r-b', text: wrongRuleText, isCorrect: false },
+          ]
+        : [
+            { id: 'r-a', text: wrongRuleText, isCorrect: false },
+            { id: 'r-b', text: correctRuleText, isCorrect: true },
+          ],
+      correctOptionId: pickAIsCorrect ? 'r-a' : 'r-b',
+      explanation: rc.explanation,
+    };
+  }
+
+  return {
+    options,
+    correctOptionId,
+    reinforcement,
+    shuffleKey: Date.now(),
+  };
+}
 
 interface WorkspaceProps {
   questionId: string;
@@ -52,24 +179,34 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const [mobileTab, setMobileTab] = useState<'wiki' | 'practice'>('practice');
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
-  // Practice Console State
+  // Dynamic Practice Attempt State (reshuffled per entry & redo)
+  const [attempt, setAttempt] = useState<DynamicAttemptState>(() =>
+    generateDynamicAttempt(q)
+  );
   const [selected, setSelected] = useState<string | null>(null);
   const [verdict, setVerdict] = useState<'AC' | 'WA' | null>(null);
   const [reinfPick, setReinfPick] = useState<string | null>(null);
 
-  const reset = () => {
+  // Reshuffle on every questionId change (new problem entry)
+  useEffect(() => {
+    setAttempt(generateDynamicAttempt(q));
+    setSelected(null);
+    setVerdict(null);
+    setReinfPick(null);
+  }, [questionId]);
+
+  // Redo handler: shifts correct answer to a different position
+  const handleRedo = () => {
+    const prevIdx = attempt.options.findIndex((o) => o.isCorrect);
+    setAttempt(generateDynamicAttempt(q, prevIdx));
     setSelected(null);
     setVerdict(null);
     setReinfPick(null);
   };
 
-  useEffect(() => {
-    reset();
-  }, [questionId]);
-
   const submit = () => {
     if (!selected) return;
-    const ok = selected === q.correctOptionId;
+    const ok = selected === attempt.correctOptionId;
     setVerdict(ok ? 'AC' : 'WA');
     onVerdict(q.id, ok);
   };
@@ -91,7 +228,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
       const key = e.key.toUpperCase();
       if (['1', '2', '3', '4'].includes(key)) {
         const idx = Number(key) - 1;
-        const opt = q.options[idx];
+        const opt = attempt.options[idx];
         if (opt) {
           e.preventDefault();
           setSelected(opt.id);
@@ -99,7 +236,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
         }
       } else if (['A', 'B', 'C', 'D'].includes(key)) {
         const idx = key.charCodeAt(0) - 65;
-        const opt = q.options[idx];
+        const opt = attempt.options[idx];
         if (opt) {
           e.preventDefault();
           setSelected(opt.id);
@@ -114,16 +251,16 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q.id, selected, verdict]);
+  }, [q.id, selected, verdict, attempt]);
 
   const correctIdx = Math.max(
     0,
-    q.options.findIndex((o) => o.id === q.correctOptionId)
+    attempt.options.findIndex((o) => o.id === attempt.correctOptionId)
   );
-  const correctLetter = String.fromCharCode(65 + correctIdx);
-  const correctOptionText = q.options[correctIdx]?.text ?? '';
-  const selectedDiag = q.options.find((o) => o.id === selected)?.diagnostic;
-  const rc = q.reinforcement;
+  const correctLetter = attempt.options[correctIdx]?.keycap ?? String.fromCharCode(65 + correctIdx);
+  const correctOptionText = attempt.options[correctIdx]?.text ?? '';
+  const selectedDiag = attempt.options.find((o) => o.id === selected)?.diagnostic;
+  const rc = attempt.reinforcement ?? q.reinforcement;
 
   /* ============================================================================
    * LEFT PANE: COMPILED "MODERN WIKIPEDIA" LESSON VIEW
@@ -205,11 +342,12 @@ export const Workspace: React.FC<WorkspaceProps> = ({
 
             <button
               type="button"
-              onClick={reset}
-              className="text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 px-2.5 py-1 rounded-md transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+              onClick={handleRedo}
+              className="text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 border border-transparent hover:border-zinc-800 px-2.5 py-1 rounded-md transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+              title="Làm lại với vị trí đáp án được đảo ngẫu nhiên"
             >
               <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Làm lại</span>
+              <span>Làm lại (Đảo đáp án)</span>
             </button>
           </div>
         </div>
@@ -225,9 +363,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
           aria-label="Các phương án trả lời"
           className="space-y-2.5"
         >
-          {q.options.map((o, i) => {
+          {attempt.options.map((o, i) => {
             const isSelected = selected === o.id;
-            const isRight = Boolean(verdict && o.id === q.correctOptionId);
+            const isRight = Boolean(verdict && o.id === attempt.correctOptionId);
             const isWrong = Boolean(verdict === 'WA' && isSelected);
 
             let cardStateClasses =
@@ -267,7 +405,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 <span
                   className={`w-7 h-7 rounded-lg border font-mono text-xs font-medium flex items-center justify-center shrink-0 ${keycapClasses}`}
                 >
-                  {String.fromCharCode(65 + i)}
+                  {o.keycap}
                 </span>
                 <span className="min-w-0 flex-1 overflow-x-auto text-[15px] leading-7">
                   {o.latex ? (
@@ -405,6 +543,21 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                     </div>
                   </div>
                 </details>
+
+                {/* Redo with fresh shuffled answers */}
+                <div className="pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={handleRedo}
+                    className="px-3.5 py-2 rounded-lg bg-zinc-800/90 hover:bg-zinc-800 border border-zinc-700/60 text-zinc-200 text-xs font-medium inline-flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
+                    <span>Làm lại câu này với vị trí đáp án mới (A–B–C–D)</span>
+                  </button>
+                  <span className="text-[11px] font-mono text-zinc-500">
+                    * Phương án tự động đảo ngẫu nhiên ở mỗi lượt làm lại
+                  </span>
+                </div>
 
                 {/* Unified Socratic Assistant Thread inside the same card */}
                 {q.sourceTopic && (
