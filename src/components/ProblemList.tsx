@@ -12,6 +12,8 @@ import { CompiledWikiArticleView, TopicChatBox } from './TopicChatBox';
 import { SubjectDiagram } from './InteractiveDiagrams';
 import { DailyChallengeView } from './DailyChallengeView';
 import { AdminTab } from './AdminTab';
+import { DocumentQuizScanner } from './DocumentQuizScanner';
+import { PracticeQuestion } from '../types/edu';
 
 interface ProblemListProps {
   solved: Record<string, 'AC' | 'WA'>;
@@ -20,6 +22,8 @@ interface ProblemListProps {
   onStreakUpdate: (nextStreak: number, isCorrect: boolean) => void;
   externalCogFilter?: 'all' | CognitiveLevel;
   onExternalCogFilterChange?: (lvl: 'all' | CognitiveLevel) => void;
+  onStartCustomQuiz?: (questions: PracticeQuestion[], startId: string) => void;
+  onOpenByok?: () => void;
 }
 
 const SUBJECT_KEYS: SubjectId[] = ['math', 'physics', 'chemistry', 'english'];
@@ -41,10 +45,18 @@ export const ProblemList: React.FC<ProblemListProps> = ({
   onStreakUpdate,
   externalCogFilter,
   onExternalCogFilterChange,
+  onStartCustomQuiz,
+  onOpenByok,
 }) => {
   const [viewMode, setViewMode] = useState<
-    'daily' | 'problems' | 'knowledge' | 'admin'
-  >(() => (window.location.hash === '#/admin' ? 'admin' : 'problems'));
+    'daily' | 'problems' | 'knowledge' | 'scanner' | 'admin'
+  >(() =>
+    window.location.hash === '#/admin'
+      ? 'admin'
+      : window.location.hash === '#/scanner'
+      ? 'scanner'
+      : 'problems'
+  );
   const [selectedSubject, setSelectedSubject] = useState<SubjectId>('chemistry');
   const [gradeFilter, setGradeFilter] = useState<'all' | GradeLevel>('all');
   const [localCogFilter, setLocalCogFilter] = useState<
@@ -155,6 +167,8 @@ export const ProblemList: React.FC<ProblemListProps> = ({
               ? 'Thử thách mỗi ngày: Rèn luyện 4 môn thi'
               : viewMode === 'admin'
               ? 'Kho tài liệu đề thi thử THPTQG, HSA & TSA'
+              : viewMode === 'scanner'
+              ? 'Quét ảnh tài liệu & Tự động tạo đề Quiz bằng AI'
               : viewMode === 'problems'
               ? `${SUBJECTS_META[selectedSubject].vnName}: Danh sách bài tập rèn luyện (${filteredQuestions.length} câu)`
               : `${SUBJECTS_META[selectedSubject].vnName}: Tóm tắt lý thuyết theo chuyên đề (${topics.length} chuyên đề)`}
@@ -167,6 +181,10 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                   THPTQG 2026, HSA 2026, TSA 2026
                 </span>{' '}
                 (kèm năm 2025) có file PDF hoặc cấu trúc đề rõ ràng.
+              </>
+            ) : viewMode === 'scanner' ? (
+              <>
+                Tải lên hoặc dán ảnh chụp đề thi, bài tập. AI sẽ quét chữ, nhận diện công thức LaTeX và tạo thành đề trắc nghiệm tương tác để bạn làm bài ngay.
               </>
             ) : (
               <>
@@ -181,7 +199,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
 
         {/* Segmented Mode Pill Bar */}
         <div
-          className="bg-zinc-900/90 border border-zinc-800 p-1 rounded-xl grid grid-cols-2 sm:grid-cols-4 gap-1 shrink-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)]"
+          className="bg-zinc-900/90 border border-zinc-800 p-1 rounded-xl flex flex-wrap sm:flex-nowrap gap-1 shrink-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)]"
           role="tablist"
           aria-label="Chế độ học tập"
         >
@@ -190,7 +208,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'problems'}
             onClick={() => setViewMode('problems')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+            className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
               viewMode === 'problems'
                 ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -204,7 +222,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'knowledge'}
             onClick={() => setViewMode('knowledge')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+            className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
               viewMode === 'knowledge'
                 ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -218,7 +236,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'daily'}
             onClick={() => setViewMode('daily')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+            className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
               viewMode === 'daily'
                 ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -230,9 +248,23 @@ export const ProblemList: React.FC<ProblemListProps> = ({
           <button
             type="button"
             role="tab"
+            aria-selected={viewMode === 'scanner'}
+            onClick={() => setViewMode('scanner')}
+            className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+              viewMode === 'scanner'
+                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700 text-sky-400'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <span>Quét đề & Quiz</span>
+          </button>
+
+          <button
+            type="button"
+            role="tab"
             aria-selected={viewMode === 'admin'}
             onClick={() => setViewMode('admin')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+            className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
               viewMode === 'admin'
                 ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -245,6 +277,17 @@ export const ProblemList: React.FC<ProblemListProps> = ({
 
       {viewMode === 'admin' ? (
         <AdminTab />
+      ) : viewMode === 'scanner' ? (
+        <DocumentQuizScanner
+          onStartQuiz={(questions, startId) => {
+            if (onStartCustomQuiz) {
+              onStartCustomQuiz(questions, startId);
+            } else {
+              onOpen(startId);
+            }
+          }}
+          onOpenByok={onOpenByok}
+        />
       ) : viewMode === 'daily' ? (
         <DailyChallengeView
           selectedSubject={selectedSubject}

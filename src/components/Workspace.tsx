@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SUBJECTS_META, PRACTICE_QUESTIONS } from '../data/curriculum';
+import { SUBJECTS_META, PRACTICE_QUESTIONS, grade12Curriculum } from '../data/curriculum';
 import { MathRenderer, MathText } from './MathRenderer';
 import { SubjectDiagram } from './InteractiveDiagrams';
 import { getDifficultyBadgeClasses } from './Tag';
@@ -140,42 +140,59 @@ interface WorkspaceProps {
   onSelectQuestion?: (id: string) => void;
   ac?: number;
   streak?: number;
+  customQuestions?: PracticeQuestion[];
 }
 
 export const Workspace: React.FC<WorkspaceProps> = ({
   questionId,
+  apiKey,
   onBack,
   onVerdict,
   onSelectQuestion,
   ac = 0,
   streak = 0,
+  customQuestions,
 }) => {
-  const q =
-    PRACTICE_QUESTIONS.find((p) => p.id === questionId) ?? PRACTICE_QUESTIONS[0];
+  const allPool = customQuestions && customQuestions.length > 0
+    ? [...customQuestions, ...PRACTICE_QUESTIONS]
+    : PRACTICE_QUESTIONS;
+
+  const q = allPool.find((p) => p.id === questionId) ?? allPool[0];
   const meta = SUBJECTS_META[q.subject];
 
-  // Sibling questions in the same Topic (sorted by difficulty tier)
-  const topicQuestions = PRACTICE_QUESTIONS.filter(
-    (item) =>
-      (q.sourceTopic && item.sourceTopic?.id === q.sourceTopic.id) ||
-      item.topic === q.topic
-  );
+  const isCustom = customQuestions?.some((cq) => cq.id === q.id);
+  const activeQuizPool = isCustom ? (customQuestions || []) : PRACTICE_QUESTIONS;
+
+  // Sibling questions in the same Topic or Custom Quiz
+  const topicQuestions = isCustom
+    ? (customQuestions || [])
+    : PRACTICE_QUESTIONS.filter(
+        (item) =>
+          (q.sourceTopic && item.sourceTopic?.id === q.sourceTopic.id) ||
+          item.topic === q.topic
+      );
+
   const currentTopicIndex = Math.max(
     0,
     topicQuestions.findIndex((item) => item.id === q.id)
   );
   const globalIndex = Math.max(
     0,
-    PRACTICE_QUESTIONS.findIndex((item) => item.id === q.id)
+    activeQuizPool.findIndex((item) => item.id === q.id)
   );
+
+  const effectiveTopic =
+    q.sourceTopic ||
+    grade12Curriculum.find((t) => t.subject === q.subject) ||
+    grade12Curriculum[0];
 
   const goToNextQuestion = () => {
     if (!onSelectQuestion) return;
     if (currentTopicIndex < topicQuestions.length - 1) {
       onSelectQuestion(topicQuestions[currentTopicIndex + 1].id);
-    } else if (PRACTICE_QUESTIONS.length > 0) {
-      const nextGlobal = (globalIndex + 1) % PRACTICE_QUESTIONS.length;
-      onSelectQuestion(PRACTICE_QUESTIONS[nextGlobal].id);
+    } else if (activeQuizPool.length > 0) {
+      const nextGlobal = (globalIndex + 1) % activeQuizPool.length;
+      onSelectQuestion(activeQuizPool[nextGlobal].id);
     }
   };
 
@@ -183,10 +200,10 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     if (!onSelectQuestion) return;
     if (currentTopicIndex > 0) {
       onSelectQuestion(topicQuestions[currentTopicIndex - 1].id);
-    } else if (PRACTICE_QUESTIONS.length > 0) {
+    } else if (activeQuizPool.length > 0) {
       const prevGlobal =
-        (globalIndex - 1 + PRACTICE_QUESTIONS.length) % PRACTICE_QUESTIONS.length;
-      onSelectQuestion(PRACTICE_QUESTIONS[prevGlobal].id);
+        (globalIndex - 1 + activeQuizPool.length) % activeQuizPool.length;
+      onSelectQuestion(activeQuizPool[prevGlobal].id);
     }
   };
 
@@ -729,9 +746,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 </div>
 
                 {/* Unified Socratic Assistant Thread inside the same card */}
-                {q.sourceTopic && (
+                {effectiveTopic && (
                   <TopicChatBox
-                    topic={q.sourceTopic}
+                    topic={effectiveTopic}
                     questionContext={{
                       prompt: q.prompt,
                       correctOptionText,
@@ -757,9 +774,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
             </>
           ) : (
             <div className="p-5">
-              {q.sourceTopic && (
+              {effectiveTopic && (
                 <TopicChatBox
-                  topic={q.sourceTopic}
+                  topic={effectiveTopic}
                   questionContext={{
                     prompt: q.prompt,
                   }}
@@ -929,7 +946,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
       )}
 
       {/* Slide-Up Socratic Tutor Bottom Sheet (Mobile) */}
-      {mobileSheetOpen && q.sourceTopic && (
+      {mobileSheetOpen && effectiveTopic && (
         <div
           className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end bg-black/70 backdrop-blur-xs"
           role="dialog"
@@ -944,7 +961,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
           <div className="max-h-[80vh] overflow-y-auto rounded-t-2xl bg-zinc-900 border-t border-zinc-800 p-4 pb-safe space-y-3">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-2.5">
               <span className="text-sm font-semibold text-zinc-100">
-                <span>Gia sư AI Socratic • {q.sourceTopic.topicName}</span>
+                <span>Gia sư AI Socratic • {effectiveTopic.topicName}</span>
               </span>
               <div className="flex items-center gap-2">
                 {verdict && (
@@ -970,7 +987,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
               </div>
             </div>
             <TopicChatBox
-              topic={q.sourceTopic}
+              topic={effectiveTopic}
               questionContext={{
                 prompt: q.prompt,
                 correctOptionText,

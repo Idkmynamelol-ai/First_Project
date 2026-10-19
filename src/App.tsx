@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ProblemList } from './components/ProblemList';
 import { Workspace } from './components/Workspace';
 import { ByokModal } from './components/ByokModal';
-import { CognitiveLevel } from './types/edu';
+import { CognitiveLevel, PracticeQuestion } from './types/edu';
 import { PRACTICE_QUESTIONS, grade12Curriculum, SUBJECTS_META } from './data/curriculum';
 
 const STORAGE_KEY_BYOK = 'apexstem_gemini_byok_key';
@@ -17,6 +17,7 @@ const DIFFICULTY_PILLS: ('all' | CognitiveLevel)[] = [
 
 export function App() {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [customQuizQuestions, setCustomQuizQuestions] = useState<PracticeQuestion[]>([]);
   const [byokOpen, setByokOpen] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [results, setResults] = useState<Record<string, 'AC' | 'WA'>>({});
@@ -221,6 +222,7 @@ export function App() {
             onSelectQuestion={setOpenId}
             ac={ac}
             streak={streak}
+            customQuestions={customQuizQuestions}
           />
         </main>
       ) : (
@@ -232,6 +234,11 @@ export function App() {
             onStreakUpdate={handleDailyStreakUpdate}
             externalCogFilter={cogFilter}
             onExternalCogFilterChange={setCogFilter}
+            onStartCustomQuiz={(questions, startId) => {
+              setCustomQuizQuestions(questions);
+              setOpenId(startId);
+            }}
+            onOpenByok={() => setByokOpen(true)}
           />
         </main>
       )}
