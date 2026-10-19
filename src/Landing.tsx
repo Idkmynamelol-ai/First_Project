@@ -96,15 +96,15 @@ export const Landing: React.FC = () => {
         {/* Hero Title & Primary CTAs */}
         <section className="text-center space-y-5 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-500/30 bg-sky-950/20 text-sky-400 text-xs font-mono">
-            CHUẨN GDPT 2018 • BẢO MẬT & TỐI ƯU CHI PHÍ
+            CHƯƠNG TRÌNH GDPT 2018 • THPT QUỐC GIA, HSA & TSA
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-zinc-100 leading-tight">
-            Nền tảng Luyện thi STEM THPT phân tầng theo năng lực
+            Luyện thi THPT môn Toán, Lý, Hóa, Tiếng Anh
           </h1>
 
           <p className="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-2xl mx-auto">
-            Hơn 860 câu hỏi chọn lọc 4 môn Toán, Lý, Hóa, Tiếng Anh. Tự động quét đề từ ảnh bằng AI Vision, ngẫu nhiên hóa vị trí A–B–C–D và gia sư Socratic định hướng tư duy từng bước.
+            Hơn 860 câu hỏi chọn lọc có lời giải chi tiết. Tự động đổi vị trí đáp án để tránh học vẹt, hỗ trợ tải ảnh đề bài để giải nhanh và gợi ý từng bước khi gặp câu khó.
           </p>
 
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -112,13 +112,13 @@ export const Landing: React.FC = () => {
               href="#/app"
               className={`w-full sm:w-auto h-12 px-8 rounded-xl bg-sky-500 hover:bg-sky-400 text-zinc-950 text-sm font-semibold tracking-tight transition-all inline-flex items-center justify-center shadow-lg shadow-sky-500/10 ${FOCUS}`}
             >
-              Bắt đầu luyện tập ngay →
+              Bắt đầu làm bài ngay →
             </a>
             <a
               href="#/intro"
               className={`w-full sm:w-auto h-12 px-6 rounded-xl border border-zinc-750 hover:border-zinc-600 bg-zinc-900/80 hover:bg-zinc-850 text-zinc-200 text-sm font-medium transition-colors inline-flex items-center justify-center ${FOCUS}`}
             >
-              Tìm hiểu chi tiết (Giới thiệu)
+              Xem giới thiệu chi tiết
             </a>
           </div>
         </section>
@@ -151,7 +151,7 @@ export const Landing: React.FC = () => {
                 <div className="pt-1 flex items-center justify-between text-[11px] font-mono text-zinc-500 group-hover:text-zinc-300 transition-colors">
                   <span>{subj.grades}</span>
                   <span className="text-sky-400 group-hover:translate-x-0.5 transition-transform">
-                    Luyện tập →
+                    Làm bài →
                   </span>
                 </div>
               </a>
@@ -164,30 +164,30 @@ export const Landing: React.FC = () => {
           <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/30 space-y-1.5">
             <span className="text-xs font-mono text-sky-400 font-semibold">[01]</span>
             <h3 className="text-sm font-semibold text-zinc-100">
-              Đảo ngẫu nhiên A–B–C–D
+              Tự đổi vị trí đáp án A–B–C–D
             </h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Mỗi lượt làm lại tự động hoán vị đáp án sang vị trí mới để rèn luyện phản xạ đọc đề, loại bỏ thói quen học vẹt.
+              Mỗi lần làm lại câu hỏi, các đáp án tự động đổi chỗ để bạn rèn phản xạ đọc đề, tránh ghi nhớ máy móc theo vị trí.
             </p>
           </div>
 
           <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/30 space-y-1.5">
             <span className="text-xs font-mono text-sky-400 font-semibold">[02]</span>
             <h3 className="text-sm font-semibold text-zinc-100">
-              Quét đề từ ảnh bằng AI
+              Làm bài từ ảnh chụp đề thi
             </h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Dán ảnh đề bài (Ctrl+V) để trích xuất câu hỏi, mã hóa công thức LaTeX và tạo quiz tương tác chạy trên gói tiết kiệm chi phí tối đa.
+              Dán ảnh chụp bài tập từ sách hoặc phiếu học tập (Ctrl+V). Hệ thống tự đọc đề, giữ đúng công thức và tạo bài làm tương tác ngay.
             </p>
           </div>
 
           <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/30 space-y-1.5">
             <span className="text-xs font-mono text-sky-400 font-semibold">[03]</span>
             <h3 className="text-sm font-semibold text-zinc-100">
-              Gia sư Socratic từng bước
+              Gợi ý giải bài từng bước
             </h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Trợ lý AI gợi mở tư duy thay vì giải hộ, giúp học sinh nhận diện bản chất lỗi sai và tự tìm ra lời giải.
+              Khi gặp câu hỏi khó, bạn có thể nhận các câu hỏi gợi mở để tự tìm ra hướng giải thay vì chỉ đọc đáp án một cách thụ động.
             </p>
           </div>
         </section>
@@ -195,19 +195,19 @@ export const Landing: React.FC = () => {
         {/* Telemetry Bar */}
         <section className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/40 flex flex-wrap items-center justify-around gap-4 text-center text-xs font-mono text-zinc-400">
           <div>
-            <strong className="text-zinc-100 text-sm">860+</strong> Câu hỏi ngân hàng
+            <strong className="text-zinc-100 text-sm">860+</strong> Câu hỏi có lời giải
           </div>
           <span className="text-zinc-700 hidden sm:inline">|</span>
           <div>
-            <strong className="text-zinc-100 text-sm">{grade12Curriculum.length}</strong> Chuyên đề GDPT 2018
+            <strong className="text-zinc-100 text-sm">{grade12Curriculum.length}</strong> Chuyên đề theo SGK mới
           </div>
           <span className="text-zinc-700 hidden sm:inline">|</span>
           <div>
-            <strong className="text-zinc-100 text-sm">35</strong> Đề thi THPT/HSA/TSA
+            <strong className="text-zinc-100 text-sm">35</strong> Đề thi THPT, HSA & TSA
           </div>
           <span className="text-zinc-700 hidden sm:inline">|</span>
           <div>
-            <strong className="text-emerald-400 text-sm">Free Tier Ready</strong> Tối ưu chi phí AI
+            <strong className="text-emerald-400 text-sm">Miễn phí</strong> Luyện tập không giới hạn
           </div>
         </section>
 

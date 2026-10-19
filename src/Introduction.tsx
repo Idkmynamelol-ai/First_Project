@@ -131,7 +131,7 @@ export const Introduction: React.FC = () => {
             Giới thiệu Nền tảng Luyện thi STEM THPT Scalar
           </h1>
           <p className="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-3xl">
-            Scalar được xây dựng theo định hướng Chương trình Giáo dục Phổ thông mới (GDPT 2018), phục vụ học sinh ôn tập kỳ thi Tốt nghiệp THPT Quốc gia và các kỳ thi Đánh giá Năng lực (HSA), Đánh giá Tư duy (TSA). Nền tảng kết hợp ngân hàng 860+ câu hỏi phân tầng năng lực, công nghệ quét ảnh tài liệu AI Vision tiết kiệm chi phí và gia sư Socratic gợi ý từng bước.
+            Scalar được xây dựng bám sát Chương trình Giáo dục Phổ thông mới (GDPT 2018), hỗ trợ học sinh ôn thi Tốt nghiệp THPT và các kỳ thi Đánh giá năng lực (HSA), Đánh giá tư duy (TSA). Nền tảng tổng hợp hơn 860 câu hỏi theo 4 mức độ nhận thức, công cụ tạo bài tập từ ảnh chụp đề thi và trợ lý gợi ý phương pháp giải từng bước.
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
@@ -217,20 +217,20 @@ export const Introduction: React.FC = () => {
             <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/60 space-y-2">
               <span className="text-xs font-mono text-sky-400 font-semibold">[02]</span>
               <h3 className="text-sm sm:text-base font-semibold text-zinc-100">
-                Quét ảnh tài liệu & Tự động tạo Quiz (AI Multimodal Vision)
+                Tạo bài làm trực tiếp từ ảnh chụp đề thi
               </h3>
               <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-                Người học có thể chụp ảnh hoặc dán ảnh (Ctrl+V) đề thi từ sách giáo khoa hay phiếu bài tập. Hệ thống sử dụng công nghệ nén ảnh canvas và mô hình Gemini Vision tối ưu chi phí (hoạt động trong giới hạn miễn phí 1,500 lượt/ngày) để trích xuất đề thi, công thức LaTeX và đưa thẳng vào giao diện làm bài.
+                Bạn có thể chụp ảnh hoặc dán trực tiếp ảnh chụp màn hình (Ctrl+V) từ sách bài tập hay đề kiểm tra. Hệ thống tự động đọc câu hỏi, giữ nguyên các công thức toán học và tạo thành đề trắc nghiệm tương tác để bạn luyện giải ngay lập tức.
               </p>
             </div>
 
             <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/60 space-y-2">
               <span className="text-xs font-mono text-sky-400 font-semibold">[03]</span>
               <h3 className="text-sm sm:text-base font-semibold text-zinc-100">
-                Gia sư Socratic hướng dẫn tư duy từng bước
+                Gợi ý phương pháp giải từng bước
               </h3>
               <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-                Khi gặp bài toán khó, gia sư AI không đưa ra đáp án ngay mà đặt các câu hỏi dẫn dắt, nhắc lại công thức liên quan để học sinh tự mình nhận ra nút thắt của bài toán.
+                Khi gặp câu hỏi khó, hệ thống không chỉ đưa ra đáp án suông mà gợi mở các công thức trọng tâm và định hướng suy luận, giúp bạn tự tìm ra hướng giải bài.
               </p>
             </div>
           </div>
@@ -349,10 +349,10 @@ export const Introduction: React.FC = () => {
         {/* Section 6: Bottom Call to Action */}
         <section className="p-8 rounded-2xl border border-zinc-800 bg-gradient-to-b from-zinc-900 to-zinc-950 text-center space-y-4">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-100">
-            Sẵn sàng bứt phá điểm số trong kỳ thi sắp tới?
+            Bắt đầu kế hoạch ôn luyện ngay hôm nay
           </h2>
           <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto leading-relaxed">
-            Mở không gian luyện tập để bắt đầu giải câu hỏi theo mức độ nhận thức, làm đề thi thử chuẩn cấu trúc hoặc quét đề kiểm tra từ ảnh của bạn.
+            Vào làm bài tập theo chuyên đề, thử sức với các bộ đề thi mẫu hoặc tạo bài kiểm tra nhanh từ ảnh chụp đề thi.
           </p>
           <div className="pt-2">
             <a

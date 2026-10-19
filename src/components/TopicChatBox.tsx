@@ -377,7 +377,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
                     parts: [
                       {
                         text:
-                          `Bạn là Gia sư AI Socratic chuyên sâu Chương trình GDPT 2018.\n` +
+                          `Bạn là giáo viên hướng dẫn chuyên sâu Chương trình GDPT 2018 theo phương pháp gợi mở từng bước.\n` +
                           `Chuyên đề: ${topic.chapter} - ${topic.topicName}.\n` +
                           `Công thức trọng tâm:\n${formulasContext}` +
                           problemCtx +
@@ -437,7 +437,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium text-zinc-400">
-          Trợ lý Socratic AI • Hỏi đáp bước giải &amp; lý thuyết
+          Trợ lý học tập • Gợi ý giải &amp; Kiến thức trọng tâm
         </span>
       </div>
 
@@ -464,7 +464,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
         <div
           role="log"
           aria-live="polite"
-          aria-label={`Hộp thoại Gia sư AI chuyên đề ${topic.topicName}`}
+          aria-label={`Hộp thoại Trợ lý học tập chuyên đề ${topic.topicName}`}
           className="max-h-64 overflow-y-auto space-y-2.5 pr-1"
         >
           {messages.map((m) => (
@@ -477,7 +477,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
               }`}
             >
               <p className="text-[11px] font-mono text-zinc-400 mb-1">
-                {m.role === 'user' ? 'Bạn' : 'Gia sư AI Socratic'}
+                {m.role === 'user' ? 'Bạn' : 'Trợ lý học tập'}
               </p>
               <div className="whitespace-pre-line">
                 <MathText content={m.text} />
@@ -497,7 +497,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
         className="bg-zinc-950 border border-zinc-750 focus-within:border-sky-500/60 rounded-xl px-3.5 py-2 flex items-center gap-2 transition-colors"
       >
         <label htmlFor={inputId} className="sr-only">
-          Hỏi Gia sư AI về bước giải hoặc lý thuyết
+          Hỏi về phương pháp giải hoặc kiến thức lý thuyết
         </label>
         <input
           id={inputId}
@@ -508,7 +508,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
             onInteraction?.();
             setInput(e.target.value);
           }}
-          placeholder="Hỏi Gia sư AI về bước giải hoặc lý thuyết..."
+          placeholder="Đặt câu hỏi về bước giải hoặc kiến thức cần giải đáp..."
           autoComplete="off"
           className="flex-1 min-w-0 bg-transparent text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none"
         />

@@ -168,7 +168,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
               : viewMode === 'admin'
               ? 'Kho tài liệu đề thi thử THPTQG, HSA & TSA'
               : viewMode === 'scanner'
-              ? 'Quét ảnh tài liệu & Tự động tạo đề Quiz bằng AI'
+              ? 'Tạo bài tập từ ảnh chụp đề thi'
               : viewMode === 'problems'
               ? `${SUBJECTS_META[selectedSubject].vnName}: Danh sách bài tập rèn luyện (${filteredQuestions.length} câu)`
               : `${SUBJECTS_META[selectedSubject].vnName}: Tóm tắt lý thuyết theo chuyên đề (${topics.length} chuyên đề)`}
@@ -184,7 +184,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
               </>
             ) : viewMode === 'scanner' ? (
               <>
-                Tải lên hoặc dán ảnh chụp đề thi, bài tập. AI sẽ quét chữ, nhận diện công thức LaTeX và tạo thành đề trắc nghiệm tương tác để bạn làm bài ngay.
+                Tải ảnh chụp đề thi hoặc bài tập trên giấy. Hệ thống sẽ tự động đọc câu hỏi, nhận diện công thức toán học và tạo bài trắc nghiệm để bạn luyện tập trực tiếp.
               </>
             ) : (
               <>
@@ -256,7 +256,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <span>Quét đề & Quiz</span>
+            <span>Tạo đề từ ảnh</span>
           </button>
 
           <button

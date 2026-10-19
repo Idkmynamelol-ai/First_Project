@@ -637,7 +637,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 <div className="bg-zinc-900/80 border-b border-sky-500/30 p-4 sm:p-5 space-y-3">
                   <div className="flex items-center justify-between text-xs text-sky-300">
                     <span className="font-medium">
-                      <span>Tự động chuyển câu đã tạm dừng để bạn đối thoại cùng Gia sư AI</span>
+                      <span>Đã tạm dừng tự động chuyển câu để bạn trao đổi bài</span>
                     </span>
                     <span className="font-mono text-zinc-400 text-[11px] hidden sm:inline">
                       Nhấn [Enter] để chuyển tiếp
@@ -877,7 +877,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
 
         {/* Right Pane (Codecademy Practice Console): col-span-6 */}
         <section
-          aria-label="Bảng luyện tập tương tác và Gia sư Socratic"
+          aria-label="Bảng luyện tập tương tác và trợ lý học tập"
           className="col-span-6 xl:col-span-6 overflow-y-auto px-8 py-6 bg-zinc-950/50 flex flex-col justify-between"
         >
           {renderPracticePane()}
@@ -917,7 +917,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 }}
                 className="h-12 px-3.5 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs font-medium inline-flex items-center shrink-0 cursor-pointer"
               >
-                <span>Hỏi Gia sư</span>
+                <span>Hỏi gợi ý</span>
               </button>
             </>
           ) : (
@@ -938,20 +938,20 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 }}
                 className="h-11 px-4 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs font-medium inline-flex items-center shrink-0 cursor-pointer"
               >
-                <span>Hỏi Gia sư</span>
+                <span>Hỏi gợi ý</span>
               </button>
             </>
           )}
         </div>
       )}
 
-      {/* Slide-Up Socratic Tutor Bottom Sheet (Mobile) */}
+      {/* Slide-Up Tutor Bottom Sheet (Mobile) */}
       {mobileSheetOpen && effectiveTopic && (
         <div
           className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end bg-black/70 backdrop-blur-xs"
           role="dialog"
           aria-modal="true"
-          aria-label="Trợ lý Gia sư Socratic"
+          aria-label="Trợ lý gợi ý giải bài"
         >
           <div
             className="flex-1"
@@ -961,7 +961,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
           <div className="max-h-[80vh] overflow-y-auto rounded-t-2xl bg-zinc-900 border-t border-zinc-800 p-4 pb-safe space-y-3">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-2.5">
               <span className="text-sm font-semibold text-zinc-100">
-                <span>Gia sư AI Socratic • {effectiveTopic.topicName}</span>
+                <span>Trợ lý học tập • {effectiveTopic.topicName}</span>
               </span>
               <div className="flex items-center gap-2">
                 {verdict && (
@@ -979,7 +979,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 <button
                   type="button"
                   onClick={() => setMobileSheetOpen(false)}
-                  aria-label="Đóng khung chat Gia sư"
+                  aria-label="Đóng khung trợ lý"
                   className="px-2 py-1 text-xs rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 cursor-pointer"
                 >
                   Đóng
