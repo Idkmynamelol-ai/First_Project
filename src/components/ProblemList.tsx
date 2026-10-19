@@ -1,15 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  ChevronRight,
-  ChevronLeft,
-  BookOpen,
-  ListChecks,
-  Sparkles,
-  ShieldCheck,
-  ArrowUpRight,
-  Search,
-  CheckCircle2,
-} from 'lucide-react';
 import { SubjectId, CognitiveLevel, GradeLevel } from '../types/edu';
 import {
   SUBJECTS_META,
@@ -201,13 +190,12 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'problems'}
             onClick={() => setViewMode('problems')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
               viewMode === 'problems'
-                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700/80 shadow-[0_1px_2px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]'
+                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <ListChecks className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
             <span>Luyện bài tập ({PRACTICE_QUESTIONS.length})</span>
           </button>
 
@@ -216,13 +204,12 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'knowledge'}
             onClick={() => setViewMode('knowledge')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
               viewMode === 'knowledge'
-                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700/80 shadow-[0_1px_2px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]'
+                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <BookOpen className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
             <span>Đọc lý thuyết</span>
           </button>
 
@@ -231,13 +218,12 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'daily'}
             onClick={() => setViewMode('daily')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
               viewMode === 'daily'
-                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700/80 shadow-[0_1px_2px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]'
+                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 shrink-0 text-sky-400" aria-hidden="true" />
             <span>Đề hôm nay</span>
           </button>
 
@@ -246,13 +232,12 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'admin'}
             onClick={() => setViewMode('admin')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
               viewMode === 'admin'
-                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700/80 shadow-[0_1px_2px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]'
+                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
             <span>Kho đề thi</span>
           </button>
         </div>
@@ -378,13 +363,12 @@ export const ProblemList: React.FC<ProblemListProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-3.5">
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <div className="relative flex-1">
-                    <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Tìm kiếm nội dung bài tập, công thức, dạng toán..."
-                      className="w-full h-9 pl-9 pr-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-700"
+                      className="w-full h-9 px-3.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-700"
                     />
                   </div>
 
@@ -479,7 +463,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                             onClick={() => onOpen(q.id)}
                             className="w-full px-5 py-4 text-left flex items-start sm:items-center gap-4 hover:bg-zinc-850/70 cursor-pointer transition-colors"
                           >
-                            <span className="w-8 h-8 rounded-lg bg-zinc-800 border-t border-white/[0.08] border-b border-black/50 border-x border-zinc-700 font-mono text-xs font-semibold text-zinc-200 flex items-center justify-center shrink-0 shadow-[0_2px_0_0_rgba(0,0,0,0.35)] mt-0.5 sm:mt-0">
+                            <span className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 font-mono text-xs font-semibold text-zinc-200 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
                               #{globalNumber}
                             </span>
 
@@ -513,11 +497,6 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                                   {status === 'AC' ? 'ĐÚNG' : 'CHƯA ĐÚNG'}
                                 </span>
                               )}
-
-                              <ChevronRight
-                                className="w-4 h-4 text-zinc-500 shrink-0"
-                                aria-hidden="true"
-                              />
                             </div>
                           </button>
                         </li>
@@ -540,9 +519,8 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                       type="button"
                       disabled={currentPage <= 1}
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      className="h-8 px-3 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-900 text-zinc-300 disabled:opacity-40 text-xs font-medium inline-flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"
+                      className="h-8 px-3 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-900 text-zinc-300 disabled:opacity-40 text-xs font-medium cursor-pointer disabled:cursor-not-allowed transition-colors"
                     >
-                      <ChevronLeft className="w-3.5 h-3.5" />
                       <span>Trước</span>
                     </button>
 
@@ -574,10 +552,9 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                       onClick={() =>
                         setCurrentPage((p) => Math.min(totalPages, p + 1))
                       }
-                      className="h-8 px-3 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-900 text-zinc-300 disabled:opacity-40 text-xs font-medium inline-flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"
+                      className="h-8 px-3 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-900 text-zinc-300 disabled:opacity-40 text-xs font-medium cursor-pointer disabled:cursor-not-allowed transition-colors"
                     >
                       <span>Tiếp</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -633,10 +610,9 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                         <button
                           type="button"
                           onClick={() => onOpen(firstQuestionId)}
-                          className="w-full bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs px-4 py-2.5 rounded-lg inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                          className="w-full bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs px-4 py-2.5 rounded-lg inline-flex items-center justify-center transition-colors cursor-pointer"
                         >
                           <span>Luyện tập chuyên đề này</span>
-                          <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       </div>
                     </div>

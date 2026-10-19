@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { KeyRound, Home, ChevronDown } from 'lucide-react';
 import { ProblemList } from './components/ProblemList';
 import { Workspace } from './components/Workspace';
 import { ByokModal } from './components/ByokModal';
@@ -106,25 +105,23 @@ export function App() {
       }`}
     >
       {/* Top Navigation Bar: Fixed height h-12 px-5 border-b border-zinc-800/80 bg-zinc-950 */}
-      <header className="sticky top-0 z-40 h-12 px-4 sm:px-5 border-b border-zinc-800/80 bg-zinc-950/95 backdrop-blur flex items-center justify-between gap-3 shrink-0">
-        {/* Left: Minimalist logo + Topic Switcher dropdown */}
+      <header className="sticky top-0 z-40 h-12 px-4 sm:px-5 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur flex items-center justify-between gap-3 shrink-0">
+        {/* Left: Clean typography logo + Topic Switcher dropdown */}
         <div className="flex items-center gap-2.5 min-w-0">
           <a
             href="#/"
             aria-label="Về trang chủ"
-            className="h-8 px-2.5 rounded-md border border-zinc-800/80 bg-zinc-900/60 hover:bg-zinc-900 flex items-center gap-1.5 text-xs text-zinc-300 hover:text-zinc-100 transition-colors shrink-0"
+            className="h-8 px-2.5 rounded-md border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-850 flex items-center text-xs text-zinc-300 hover:text-zinc-100 transition-colors shrink-0"
           >
-            <Home className="w-3.5 h-3.5 text-zinc-400" aria-hidden="true" />
-            <span className="hidden sm:inline">Trang chủ</span>
+            Trang chủ
           </a>
 
           <button
             type="button"
             onClick={() => setOpenId(null)}
-            className="text-sm font-semibold tracking-tight text-zinc-100 hover:text-white cursor-pointer px-1 shrink-0 flex items-center gap-2"
+            className="text-sm font-semibold tracking-tight text-zinc-100 hover:text-white cursor-pointer px-1 shrink-0 font-mono"
           >
-            <span className="w-2.5 h-2.5 rounded-xs bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.7),inset_0_1px_0_rgba(255,255,255,0.4)]" aria-hidden="true" />
-            <span className="font-mono tracking-tight font-bold">Scalar</span>
+            Scalar
           </button>
 
           <span className="text-zinc-700 hidden md:inline" aria-hidden="true">
@@ -140,7 +137,7 @@ export function App() {
               id="header-topic-switcher"
               value={activeTopicId}
               onChange={(e) => handleTopicDropdownChange(e.target.value)}
-              className="h-8 pl-2.5 pr-7 rounded-md bg-zinc-900/80 border border-zinc-800 hover:border-zinc-700 text-xs text-zinc-300 truncate appearance-none focus:outline-none focus:border-sky-500/50 cursor-pointer shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)]"
+              className="h-8 px-2.5 rounded-md bg-zinc-900/80 border border-zinc-800 hover:border-zinc-700 text-xs text-zinc-300 truncate focus:outline-none focus:border-sky-500/50 cursor-pointer"
             >
               <option value="">Tất cả chuyên đề ({grade12Curriculum.length})</option>
               {grade12Curriculum.map((t) => (
@@ -149,16 +146,12 @@ export function App() {
                 </option>
               ))}
             </select>
-            <ChevronDown
-              className="w-3.5 h-3.5 text-zinc-500 absolute right-2 pointer-events-none"
-              aria-hidden="true"
-            />
           </div>
         </div>
 
         {/* Center: Difficulty Filter Pill Bar */}
         <div
-          className="hidden xl:flex items-center gap-1 bg-zinc-900/90 border border-zinc-800 rounded-full p-0.5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)]"
+          className="hidden xl:flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-full p-0.5"
           role="group"
           aria-label="Lọc theo mức độ nhận thức"
         >
@@ -169,9 +162,9 @@ export function App() {
                 key={lvl}
                 type="button"
                 onClick={() => handleDifficultyPillClick(lvl)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                   active
-                    ? 'bg-zinc-800 text-zinc-100 border border-zinc-700/80 shadow-[0_1px_2px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]'
+                    ? 'bg-zinc-800 text-zinc-100 border border-zinc-750'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -184,7 +177,7 @@ export function App() {
         {/* Right: Compact telemetry pill + BYOK API button */}
         <div className="flex items-center gap-2 shrink-0">
           <div
-            className="bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs font-mono flex items-center gap-2.5 sm:gap-3 shadow-[0_1px_2px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.04)]"
+            className="bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs font-mono flex items-center gap-2.5 sm:gap-3"
             aria-label={`Đúng ${ac}, Sai ${wa}, Chuỗi ${streak}`}
           >
             <span className="text-emerald-400 font-semibold tracking-tight">AC: {ac}</span>
@@ -206,17 +199,13 @@ export function App() {
                 ? 'Khóa API: Đã kết nối (BYOK đang bật)'
                 : 'Khóa API: Đang dùng cổng nhóm chung'
             }
-            className="h-8 px-2.5 rounded-md border border-zinc-700/80 bg-zinc-900/80 hover:bg-zinc-850 flex items-center justify-center gap-1.5 text-xs text-zinc-300 hover:text-zinc-100 transition-colors cursor-pointer shadow-[0_1px_0_0_rgba(0,0,0,0.3)]"
+            className="h-8 px-2.5 rounded-md border border-zinc-750 bg-zinc-900 hover:bg-zinc-850 flex items-center justify-center text-xs font-medium text-zinc-300 hover:text-zinc-100 transition-colors cursor-pointer"
           >
-            <KeyRound
-              className={`w-3.5 h-3.5 ${
-                byok ? 'text-emerald-400' : 'text-sky-400'
-              }`}
-              aria-hidden="true"
-            />
-            <span className="hidden sm:inline">
-              {byok ? 'BYOK Bật' : 'Khóa API'}
-            </span>
+            {byok ? (
+              <span className="text-emerald-400 font-medium">BYOK Bật</span>
+            ) : (
+              <span className="text-zinc-300">Khóa API</span>
+            )}
           </button>
         </div>
       </header>

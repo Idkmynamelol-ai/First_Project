@@ -54,47 +54,7 @@
   }
 }
 
-/* DCS Dolch Tactile Keycap Utility */
-.dolch-keycap {
-  position: relative;
-  background-color: #2c313c;
-  border: 1px solid #3e4655;
-  box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
-  transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
-}
 
-.dolch-keycap:hover {
-  background-color: #343a47;
-  border-color: #545e72;
-}
-
-.dolch-keycap:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(0, 0, 0, 0.2);
-}
-
-.dolch-keycap-cyan {
-  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
-  border: 1px solid #38bdf8;
-  color: #ffffff;
-  box-shadow: 0 2px 0 0 #075985, 0 0 12px rgba(56, 189, 248, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
-}
-
-.dolch-keycap-cyan:hover {
-  background: linear-gradient(180deg, #0369a1 0%, #0284c7 100%);
-  box-shadow: 0 2px 0 0 #0c4a6e, 0 0 16px rgba(56, 189, 248, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
-}
-
-.dolch-keycap-cyan:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 0 0 #075985, inset 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.dolch-card {
-  background-color: #1b1e24;
-  border: 1px solid #2c313c;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-}
 
 .font-mono {
   font-family: var(--font-mono);

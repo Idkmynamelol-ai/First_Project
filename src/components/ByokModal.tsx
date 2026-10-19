@@ -1,16 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import {
-  KeyRound,
-  Eye,
-  EyeOff,
-  ShieldCheck,
-  ExternalLink,
-  X,
-  CheckCircle2,
-  Users,
-  Trash2,
-  Sparkles,
-} from 'lucide-react';
 
 interface ByokModalProps {
   isOpen: boolean;
@@ -88,27 +76,22 @@ export const ByokModal: React.FC<ByokModalProps> = ({
         />
 
         <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0">
-              <KeyRound className="w-5 h-5" aria-hidden="true" />
-            </div>
-            <div>
-              <h2 id="byok-modal-title" className="text-base font-semibold text-zinc-100">
-                Kết nối khóa Gemini API cá nhân
-              </h2>
-              <p className="text-xs text-zinc-400">
-                Sử dụng khóa cá nhân để trò chuyện thoải mái cùng trợ lý học tập
-              </p>
-            </div>
+          <div>
+            <h2 id="byok-modal-title" className="text-base font-semibold text-zinc-100">
+              Kết nối khóa Gemini API cá nhân
+            </h2>
+            <p className="text-xs text-zinc-400">
+              Sử dụng khóa cá nhân để trò chuyện thoải mái cùng trợ lý học tập
+            </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
             aria-label="Đóng cửa sổ cài đặt khóa API"
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="px-2.5 py-1 text-xs rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors cursor-pointer"
           >
-            <X className="w-4 h-4" aria-hidden="true" />
+            Đóng
           </button>
         </div>
 
@@ -118,13 +101,11 @@ export const ByokModal: React.FC<ByokModalProps> = ({
             Chế độ kết nối hiện tại
           </span>
           {isByokActive ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
-              <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
               Đã kết nối khóa cá nhân
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-sky-500/10 text-sky-300 border border-sky-500/20">
-              <Users className="w-3.5 h-3.5" aria-hidden="true" />
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-sky-500/10 text-sky-300 border border-sky-500/20">
               Dùng cổng dùng chung mặc định
             </span>
           )}
@@ -150,20 +131,16 @@ export const ByokModal: React.FC<ByokModalProps> = ({
                 placeholder="AIzaSy..."
                 autoComplete="off"
                 spellCheck={false}
-                className="w-full h-11 pl-3.5 pr-12 rounded-lg bg-zinc-950 border border-zinc-800 text-sm text-zinc-100 placeholder:text-zinc-600 font-mono focus:outline-none focus:border-zinc-600 transition-colors"
+                className="w-full h-11 pl-3.5 pr-14 rounded-lg bg-zinc-950 border border-zinc-800 text-sm text-zinc-100 placeholder:text-zinc-600 font-mono focus:outline-none focus:border-zinc-600 transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowKey((prev) => !prev)}
                 aria-label={showKey ? 'Ẩn khóa API' : 'Hiện khóa API'}
                 aria-pressed={showKey}
-                className="absolute right-1.5 p-2 text-zinc-400 hover:text-zinc-100 rounded-md cursor-pointer"
+                className="absolute right-2 px-2 py-1 text-xs font-mono text-zinc-400 hover:text-zinc-100 rounded-md cursor-pointer"
               >
-                {showKey ? (
-                  <EyeOff className="w-4 h-4" aria-hidden="true" />
-                ) : (
-                  <Eye className="w-4 h-4" aria-hidden="true" />
-                )}
+                {showKey ? 'Ẩn' : 'Hiện'}
               </button>
             </div>
             {validationError && (
@@ -173,32 +150,25 @@ export const ByokModal: React.FC<ByokModalProps> = ({
             )}
           </div>
 
-          <div className="p-3.5 rounded-lg bg-zinc-950 border border-zinc-800 flex items-start gap-3">
-            <ShieldCheck
-              className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"
-              aria-hidden="true"
-            />
-            <div className="text-xs text-zinc-400 space-y-1 leading-relaxed">
-              <p className="text-zinc-200 font-medium">
-                Bảo mật tuyệt đối trên trình duyệt của bạn
-              </p>
-              <p>
-                Khóa API chỉ được lưu cục bộ trong{' '}
-                <code className="px-1 py-0.5 rounded bg-zinc-800 text-zinc-200 font-mono text-[11px]">
-                  localStorage
-                </code>{' '}
-                của trình duyệt và không bao giờ gửi về máy chủ trung gian.
-              </p>
-              <a
-                href="https://aistudio.google.com/app/apikey"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-zinc-300 hover:text-white hover:underline font-medium pt-0.5"
-              >
-                <span>Lấy khóa Gemini API miễn phí tại Google AI Studio</span>
-                <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
-              </a>
-            </div>
+          <div className="p-3.5 rounded-lg bg-zinc-950 border border-zinc-800 space-y-1 text-xs text-zinc-400 leading-relaxed">
+            <p className="text-zinc-200 font-medium">
+              Bảo mật tuyệt đối trên trình duyệt của bạn
+            </p>
+            <p>
+              Khóa API chỉ được lưu cục bộ trong{' '}
+              <code className="px-1 py-0.5 rounded bg-zinc-800 text-zinc-200 font-mono text-[11px]">
+                localStorage
+              </code>{' '}
+              của trình duyệt và không bao giờ gửi về máy chủ trung gian.
+            </p>
+            <a
+              href="https://aistudio.google.com/app/apikey"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-zinc-300 hover:text-white hover:underline font-medium pt-0.5"
+            >
+              Lấy khóa Gemini API miễn phí tại Google AI Studio ↗
+            </a>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2">
@@ -206,18 +176,16 @@ export const ByokModal: React.FC<ByokModalProps> = ({
               <button
                 type="button"
                 onClick={handleClear}
-                className="h-10 px-3.5 rounded-lg border border-rose-500/25 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 text-xs font-medium inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="h-10 px-3.5 rounded-lg border border-rose-500/25 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 text-xs font-medium inline-flex items-center justify-center transition-colors cursor-pointer"
               >
-                <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Xóa khóa &amp; dùng cổng chung</span>
               </button>
             ) : (
               <button
                 type="button"
                 onClick={() => setDraftKey('AIzaSyDemoHighSchoolStemKey2026')}
-                className="h-10 px-3 rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                className="h-10 px-3 rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 text-xs font-medium inline-flex items-center justify-center transition-colors cursor-pointer"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
                 <span>Điền khóa mẫu</span>
               </button>
             )}

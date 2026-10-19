@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import katex from 'katex';
-import { Copy, Check } from 'lucide-react';
 
 interface MathRendererProps {
   latex: string;
@@ -222,15 +221,9 @@ export const CopyableFormulaBlock: React.FC<CopyableFormulaBlockProps> = ({
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-colors cursor-pointer"
         >
           {copied ? (
-            <>
-              <Check className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
-              <span className="text-emerald-300">Đã chép</span>
-            </>
+            <span className="text-emerald-300">Đã chép</span>
           ) : (
-            <>
-              <Copy className="w-3.5 h-3.5 text-zinc-400" aria-hidden="true" />
-              <span>Chép LaTeX</span>
-            </>
+            <span>Chép LaTeX</span>
           )}
         </button>
       </div>

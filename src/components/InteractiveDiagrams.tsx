@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { BarChart3, GitBranch, Table2, BookOpenCheck } from 'lucide-react';
 import { SubjectId } from '../types/edu';
 
 interface SubjectDiagramProps {
@@ -11,11 +10,10 @@ type VizMode = 'chart' | 'diagram' | 'table';
 const MODES: {
   id: VizMode;
   label: string;
-  Icon: React.FC<{ className?: string }>;
 }[] = [
-  { id: 'chart', label: '1. Đồ thị / Biểu đồ', Icon: BarChart3 },
-  { id: 'diagram', label: '2. Sơ đồ tư duy / Cấu trúc', Icon: GitBranch },
-  { id: 'table', label: '3. Bảng số liệu chuẩn SGK', Icon: Table2 },
+  { id: 'chart', label: '1. Đồ thị / Biểu đồ' },
+  { id: 'diagram', label: '2. Sơ đồ tư duy / Cấu trúc' },
+  { id: 'table', label: '3. Bảng số liệu chuẩn SGK' },
 ];
 
 export const SubjectDiagram: React.FC<SubjectDiagramProps> = ({ subject }) => {
@@ -26,7 +24,6 @@ export const SubjectDiagram: React.FC<SubjectDiagramProps> = ({ subject }) => {
       {/* Header & Mode Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-neutral-800 pb-2.5">
         <div className="flex items-center gap-2">
-          <span className="inline-block w-2.5 h-2.5 bg-sky-400 shrink-0" aria-hidden="true" />
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-sky-300 bg-sky-500/15 border border-sky-400/50 px-2 py-0.5">
             Trực quan hóa đa dạng (Dữ liệu chuẩn SGK 12)
           </span>
@@ -37,7 +34,7 @@ export const SubjectDiagram: React.FC<SubjectDiagramProps> = ({ subject }) => {
           role="tablist"
           aria-label="Chọn dạng trực quan hóa kiến thức"
         >
-          {MODES.map(({ id, label, Icon }) => {
+          {MODES.map(({ id, label }) => {
             const active = mode === id;
             return (
               <button
@@ -46,13 +43,12 @@ export const SubjectDiagram: React.FC<SubjectDiagramProps> = ({ subject }) => {
                 role="tab"
                 aria-selected={active}
                 onClick={() => setMode(id)}
-                className={`h-8 px-2.5 text-[11px] font-mono font-bold inline-flex items-center gap-1.5 border cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+                className={`h-8 px-2.5 text-[11px] font-mono font-bold inline-flex items-center border cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
                   active
                     ? 'bg-sky-400 text-black border-sky-300'
                     : 'bg-[#111111] text-neutral-300 border-neutral-800 hover:border-neutral-600 hover:text-white'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                 <span>{label}</span>
               </button>
             );
@@ -267,7 +263,7 @@ export const SubjectDiagram: React.FC<SubjectDiagramProps> = ({ subject }) => {
           )}
 
           <p className="text-[11px] font-mono text-sky-300 flex items-center gap-1.5 pt-1 border-t border-neutral-800/30">
-            <BookOpenCheck className="w-3.5 h-3.5 text-sky-400 shrink-0" aria-hidden="true" />
+            <span>[SGK]</span>
             <span>
               Nguồn dữ liệu chuẩn: SGK Toán 12 Kết nối tri thức (Tập 2, Bài 13 &amp; Bài 19 Luyện tập 5 trang 77 - vietjack.com)
             </span>
@@ -406,7 +402,7 @@ export const SubjectDiagram: React.FC<SubjectDiagramProps> = ({ subject }) => {
           )}
 
           <p className="text-[11px] font-mono text-sky-300 flex items-center gap-1.5 pt-1 border-t border-neutral-800/30">
-            <BookOpenCheck className="w-3.5 h-3.5 text-sky-400 shrink-0" aria-hidden="true" />
+            <span>[SGK]</span>
             <span>
               Nguồn dữ liệu chuẩn: SGK Vật lí 12 Kết nối tri thức (Bài 4 &amp; Bài 5 Câu hỏi 2 trang 24 - vietjack.com)
             </span>
@@ -545,7 +541,7 @@ export const SubjectDiagram: React.FC<SubjectDiagramProps> = ({ subject }) => {
           )}
 
           <p className="text-[11px] font-mono text-sky-300 flex items-center gap-1.5 pt-1 border-t border-neutral-800/30">
-            <BookOpenCheck className="w-3.5 h-3.5 text-sky-400 shrink-0" aria-hidden="true" />
+            <span>[SGK]</span>
             <span>
               Nguồn dữ liệu chuẩn: SGK Hóa học 12 Kết nối tri thức (Bài 1 trang 8 &amp; Bài 15 trang 71, 75 - vietjack.com)
             </span>
@@ -712,7 +708,7 @@ export const SubjectDiagram: React.FC<SubjectDiagramProps> = ({ subject }) => {
           )}
 
           <p className="text-[11px] font-mono text-sky-300 flex items-center gap-1.5 pt-1 border-t border-neutral-800/30">
-            <BookOpenCheck className="w-3.5 h-3.5 text-sky-400 shrink-0" aria-hidden="true" />
+            <span>[SGK]</span>
             <span>
               Nguồn dữ liệu chuẩn: SGK Tiếng Anh 12 Global Success (Unit 4 Language trang 51 &amp; Unit 6 Language trang 79 - vietjack.com)
             </span>

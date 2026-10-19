@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Calendar,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  Sparkles,
-  RotateCcw,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
-import {
   DailyChallengeResponse,
   DailySubject,
   SanitizedDailyProblem,
@@ -179,25 +169,20 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
             type="button"
             onClick={() => setDate((d) => shiftDateString(d, -1))}
             aria-label="Xem đề ngày hôm trước"
-            className="h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/70 text-xs font-medium text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 inline-flex items-center gap-1 cursor-pointer transition-colors"
+            className="h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/70 text-xs font-medium text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 cursor-pointer transition-colors"
           >
-            <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Hôm trước</span>
+            ← Hôm trước
           </button>
 
           <label className="relative inline-flex items-center">
             <span className="sr-only">Chọn ngày xem đề hàng ngày</span>
-            <Calendar
-              className="w-3.5 h-3.5 text-zinc-400 absolute left-3 pointer-events-none"
-              aria-hidden="true"
-            />
             <input
               type="date"
               value={date}
               onChange={(e) => {
                 if (e.target.value) setDate(e.target.value);
               }}
-              className="h-9 pl-8 pr-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs font-mono text-zinc-100 focus:outline-none focus:border-zinc-600"
+              className="h-9 px-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs font-mono text-zinc-100 focus:outline-none focus:border-zinc-600"
             />
           </label>
 
@@ -205,10 +190,9 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
             type="button"
             onClick={() => setDate((d) => shiftDateString(d, 1))}
             aria-label="Xem đề ngày kế tiếp"
-            className="h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/70 text-xs font-medium text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 inline-flex items-center gap-1 cursor-pointer transition-colors"
+            className="h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/70 text-xs font-medium text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 cursor-pointer transition-colors"
           >
-            <span>Hôm sau</span>
-            <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+            Hôm sau →
           </button>
 
           {date !== todayICT && (
@@ -287,9 +271,8 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
             <button
               type="button"
               onClick={() => setVerifyResult(null)}
-              className="text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 px-2.5 py-1 rounded-md transition-colors inline-flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 px-2.5 py-1 rounded-md transition-colors cursor-pointer shrink-0"
             >
-              <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Làm lại</span>
             </button>
           )}
@@ -317,17 +300,17 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
                     role="radio"
                     aria-checked={active}
                     onClick={() => setMcChoice(opt.id)}
-                    className={`w-full min-h-[52px] flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-all duration-150 cursor-pointer text-left ${
+                    className={`w-full min-h-[52px] flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-colors cursor-pointer text-left ${
                       active
-                        ? 'border-sky-500/60 bg-sky-950/25 text-zinc-100 shadow-[0_0_15px_rgba(14,165,233,0.1)]'
-                        : 'border-zinc-800/90 bg-zinc-900/60 hover:bg-zinc-850 hover:border-zinc-700 text-zinc-200 shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                        ? 'border-sky-500/60 bg-sky-950/20 text-zinc-100'
+                        : 'border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/60 hover:border-zinc-700 text-zinc-200'
                     }`}
                   >
                     <span
                       className={`w-7 h-7 rounded-lg font-mono text-xs font-semibold flex items-center justify-center shrink-0 tracking-tight ${
                         active
-                          ? 'bg-sky-600 border-t border-sky-300/40 border-b border-sky-900/70 border-x border-sky-500 text-white shadow-[0_2px_0_0_#0369a1,0_0_12px_rgba(56,189,248,0.45)]'
-                          : 'bg-zinc-800 border-t border-white/[0.08] border-b border-black/50 border-x border-zinc-700 text-zinc-300 shadow-[0_2px_0_0_rgba(0,0,0,0.4)]'
+                          ? 'bg-sky-600 border border-sky-500 text-white'
+                          : 'bg-zinc-800 border border-zinc-700 text-zinc-300'
                       }`}
                     >
                       {opt.id}
@@ -436,11 +419,6 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
               }
             >
               <div className="flex items-center gap-2">
-                {verifyResult.isCorrect ? (
-                  <CheckCircle2 className="w-4 h-4 shrink-0" aria-hidden="true" />
-                ) : (
-                  <XCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
-                )}
                 <span>
                   [{verifyResult.isCorrect ? 'ĐÚNG' : 'CHƯA ĐÚNG'}]{' '}
                   {verifyResult.isCorrect
@@ -460,23 +438,21 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
 
             <div className="p-5 space-y-4">
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
-                  <span>Lời giải &amp; Chứng minh từng bước:</span>
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                  Lời giải &amp; Chứng minh từng bước:
                 </p>
                 <div className="text-[15px] text-zinc-200 leading-7 bg-zinc-950/60 border border-zinc-800/80 rounded-lg p-4 whitespace-pre-line">
                   <MathText content={verifyResult.derivationMarkdown} />
                 </div>
               </div>
 
-              <div className="rounded-lg border border-amber-500/25 bg-amber-500/[0.06] p-3.5 text-sm text-amber-200 flex items-start gap-2.5">
-                <AlertTriangle
-                  className="w-4 h-4 text-amber-400 shrink-0 mt-1"
-                  aria-hidden="true"
-                />
-                <span>
+              <div className="rounded-lg border border-amber-500/25 bg-amber-500/[0.06] p-3.5 text-sm text-amber-200">
+                <p className="text-xs font-semibold uppercase tracking-wider text-amber-300 mb-1">
+                  Lưu ý bẫy thường gặp
+                </p>
+                <div>
                   <MathText content={verifyResult.commonTrapWarning} />
-                </span>
+                </div>
               </div>
             </div>
           </div>

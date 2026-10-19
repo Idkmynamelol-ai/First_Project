@@ -87,7 +87,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           katex: ['katex'],
-          icons: ['lucide-react'],
         },
       },
     },
