@@ -356,38 +356,56 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
         const problemCtx = questionContext
           ? `\nCâu hỏi đang làm: ${questionContext.prompt}\nĐáp án chuẩn: ${questionContext.correctOptionText ?? ''}`
           : '';
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(
-            storedKey
-          )}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              systemInstruction: {
-                parts: [
-                  {
-                    text:
-                      `Bạn là Gia sư AI Socratic chuyên sâu Chương trình GDPT 2018.\n` +
-                      `Chuyên đề: ${topic.chapter} - ${topic.topicName}.\n` +
-                      `Công thức trọng tâm:\n${formulasContext}` +
-                      problemCtx +
-                      `\nHãy giải đáp ngắn gọn, rõ ràng bằng tiếng Việt, phân tích từng bước và dùng LaTeX $...$ hoặc $$...$$.`,
+        const candidateModels = [
+          'gemini-2.0-flash-lite',
+          'gemini-1.5-flash-8b',
+          'gemini-1.5-flash',
+          'gemini-2.5-flash',
+        ];
+
+        for (const model of candidateModels) {
+          try {
+            const res = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(
+                storedKey
+              )}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  systemInstruction: {
+                    parts: [
+                      {
+                        text:
+                          `Bạn là Gia sư AI Socratic chuyên sâu Chương trình GDPT 2018.\n` +
+                          `Chuyên đề: ${topic.chapter} - ${topic.topicName}.\n` +
+                          `Công thức trọng tâm:\n${formulasContext}` +
+                          problemCtx +
+                          `\nHãy giải đáp ngắn gọn, rõ ràng bằng tiếng Việt, phân tích từng bước và dùng LaTeX $...$ hoặc $$...$$.`,
+                      },
+                    ],
                   },
-                ],
-              },
-              contents: [
-                {
-                  role: 'user',
-                  parts: [{ text }],
-                },
-              ],
-            }),
+                  contents: [
+                    {
+                      role: 'user',
+                      parts: [{ text }],
+                    },
+                  ],
+                  generationConfig: {
+                    maxOutputTokens: 1024,
+                    temperature: 0.2,
+                  },
+                }),
+              }
+            );
+            if (res.ok) {
+              const data = await res.json();
+              reply = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+              if (reply) break;
+            }
+          } catch {
+            /* continue to next candidate model */
           }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          reply = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
         }
       } catch {
         /* fallback to deterministic local reply */

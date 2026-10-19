@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { Landing } from './Landing';
+import { Introduction } from './Introduction';
 import './index.css';
 
-// Landing page by default; the study workspace lives at #/app
+// Landing page by default; Introduction lives at #/intro; study workspace lives at #/app
 function Root() {
   const [hash, setHash] = useState(window.location.hash);
   useEffect(() => {
@@ -15,7 +16,14 @@ function Root() {
     window.addEventListener('hashchange', onChange);
     return () => window.removeEventListener('hashchange', onChange);
   }, []);
-  const isWorkspaceRoute = hash === '#/app' || hash === '#/admin';
+
+  if (hash === '#/intro' || hash === '#/introduction') {
+    return <Introduction />;
+  }
+
+  const isWorkspaceRoute =
+    hash === '#/app' || hash === '#/admin' || hash === '#/scanner';
+
   return isWorkspaceRoute ? <App /> : <Landing />;
 }
 
