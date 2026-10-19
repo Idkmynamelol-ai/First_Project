@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft,
+  ArrowRight,
   RotateCcw,
   CheckCircle2,
   XCircle,
@@ -8,6 +9,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  Pause,
 } from 'lucide-react';
 import { SUBJECTS_META, PRACTICE_QUESTIONS } from '../data/curriculum';
 import { MathRenderer, MathText } from './MathRenderer';
@@ -174,6 +177,31 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     0,
     topicQuestions.findIndex((item) => item.id === q.id)
   );
+  const globalIndex = Math.max(
+    0,
+    PRACTICE_QUESTIONS.findIndex((item) => item.id === q.id)
+  );
+
+  const goToNextQuestion = () => {
+    if (!onSelectQuestion) return;
+    if (currentTopicIndex < topicQuestions.length - 1) {
+      onSelectQuestion(topicQuestions[currentTopicIndex + 1].id);
+    } else if (PRACTICE_QUESTIONS.length > 0) {
+      const nextGlobal = (globalIndex + 1) % PRACTICE_QUESTIONS.length;
+      onSelectQuestion(PRACTICE_QUESTIONS[nextGlobal].id);
+    }
+  };
+
+  const goToPrevQuestion = () => {
+    if (!onSelectQuestion) return;
+    if (currentTopicIndex > 0) {
+      onSelectQuestion(topicQuestions[currentTopicIndex - 1].id);
+    } else if (PRACTICE_QUESTIONS.length > 0) {
+      const prevGlobal =
+        (globalIndex - 1 + PRACTICE_QUESTIONS.length) % PRACTICE_QUESTIONS.length;
+      onSelectQuestion(PRACTICE_QUESTIONS[prevGlobal].id);
+    }
+  };
 
   // Mobile segmented tab ('wiki' | 'practice') & Mobile slide-up Socratic sheet
   const [mobileTab, setMobileTab] = useState<'wiki' | 'practice'>('practice');
@@ -187,12 +215,40 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const [verdict, setVerdict] = useState<'AC' | 'WA' | null>(null);
   const [reinfPick, setReinfPick] = useState<string | null>(null);
 
-  // Reshuffle on every questionId change (new problem entry)
+  // Auto-advance configuration & timer state
+  const COUNTDOWN_SECONDS = 4;
+  const [autoAdvanceEnabled, setAutoAdvanceEnabled] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('scalar_auto_advance_enabled');
+      return saved !== null ? saved === 'true' : true;
+    }
+    return true;
+  });
+  const [autoAdvancePaused, setAutoAdvancePaused] = useState<boolean>(false);
+  const [countdown, setCountdown] = useState<number>(COUNTDOWN_SECONDS);
+
+  const pauseAutoAdvance = () => {
+    setAutoAdvancePaused(true);
+  };
+
+  const toggleAutoAdvance = () => {
+    setAutoAdvanceEnabled((prev) => {
+      const next = !prev;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('scalar_auto_advance_enabled', String(next));
+      }
+      return next;
+    });
+  };
+
+  // Reshuffle & reset timer on every questionId change (new problem entry)
   useEffect(() => {
     setAttempt(generateDynamicAttempt(q));
     setSelected(null);
     setVerdict(null);
     setReinfPick(null);
+    setAutoAdvancePaused(false);
+    setCountdown(COUNTDOWN_SECONDS);
   }, [questionId]);
 
   // Redo handler: shifts correct answer to a different position
@@ -202,6 +258,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     setSelected(null);
     setVerdict(null);
     setReinfPick(null);
+    setAutoAdvancePaused(false);
+    setCountdown(COUNTDOWN_SECONDS);
   };
 
   const submit = () => {
@@ -209,9 +267,36 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     const ok = selected === attempt.correctOptionId;
     setVerdict(ok ? 'AC' : 'WA');
     onVerdict(q.id, ok);
+    setCountdown(COUNTDOWN_SECONDS);
+    setAutoAdvancePaused(false);
   };
 
-  // Keyboard shortcuts: 1/2/3/4 or A/B/C/D to select option, Enter to submit
+  // Auto-advance countdown timer when question is finished (verdict is set)
+  useEffect(() => {
+    if (!verdict || !autoAdvanceEnabled || autoAdvancePaused) {
+      return;
+    }
+
+    if (countdown <= 0) {
+      goToNextQuestion();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          goToNextQuestion();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [verdict, autoAdvanceEnabled, autoAdvancePaused, countdown, questionId]);
+
+  // Keyboard shortcuts: 1/2/3/4 or A/B/C/D to select option, Enter to submit or next
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -242,16 +327,20 @@ export const Workspace: React.FC<WorkspaceProps> = ({
           setSelected(opt.id);
           setVerdict(null);
         }
-      } else if (e.key === 'Enter' && selected && !verdict) {
-        e.preventDefault();
-        submit();
+      } else if (e.key === 'Enter') {
+        if (selected && !verdict) {
+          e.preventDefault();
+          submit();
+        } else if (verdict && autoAdvancePaused) {
+          e.preventDefault();
+          goToNextQuestion();
+        }
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q.id, selected, verdict, attempt]);
+  }, [q.id, selected, verdict, attempt, autoAdvancePaused]);
 
   const correctIdx = Math.max(
     0,
@@ -313,27 +402,41 @@ export const Workspace: React.FC<WorkspaceProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5">
-            {onSelectQuestion && topicQuestions.length > 1 && (
+            {/* Auto-advance toggle switch */}
+            <button
+              type="button"
+              onClick={toggleAutoAdvance}
+              className={`text-xs px-2.5 py-1 rounded-md border transition-colors inline-flex items-center gap-1.5 cursor-pointer ${
+                autoAdvanceEnabled
+                  ? 'border-sky-500/30 bg-sky-500/10 text-sky-300'
+                  : 'border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200'
+              }`}
+              title={
+                autoAdvanceEnabled
+                  ? 'Tự động chuyển câu sau khi hoàn thành: Đang Bật (Bấm để tắt)'
+                  : 'Tự động chuyển câu: Đang Tắt (Bấm để bật)'
+              }
+            >
+              <Clock className="w-3.5 h-3.5" aria-hidden="true" />
+              <span className="hidden sm:inline">Tự động chuyển:</span>
+              <span>{autoAdvanceEnabled ? 'Bật' : 'Tắt'}</span>
+            </button>
+
+            {onSelectQuestion && (
               <div className="flex items-center gap-1 mr-1">
                 <button
                   type="button"
-                  disabled={currentTopicIndex <= 0}
-                  onClick={() =>
-                    onSelectQuestion(topicQuestions[currentTopicIndex - 1].id)
-                  }
-                  aria-label="Câu trước trong chuyên đề"
-                  className="p-1.5 rounded-md border border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                  onClick={goToPrevQuestion}
+                  aria-label="Câu trước"
+                  className="p-1.5 rounded-md border border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 cursor-pointer"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
                 </button>
                 <button
                   type="button"
-                  disabled={currentTopicIndex >= topicQuestions.length - 1}
-                  onClick={() =>
-                    onSelectQuestion(topicQuestions[currentTopicIndex + 1].id)
-                  }
-                  aria-label="Câu tiếp theo trong chuyên đề"
-                  className="p-1.5 rounded-md border border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                  onClick={goToNextQuestion}
+                  aria-label="Câu tiếp theo"
+                  className="p-1.5 rounded-md border border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 cursor-pointer"
                 >
                   <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
                 </button>
@@ -421,17 +524,58 @@ export const Workspace: React.FC<WorkspaceProps> = ({
 
         {/* 4. Primary Action Bar (Desktop) */}
         <div className="hidden lg:flex items-center justify-between gap-4 pt-1">
-          <button
-            type="button"
-            onClick={submit}
-            disabled={!selected}
-            className="w-full sm:w-auto bg-zinc-100 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-medium text-sm px-6 py-2.5 rounded-lg transition-all shadow-sm cursor-pointer disabled:cursor-not-allowed"
-          >
-            Nộp bài &amp; Kiểm tra đáp án
-          </button>
-          <span className="text-xs text-zinc-500 font-mono">
-            Phím tắt: A–D hoặc 1–4 • Enter để nộp
-          </span>
+          {verdict ? (
+            <div className="w-full flex items-center justify-between gap-4">
+              {autoAdvancePaused || !autoAdvanceEnabled ? (
+                <button
+                  type="button"
+                  onClick={goToNextQuestion}
+                  className="min-h-[48px] bg-gradient-to-r from-sky-500 via-indigo-600 to-sky-500 hover:from-sky-400 hover:via-indigo-500 hover:to-sky-400 text-white font-semibold text-sm sm:text-base px-7 py-3 rounded-xl transition-all shadow-md shadow-sky-500/20 flex items-center gap-2.5 cursor-pointer active:scale-[0.99] group"
+                >
+                  <span>Câu hỏi tiếp theo</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                </button>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={goToNextQuestion}
+                    className="min-h-[44px] bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-sm px-5 py-2.5 rounded-lg transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+                  >
+                    <span>Chuyển ngay</span>
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={pauseAutoAdvance}
+                    className="text-xs text-zinc-400 hover:text-zinc-200 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-3 py-2 rounded-lg transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Pause className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
+                    <span>Tạm dừng để xem kỹ</span>
+                  </button>
+                </div>
+              )}
+              <span className="text-xs text-zinc-500 font-mono">
+                {autoAdvancePaused || !autoAdvanceEnabled
+                  ? 'Nhấn [Enter] hoặc click nút để sang câu tiếp theo'
+                  : `Tự động chuyển câu sau ${countdown}s...`}
+              </span>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={submit}
+                disabled={!selected}
+                className="w-full sm:w-auto bg-zinc-100 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-medium text-sm px-6 py-2.5 rounded-lg transition-all shadow-sm cursor-pointer disabled:cursor-not-allowed"
+              >
+                Nộp bài &amp; Kiểm tra đáp án
+              </button>
+              <span className="text-xs text-zinc-500 font-mono">
+                Phím tắt: A–D hoặc 1–4 • Enter để nộp
+              </span>
+            </>
+          )}
         </div>
 
         {/* 5. Unified Solution & Socratic Tutor Card */}
@@ -465,6 +609,63 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                   )}
                 </div>
               </div>
+
+              {/* Auto-Advance Countdown Bar OR Bigger Next Question Button */}
+              {autoAdvanceEnabled && !autoAdvancePaused ? (
+                <div className="bg-sky-950/40 border-b border-sky-500/25 px-4 sm:px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-sm">
+                  <div className="flex items-center gap-2.5 text-sky-200">
+                    <div className="relative flex items-center justify-center">
+                      <span className="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-sky-400 opacity-75"></span>
+                      <Clock className="w-4 h-4 text-sky-400 relative" aria-hidden="true" />
+                    </div>
+                    <span className="font-medium text-xs sm:text-sm">
+                      Tự động chuyển câu tiếp theo sau{' '}
+                      <span className="font-mono text-sky-300 font-bold px-1.5 py-0.5 rounded-md bg-sky-500/20 border border-sky-500/30">
+                        {countdown}s
+                      </span>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={pauseAutoAdvance}
+                      className="px-3 py-1.5 rounded-lg bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                      title="Tạm dừng tự động chuyển câu để xem lời giải hoặc hỏi AI"
+                    >
+                      <Pause className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
+                      <span>Tạm dừng</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goToNextQuestion}
+                      className="px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                    >
+                      <span>Chuyển ngay</span>
+                      <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gradient-to-r from-sky-950/60 via-zinc-900/80 to-indigo-950/60 border-b border-sky-500/30 p-4 sm:p-5 space-y-3">
+                  <div className="flex items-center justify-between text-xs text-sky-300">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <Sparkles className="w-3.5 h-3.5 text-sky-400 shrink-0" aria-hidden="true" />
+                      <span>Tự động chuyển câu đã tạm dừng để bạn đối thoại cùng Gia sư AI</span>
+                    </span>
+                    <span className="font-mono text-zinc-400 text-[11px] hidden sm:inline">
+                      Nhấn [Enter] để chuyển tiếp
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={goToNextQuestion}
+                    className="w-full min-h-[54px] py-3.5 px-6 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-sky-500 hover:from-sky-400 hover:via-indigo-500 hover:to-sky-400 text-white font-semibold text-base sm:text-lg shadow-lg shadow-sky-500/25 border border-sky-300/30 flex items-center justify-center gap-3 transition-all cursor-pointer active:scale-[0.99] group"
+                  >
+                    <span>Câu hỏi tiếp theo</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" aria-hidden="true" />
+                  </button>
+                </div>
+              )}
 
               {/* Step-by-Step Derivation & Socratic Diagnostic */}
               <div className="p-5 space-y-4">
@@ -568,7 +769,22 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                       correctOptionText,
                       stepByStepSolution: q.stepByStepSolution,
                     }}
+                    onInteraction={pauseAutoAdvance}
                   />
+                )}
+
+                {/* Big Next Question button at bottom of card after discussing with AI */}
+                {(autoAdvancePaused || !autoAdvanceEnabled) && (
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={goToNextQuestion}
+                      className="w-full min-h-[50px] py-3 px-6 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-sm sm:text-base shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99] group"
+                    >
+                      <span>Làm câu hỏi tiếp theo</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                    </button>
+                  </div>
                 )}
               </div>
             </>
@@ -580,6 +796,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                   questionContext={{
                     prompt: q.prompt,
                   }}
+                  onInteraction={pauseAutoAdvance}
                 />
               )}
             </div>
@@ -700,22 +917,51 @@ export const Workspace: React.FC<WorkspaceProps> = ({
       {/* Mobile Sticky Bottom Action Bar */}
       {mobileTab === 'practice' && (
         <div className="lg:hidden fixed bottom-0 inset-x-0 p-3 pb-safe bg-zinc-950/95 backdrop-blur border-t border-zinc-800 z-20 flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={submit}
-            disabled={!selected}
-            className="flex-1 h-11 bg-zinc-100 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-medium text-sm rounded-lg transition-all cursor-pointer disabled:cursor-not-allowed"
-          >
-            {selected ? 'Nộp bài' : 'Chọn một đáp án'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setMobileSheetOpen(true)}
-            className="h-11 px-4 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs font-medium inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
-            <span>✨ Hỏi Gia sư</span>
-          </button>
+          {verdict ? (
+            <>
+              <button
+                type="button"
+                onClick={goToNextQuestion}
+                className="flex-1 h-12 bg-gradient-to-r from-sky-500 via-indigo-600 to-sky-500 hover:from-sky-400 hover:to-indigo-500 text-white font-semibold text-sm sm:text-base rounded-xl transition-all shadow-md shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+              >
+                <span>Câu hỏi tiếp theo</span>
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  pauseAutoAdvance();
+                  setMobileSheetOpen(true);
+                }}
+                className="h-12 px-3.5 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs font-medium inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
+                <span>Hỏi Gia sư</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={submit}
+                disabled={!selected}
+                className="flex-1 h-11 bg-zinc-100 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-medium text-sm rounded-lg transition-all cursor-pointer disabled:cursor-not-allowed"
+              >
+                {selected ? 'Nộp bài' : 'Chọn một đáp án'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  pauseAutoAdvance();
+                  setMobileSheetOpen(true);
+                }}
+                className="h-11 px-4 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs font-medium inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
+                <span>✨ Hỏi Gia sư</span>
+              </button>
+            </>
+          )}
         </div>
       )}
 
@@ -738,14 +984,29 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 <Sparkles className="w-4 h-4 text-sky-400" aria-hidden="true" />
                 <span>Gia sư AI Socratic • {q.sourceTopic.topicName}</span>
               </span>
-              <button
-                type="button"
-                onClick={() => setMobileSheetOpen(false)}
-                aria-label="Đóng khung chat Gia sư"
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
-              >
-                <X className="w-4 h-4" aria-hidden="true" />
-              </button>
+              <div className="flex items-center gap-2">
+                {verdict && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileSheetOpen(false);
+                      goToNextQuestion();
+                    }}
+                    className="px-2.5 py-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Câu tiếp</span>
+                    <ArrowRight className="w-3 h-3" aria-hidden="true" />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setMobileSheetOpen(false)}
+                  aria-label="Đóng khung chat Gia sư"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 cursor-pointer"
+                >
+                  <X className="w-4 h-4" aria-hidden="true" />
+                </button>
+              </div>
             </div>
             <TopicChatBox
               topic={q.sourceTopic}
@@ -754,6 +1015,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 correctOptionText,
                 stepByStepSolution: q.stepByStepSolution,
               }}
+              onInteraction={pauseAutoAdvance}
             />
           </div>
         </div>

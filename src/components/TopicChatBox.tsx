@@ -271,6 +271,7 @@ interface TopicChatBoxProps {
     correctOptionText?: string;
     stepByStepSolution?: string[];
   };
+  onInteraction?: () => void;
 }
 
 /**
@@ -280,6 +281,7 @@ interface TopicChatBoxProps {
 export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
   topic,
   questionContext,
+  onInteraction,
 }) => {
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
@@ -344,6 +346,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
   const sendQuestion = async (rawText: string) => {
     const text = rawText.trim();
     if (!text || busy) return;
+    onInteraction?.();
     setInput('');
     setBusy(true);
 
@@ -427,7 +430,11 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
   const inputId = `chat-input-${topic.id}`;
 
   return (
-    <div className="space-y-3 pt-3 border-t border-zinc-800/60">
+    <div
+      onFocusCapture={() => onInteraction?.()}
+      onClickCapture={() => onInteraction?.()}
+      className="space-y-3 pt-3 border-t border-zinc-800/60"
+    >
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium text-zinc-400 flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
@@ -442,7 +449,10 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
             key={idx}
             type="button"
             disabled={busy}
-            onClick={() => sendQuestion(qq)}
+            onClick={() => {
+              onInteraction?.();
+              sendQuestion(qq);
+            }}
             className="text-xs text-zinc-400 bg-zinc-900 hover:bg-zinc-800 hover:text-zinc-200 border border-zinc-800 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
           >
             {qq}
@@ -482,6 +492,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          onInteraction?.();
           sendQuestion(input);
         }}
         className="bg-zinc-950 border border-zinc-800 focus-within:border-zinc-600 rounded-lg px-3.5 py-2 flex items-center gap-2 transition-colors"
@@ -493,7 +504,11 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
           id={inputId}
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onFocus={() => onInteraction?.()}
+          onChange={(e) => {
+            onInteraction?.();
+            setInput(e.target.value);
+          }}
           placeholder="Hỏi Gia sư AI về bước giải hoặc lý thuyết..."
           autoComplete="off"
           className="flex-1 min-w-0 bg-transparent text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none"
