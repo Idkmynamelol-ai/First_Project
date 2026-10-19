@@ -262,6 +262,43 @@ function isLatexOption(opt: string): boolean {
 }
 
 /**
+ * Deterministic 32-bit string hash (FNV-1a)
+ */
+function hashString(str: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+/**
+ * Seeded pseudo-random number generator (Mulberry32)
+ */
+function seededRandom(seed: number): number {
+  let t = (seed += 0x6d2b79f5);
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+/**
+ * Shuffles an array deterministically using Fisher-Yates with a seed
+ */
+function shuffleWithSeed<T>(array: T[], seed: number): T[] {
+  const result = [...array];
+  let currentSeed = seed;
+  for (let i = result.length - 1; i > 0; i--) {
+    currentSeed = (currentSeed * 1664525 + 1013904223) >>> 0;
+    const r = seededRandom(currentSeed);
+    const j = Math.floor(r * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
  * Compiles all practice questions sorted strictly by:
  * Level 1 (Subject) -> Level 2 (Topic) -> Level 3 (Difficulty Tier: Nhận biết -> Thông hiểu -> Vận dụng -> Vận dụng cao).
  */
@@ -279,12 +316,17 @@ export const PRACTICE_QUESTIONS: PracticeQuestion[] = grade12Curriculum.flatMap(
         topic.commonPitfalls[0];
       const primaryRule = topic.keyFormulasAndRules[0];
       const rawOptions = tpl.options ?? [tpl.correctAnswer];
+
+      // Deterministically randomize the options across A-B-C-D
+      const seed = hashString(`${topic.id}:${qIdx}:${tpl.questionText}`);
+      const shuffledOptions = shuffleWithSeed(rawOptions, seed);
+
       const correctIdx = Math.max(
         0,
-        rawOptions.findIndex((o) => o === tpl.correctAnswer)
+        shuffledOptions.findIndex((o) => o === tpl.correctAnswer)
       );
 
-      const options = rawOptions.map((optStr, optIdx) => {
+      const options = shuffledOptions.map((optStr, optIdx) => {
         const optId = `opt-${String.fromCharCode(97 + optIdx)}`;
         const isCorrect = optIdx === correctIdx;
         const useLatex = topic.subject !== 'english' && isLatexOption(optStr);
@@ -308,6 +350,30 @@ export const PRACTICE_QUESTIONS: PracticeQuestion[] = grade12Curriculum.flatMap(
         };
       });
 
+      // Deterministically randomize reinforcement options between r-a and r-b
+      const reinfIsA = (seed >>> 5) % 2 === 0;
+      const reinfOptions = reinfIsA
+        ? [
+            {
+              id: 'r-a',
+              text: `Quy tắc đúng: ${pitfall.correction}`,
+            },
+            {
+              id: 'r-b',
+              text: `Nhầm lẫn thường gặp: ${pitfall.mistake}`,
+            },
+          ]
+        : [
+            {
+              id: 'r-a',
+              text: `Nhầm lẫn thường gặp: ${pitfall.mistake}`,
+            },
+            {
+              id: 'r-b',
+              text: `Quy tắc đúng: ${pitfall.correction}`,
+            },
+          ];
+
       return {
         id: `${topic.id}-q${qIdx + 1}`,
         subject: topic.subject,
@@ -327,17 +393,8 @@ export const PRACTICE_QUESTIONS: PracticeQuestion[] = grade12Curriculum.flatMap(
           id: `${topic.id}-reinf-${qIdx + 1}`,
           prompt: `Câu hỏi củng cố (${topic.topicName}): Điểm mấu chốt nào cần nhớ để tránh sai sót trong dạng bài này?`,
           latexFormula: primaryRule.latexOrRule,
-          options: [
-            {
-              id: 'r-a',
-              text: `Quy tắc đúng: ${pitfall.correction}`,
-            },
-            {
-              id: 'r-b',
-              text: `Nhầm lẫn thường gặp: ${pitfall.mistake}`,
-            },
-          ],
-          correctOptionId: 'r-a',
+          options: reinfOptions,
+          correctOptionId: reinfIsA ? 'r-a' : 'r-b',
           explanation: pitfall.explanation,
         },
       };
