@@ -4,22 +4,45 @@
 @theme {
   --font-sans: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* DCS Dolch Colorway Palette (Dual-Slate Charcoal & Dolch Cyan) */
+  --color-zinc-950: #131519; /* Dolch Case / Chassis deep slate */
+  --color-zinc-900: #1b1e24; /* Dolch Modifier deep graphite */
+  --color-zinc-850: #232730; /* Dolch Intermediate slate */
+  --color-zinc-800: #2c313c; /* Dolch Alpha base slate */
+  --color-zinc-750: #343a47; /* Dolch Raised Alpha surface */
+  --color-zinc-700: #3e4655; /* Dolch Keycap edge / Divider */
+  --color-zinc-600: #545e72; /* Dolch Inactive legend */
+  --color-zinc-500: #748096; /* Dolch Muted secondary */
+  --color-zinc-400: #9aa6ba; /* Dolch Subtitle slate */
+  --color-zinc-300: #c6d0df; /* Dolch Tertiary white */
+  --color-zinc-200: #e2e8f1; /* Dolch Primary legend */
+  --color-zinc-100: #f1f4f9; /* Dolch Crisp Doubleshot chalk */
+  --color-zinc-50:  #f8fafc;
+
+  /* DCS Dolch Signature Accents */
+  --color-dolch-cyan: #22d3ee;
+  --color-dolch-sky: #38bdf8;
+  --color-dolch-teal: #14b8a6;
+  --color-dolch-mint: #2dd4bf;
+  --color-dolch-ruby: #f43f5e;
+  --color-dolch-amber: #fbbf24;
 }
 
 @layer base {
   html {
     font-family: var(--font-sans);
     font-size: 16px;
-    background-color: #09090b;
-    color: #f4f4f5;
+    background-color: #131519;
+    color: #f1f4f9;
     color-scheme: dark;
     overflow-x: hidden;
     font-feature-settings: 'calt' 1, 'liga' 1;
   }
 
   body {
-    background-color: #09090b;
-    color: #f4f4f5;
+    background-color: #131519;
+    color: #f1f4f9;
     overflow-x: hidden;
     min-height: 100dvh;
     letter-spacing: 0;
@@ -29,6 +52,48 @@
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
   }
+}
+
+/* DCS Dolch Tactile Keycap Utility */
+.dolch-keycap {
+  position: relative;
+  background-color: #2c313c;
+  border: 1px solid #3e4655;
+  box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dolch-keycap:hover {
+  background-color: #343a47;
+  border-color: #545e72;
+}
+
+.dolch-keycap:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(0, 0, 0, 0.2);
+}
+
+.dolch-keycap-cyan {
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 2px 0 0 #075985, 0 0 12px rgba(56, 189, 248, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+}
+
+.dolch-keycap-cyan:hover {
+  background: linear-gradient(180deg, #0369a1 0%, #0284c7 100%);
+  box-shadow: 0 2px 0 0 #0c4a6e, 0 0 16px rgba(56, 189, 248, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+}
+
+.dolch-keycap-cyan:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 0 #075985, inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.dolch-card {
+  background-color: #1b1e24;
+  border: 1px solid #2c313c;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
 .font-mono {

@@ -472,25 +472,25 @@ export const Workspace: React.FC<WorkspaceProps> = ({
             const isWrong = Boolean(verdict === 'WA' && isSelected);
 
             let cardStateClasses =
-              'border-zinc-800/90 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-700 text-zinc-200';
+              'border-zinc-800/90 bg-zinc-900/60 hover:bg-zinc-850 hover:border-zinc-700 text-zinc-200 shadow-[0_1px_2px_rgba(0,0,0,0.3)]';
             let keycapClasses =
-              'bg-zinc-800/80 border-zinc-700/50 text-zinc-400';
+              'bg-zinc-800 border-t border-white/[0.08] border-b border-black/50 border-x border-zinc-700 text-zinc-300 shadow-[0_2px_0_0_rgba(0,0,0,0.4)]';
 
             if (isRight) {
               cardStateClasses =
-                'border-emerald-500/60 bg-emerald-500/[0.08] text-emerald-300';
+                'border-emerald-500/50 bg-emerald-950/25 text-emerald-200 shadow-[0_0_15px_rgba(16,185,129,0.08)]';
               keycapClasses =
-                'bg-emerald-500/20 border-emerald-500/50 text-emerald-300';
+                'bg-emerald-600 border-t border-emerald-300/40 border-b border-emerald-900/70 border-x border-emerald-500 text-white shadow-[0_2px_0_0_#065f46,0_0_10px_rgba(16,185,129,0.4)]';
             } else if (isWrong) {
               cardStateClasses =
-                'border-rose-500/60 bg-rose-500/[0.08] text-rose-300';
+                'border-rose-500/50 bg-rose-950/25 text-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.08)]';
               keycapClasses =
-                'bg-rose-500/20 border-rose-500/50 text-rose-300';
+                'bg-rose-600 border-t border-rose-300/40 border-b border-rose-900/70 border-x border-rose-500 text-white shadow-[0_2px_0_0_#9f1239,0_0_10px_rgba(244,63,94,0.4)]';
             } else if (isSelected) {
               cardStateClasses =
-                'border-sky-500/70 bg-sky-500/[0.06] text-zinc-100';
+                'border-sky-500/60 bg-sky-950/25 text-zinc-100 shadow-[0_0_15px_rgba(14,165,233,0.1)]';
               keycapClasses =
-                'bg-sky-500/20 border-sky-500/50 text-sky-300';
+                'bg-sky-600 border-t border-sky-300/40 border-b border-sky-900/70 border-x border-sky-500 text-white shadow-[0_2px_0_0_#0369a1,0_0_12px_rgba(56,189,248,0.45)]';
             }
 
             return (
@@ -506,7 +506,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 className={`w-full min-h-[52px] flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-all duration-150 cursor-pointer text-left active:scale-[0.99] ${cardStateClasses}`}
               >
                 <span
-                  className={`w-7 h-7 rounded-lg border font-mono text-xs font-medium flex items-center justify-center shrink-0 ${keycapClasses}`}
+                  className={`w-7 h-7 rounded-lg font-mono text-xs font-semibold flex items-center justify-center shrink-0 tracking-tight ${keycapClasses}`}
                 >
                   {o.keycap}
                 </span>
@@ -530,7 +530,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 <button
                   type="button"
                   onClick={goToNextQuestion}
-                  className="min-h-[48px] bg-gradient-to-r from-sky-500 via-indigo-600 to-sky-500 hover:from-sky-400 hover:via-indigo-500 hover:to-sky-400 text-white font-semibold text-sm sm:text-base px-7 py-3 rounded-xl transition-all shadow-md shadow-sky-500/20 flex items-center gap-2.5 cursor-pointer active:scale-[0.99] group"
+                  className="min-h-[48px] bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 hover:from-sky-500 hover:via-cyan-500 hover:to-teal-500 text-white font-semibold text-sm sm:text-base px-7 py-3 rounded-xl transition-all shadow-[0_4px_16px_rgba(6,182,212,0.25)] border-t border-white/20 border-b border-black/40 flex items-center gap-2.5 cursor-pointer active:scale-[0.99] group"
                 >
                   <span>Câu hỏi tiếp theo</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
@@ -659,7 +659,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                   <button
                     type="button"
                     onClick={goToNextQuestion}
-                    className="w-full min-h-[54px] py-3.5 px-6 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-sky-500 hover:from-sky-400 hover:via-indigo-500 hover:to-sky-400 text-white font-semibold text-base sm:text-lg shadow-lg shadow-sky-500/25 border border-sky-300/30 flex items-center justify-center gap-3 transition-all cursor-pointer active:scale-[0.99] group"
+                    className="w-full min-h-[54px] py-3.5 px-6 rounded-xl bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 hover:from-sky-500 hover:via-cyan-500 hover:to-teal-500 text-white font-semibold text-base sm:text-lg shadow-[0_4px_16px_rgba(6,182,212,0.25)] border-t border-white/20 border-b border-black/40 flex items-center justify-center gap-3 transition-all cursor-pointer active:scale-[0.99] group"
                   >
                     <span>Câu hỏi tiếp theo</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" aria-hidden="true" />
@@ -922,7 +922,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
               <button
                 type="button"
                 onClick={goToNextQuestion}
-                className="flex-1 h-12 bg-gradient-to-r from-sky-500 via-indigo-600 to-sky-500 hover:from-sky-400 hover:to-indigo-500 text-white font-semibold text-sm sm:text-base rounded-xl transition-all shadow-md shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+                className="flex-1 h-12 bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 hover:from-sky-500 hover:via-cyan-500 hover:to-teal-500 text-white font-semibold text-sm sm:text-base rounded-xl transition-all shadow-[0_4px_16px_rgba(6,182,212,0.25)] border-t border-white/20 border-b border-black/40 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
               >
                 <span>Câu hỏi tiếp theo</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />

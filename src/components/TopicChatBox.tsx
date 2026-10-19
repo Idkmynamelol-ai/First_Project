@@ -453,7 +453,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
               onInteraction?.();
               sendQuestion(qq);
             }}
-            className="text-xs text-zinc-400 bg-zinc-900 hover:bg-zinc-800 hover:text-zinc-200 border border-zinc-800 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
+            className="text-xs text-zinc-300 bg-zinc-800/80 hover:bg-zinc-750 hover:text-white border border-zinc-700/80 rounded-full px-3 py-1.5 transition-all cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.3)] active:scale-[0.98]"
           >
             {qq}
           </button>
@@ -473,8 +473,8 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
               key={m.id}
               className={`p-3.5 rounded-xl text-sm leading-7 border ${
                 m.role === 'user'
-                  ? 'bg-sky-500/[0.08] text-zinc-100 border-sky-500/30 ml-6'
-                  : 'bg-zinc-900/70 text-zinc-200 border-zinc-800/80 mr-2'
+                  ? 'bg-sky-950/40 text-zinc-100 border-sky-500/40 shadow-[0_0_12px_rgba(56,189,248,0.1)] ml-6'
+                  : 'bg-zinc-900 text-zinc-200 border-zinc-800 shadow-[0_1px_2px_rgba(0,0,0,0.3)] mr-2'
               }`}
             >
               <p className="text-[11px] font-mono text-zinc-400 mb-1">
@@ -495,7 +495,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
           onInteraction?.();
           sendQuestion(input);
         }}
-        className="bg-zinc-950 border border-zinc-800 focus-within:border-zinc-600 rounded-lg px-3.5 py-2 flex items-center gap-2 transition-colors"
+        className="bg-zinc-950 border border-zinc-750 focus-within:border-sky-500/60 rounded-xl px-3.5 py-2 flex items-center gap-2 transition-all shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)]"
       >
         <label htmlFor={inputId} className="sr-only">
           Hỏi Gia sư AI về bước giải hoặc lý thuyết
@@ -517,7 +517,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
           type="submit"
           disabled={!input.trim() || busy}
           aria-label="Gửi câu hỏi"
-          className="w-8 h-8 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-200 disabled:opacity-40 inline-flex items-center justify-center shrink-0 transition-colors cursor-pointer disabled:cursor-not-allowed"
+          className="w-8 h-8 rounded-lg bg-sky-600 hover:bg-sky-500 text-white disabled:opacity-40 disabled:bg-zinc-800 disabled:text-zinc-500 inline-flex items-center justify-center shrink-0 transition-all cursor-pointer disabled:cursor-not-allowed shadow-[0_1px_0_0_#0284c7]"
         >
           <Send className="w-3.5 h-3.5" aria-hidden="true" />
         </button>

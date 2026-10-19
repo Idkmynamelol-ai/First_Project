@@ -121,9 +121,10 @@ export function App() {
           <button
             type="button"
             onClick={() => setOpenId(null)}
-            className="text-sm font-semibold tracking-tight text-zinc-100 hover:text-white cursor-pointer px-1 shrink-0"
+            className="text-sm font-semibold tracking-tight text-zinc-100 hover:text-white cursor-pointer px-1 shrink-0 flex items-center gap-2"
           >
-            Scalar
+            <span className="w-2.5 h-2.5 rounded-xs bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.7),inset_0_1px_0_rgba(255,255,255,0.4)]" aria-hidden="true" />
+            <span className="font-mono tracking-tight font-bold">Scalar</span>
           </button>
 
           <span className="text-zinc-700 hidden md:inline" aria-hidden="true">
@@ -139,7 +140,7 @@ export function App() {
               id="header-topic-switcher"
               value={activeTopicId}
               onChange={(e) => handleTopicDropdownChange(e.target.value)}
-              className="h-8 pl-2.5 pr-7 rounded-md bg-zinc-900/80 border border-zinc-800/80 hover:border-zinc-700 text-xs text-zinc-300 truncate appearance-none focus:outline-none focus:border-zinc-600 cursor-pointer"
+              className="h-8 pl-2.5 pr-7 rounded-md bg-zinc-900/80 border border-zinc-800 hover:border-zinc-700 text-xs text-zinc-300 truncate appearance-none focus:outline-none focus:border-sky-500/50 cursor-pointer shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)]"
             >
               <option value="">Tất cả chuyên đề ({grade12Curriculum.length})</option>
               {grade12Curriculum.map((t) => (
@@ -157,7 +158,7 @@ export function App() {
 
         {/* Center: Difficulty Filter Pill Bar */}
         <div
-          className="hidden xl:flex items-center gap-1 bg-zinc-900/70 border border-zinc-800/80 rounded-full p-0.5"
+          className="hidden xl:flex items-center gap-1 bg-zinc-900/90 border border-zinc-800 rounded-full p-0.5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)]"
           role="group"
           aria-label="Lọc theo mức độ nhận thức"
         >
@@ -168,9 +169,9 @@ export function App() {
                 key={lvl}
                 type="button"
                 onClick={() => handleDifficultyPillClick(lvl)}
-                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
                   active
-                    ? 'bg-zinc-800 text-zinc-100 shadow-xs'
+                    ? 'bg-zinc-800 text-zinc-100 border border-zinc-700/80 shadow-[0_1px_2px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -183,18 +184,18 @@ export function App() {
         {/* Right: Compact telemetry pill + BYOK API button */}
         <div className="flex items-center gap-2 shrink-0">
           <div
-            className="bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs font-mono flex items-center gap-2.5 sm:gap-3"
+            className="bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs font-mono flex items-center gap-2.5 sm:gap-3 shadow-[0_1px_2px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.04)]"
             aria-label={`Đúng ${ac}, Sai ${wa}, Chuỗi ${streak}`}
           >
-            <span className="text-emerald-400 font-medium">AC: {ac}</span>
+            <span className="text-emerald-400 font-semibold tracking-tight">AC: {ac}</span>
             <span className="text-zinc-700" aria-hidden="true">
               |
             </span>
-            <span className="text-rose-400 font-medium">WA: {wa}</span>
+            <span className="text-rose-400 font-semibold tracking-tight">WA: {wa}</span>
             <span className="text-zinc-700" aria-hidden="true">
               |
             </span>
-            <span className="text-amber-400 font-medium">Streak: {streak}</span>
+            <span className="text-amber-400 font-semibold tracking-tight">Streak: {streak}</span>
           </div>
 
           <button
@@ -205,7 +206,7 @@ export function App() {
                 ? 'Khóa API: Đã kết nối (BYOK đang bật)'
                 : 'Khóa API: Đang dùng cổng nhóm chung'
             }
-            className="h-8 px-2.5 rounded-md border border-zinc-800/80 bg-zinc-900/60 hover:bg-zinc-900 flex items-center justify-center gap-1.5 text-xs text-zinc-300 hover:text-zinc-100 transition-colors cursor-pointer"
+            className="h-8 px-2.5 rounded-md border border-zinc-700/80 bg-zinc-900/80 hover:bg-zinc-850 flex items-center justify-center gap-1.5 text-xs text-zinc-300 hover:text-zinc-100 transition-colors cursor-pointer shadow-[0_1px_0_0_rgba(0,0,0,0.3)]"
           >
             <KeyRound
               className={`w-3.5 h-3.5 ${

@@ -241,8 +241,8 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
               onClick={() => onSelectSubject(tab.id)}
               className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                 active
-                  ? 'bg-zinc-900 border-sky-500/60 text-zinc-100'
-                  : 'bg-zinc-900/40 border-zinc-800/80 text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-200'
+                  ? 'bg-zinc-850 border-sky-500/60 text-zinc-100 shadow-[0_2px_8px_rgba(56,189,248,0.15),inset_0_1px_0_rgba(255,255,255,0.06)]'
+                  : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:bg-zinc-850/60 hover:text-zinc-200 shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
               }`}
             >
               <div className="flex items-center justify-between gap-1">
@@ -319,15 +319,15 @@ export const DailyChallengeView: React.FC<DailyChallengeViewProps> = ({
                     onClick={() => setMcChoice(opt.id)}
                     className={`w-full min-h-[52px] flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-all duration-150 cursor-pointer text-left ${
                       active
-                        ? 'border-sky-500/70 bg-sky-500/[0.06] text-zinc-100'
-                        : 'border-zinc-800/90 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-700 text-zinc-200'
+                        ? 'border-sky-500/60 bg-sky-950/25 text-zinc-100 shadow-[0_0_15px_rgba(14,165,233,0.1)]'
+                        : 'border-zinc-800/90 bg-zinc-900/60 hover:bg-zinc-850 hover:border-zinc-700 text-zinc-200 shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
                     }`}
                   >
                     <span
-                      className={`w-7 h-7 rounded-lg font-mono text-xs font-medium flex items-center justify-center border shrink-0 ${
+                      className={`w-7 h-7 rounded-lg font-mono text-xs font-semibold flex items-center justify-center shrink-0 tracking-tight ${
                         active
-                          ? 'border-sky-500/50 bg-sky-500/20 text-sky-300'
-                          : 'bg-zinc-800/80 border-zinc-700/50 text-zinc-400'
+                          ? 'bg-sky-600 border-t border-sky-300/40 border-b border-sky-900/70 border-x border-sky-500 text-white shadow-[0_2px_0_0_#0369a1,0_0_12px_rgba(56,189,248,0.45)]'
+                          : 'bg-zinc-800 border-t border-white/[0.08] border-b border-black/50 border-x border-zinc-700 text-zinc-300 shadow-[0_2px_0_0_rgba(0,0,0,0.4)]'
                       }`}
                     >
                       {opt.id}

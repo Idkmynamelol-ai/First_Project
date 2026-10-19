@@ -192,7 +192,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
 
         {/* Segmented Mode Pill Bar */}
         <div
-          className="bg-zinc-900/90 border border-zinc-800/80 p-1 rounded-xl grid grid-cols-2 sm:grid-cols-4 gap-1 shrink-0"
+          className="bg-zinc-900/90 border border-zinc-800 p-1 rounded-xl grid grid-cols-2 sm:grid-cols-4 gap-1 shrink-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)]"
           role="tablist"
           aria-label="Chế độ học tập"
         >
@@ -201,9 +201,9 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'problems'}
             onClick={() => setViewMode('problems')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
               viewMode === 'problems'
-                ? 'bg-zinc-100 text-zinc-950 font-semibold shadow-xs'
+                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700/80 shadow-[0_1px_2px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
@@ -216,9 +216,9 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'knowledge'}
             onClick={() => setViewMode('knowledge')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
               viewMode === 'knowledge'
-                ? 'bg-zinc-100 text-zinc-950 font-semibold shadow-xs'
+                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700/80 shadow-[0_1px_2px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
@@ -231,13 +231,13 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'daily'}
             onClick={() => setViewMode('daily')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
               viewMode === 'daily'
-                ? 'bg-zinc-100 text-zinc-950 font-semibold shadow-xs'
+                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700/80 shadow-[0_1px_2px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+            <Sparkles className="w-3.5 h-3.5 shrink-0 text-sky-400" aria-hidden="true" />
             <span>Đề hôm nay</span>
           </button>
 
@@ -246,9 +246,9 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'admin'}
             onClick={() => setViewMode('admin')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
               viewMode === 'admin'
-                ? 'bg-zinc-100 text-zinc-950 font-semibold shadow-xs'
+                ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700/80 shadow-[0_1px_2px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
@@ -292,8 +292,8 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                   onClick={() => setSelectedSubject(subj)}
                   className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
                     active
-                      ? 'bg-zinc-900 border-sky-500/60 text-zinc-100 shadow-xs'
-                      : 'bg-zinc-900/40 border-zinc-800/80 text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-200'
+                      ? 'bg-zinc-850 border-sky-500/60 text-zinc-100 shadow-[0_2px_8px_rgba(56,189,248,0.15),inset_0_1px_0_rgba(255,255,255,0.06)]'
+                      : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:bg-zinc-850/60 hover:text-zinc-200 shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
@@ -329,10 +329,10 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                     type="button"
                     aria-pressed={active}
                     onClick={() => setGradeFilter(g)}
-                    className={`px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-all ${
                       active
-                        ? 'border-zinc-700 bg-zinc-800 text-zinc-100'
-                        : 'border-zinc-800/80 bg-zinc-900/40 text-zinc-400 hover:text-zinc-200'
+                        ? 'border-zinc-700 bg-zinc-800 text-zinc-100 shadow-[0_1px_2px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]'
+                        : 'border-zinc-800/80 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200'
                     }`}
                   >
                     {g === 'all' ? 'Khối 10–11–12' : `Lớp ${g}`}
@@ -355,10 +355,10 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                       type="button"
                       aria-pressed={active}
                       onClick={() => setCogFilter(lvl)}
-                      className={`px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-colors ${
+                      className={`px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-all ${
                         active
-                          ? 'border-sky-500/60 bg-sky-500/10 text-sky-300'
-                          : 'border-zinc-800/80 bg-zinc-900/40 text-zinc-400 hover:text-zinc-200'
+                          ? 'border-sky-500/60 bg-sky-500/15 text-sky-200 shadow-[0_0_10px_rgba(56,189,248,0.2),inset_0_1px_0_rgba(255,255,255,0.1)] font-semibold'
+                          : 'border-zinc-800/80 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200'
                       }`}
                     >
                       {lvl === 'all' ? 'Tất cả mức độ' : lvl}
@@ -477,9 +477,9 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                           <button
                             type="button"
                             onClick={() => onOpen(q.id)}
-                            className="w-full px-5 py-4 text-left flex items-start sm:items-center gap-4 hover:bg-zinc-900/80 cursor-pointer transition-colors"
+                            className="w-full px-5 py-4 text-left flex items-start sm:items-center gap-4 hover:bg-zinc-850/70 cursor-pointer transition-colors"
                           >
-                            <span className="w-8 h-8 rounded-lg bg-zinc-800/80 border border-zinc-700/50 font-mono text-xs font-semibold text-zinc-300 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                            <span className="w-8 h-8 rounded-lg bg-zinc-800 border-t border-white/[0.08] border-b border-black/50 border-x border-zinc-700 font-mono text-xs font-semibold text-zinc-200 flex items-center justify-center shrink-0 shadow-[0_2px_0_0_rgba(0,0,0,0.35)] mt-0.5 sm:mt-0">
                               #{globalNumber}
                             </span>
 
