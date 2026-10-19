@@ -78,8 +78,8 @@ export const AdminTab: React.FC = () => {
   // Auto-scour status log
   const [isScouring, setIsScouring] = useState(false);
   const [scourLog, setScourLog] = useState<string[]>([
-    '[SẴN SÀNG] Đã nạp 16 nguồn đề thi thử đạt chuẩn: "De thi thu THPTQG 2026", "De thi thu HSA 2026", "De thi thu TSA 2026" (kèm dữ liệu chuẩn 2025).',
-    '[TIÊU CHÍ] (1) Free PDF / Cấu trúc đề hiển thị rõ • (2) Toán học / Vật lí / Hóa học • (3) Năm 2026 hoặc 2025.',
+    `[SẴN SÀNG] Đã nạp ${INITIAL_SCOURED_EXAM_LINKS.length} nguồn đề thi thử & tài liệu chuẩn: "De thi thu THPTQG 2026", "De thi thu HSA 2026", "De thi thu TSA 2026" (kèm dữ liệu chuẩn 2025).`,
+    '[TIÊU CHÍ] (1) Free PDF / Cấu trúc đề hiển thị rõ • (2) Toán học / Vật lí / Hóa học / Tiếng Anh • (3) Năm 2026 hoặc 2025.',
   ]);
 
   // Add new link modal/form state
@@ -314,6 +314,7 @@ export const AdminTab: React.FC = () => {
       math: links.filter((l) => l.subjects.includes('math')).length,
       physics: links.filter((l) => l.subjects.includes('physics')).length,
       chemistry: links.filter((l) => l.subjects.includes('chemistry')).length,
+      english: links.filter((l) => l.subjects.includes('english')).length,
     };
   }, [links]);
 
@@ -860,10 +861,10 @@ export const AdminTab: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <span className="block text-xs text-zinc-300 mb-1">
-                Môn học bao phủ (Toán / Lý / Hóa) *
+                Môn học bao phủ (Toán / Lý / Hóa / Anh) *
               </span>
               <div className="flex flex-wrap gap-2">
-                {(['math', 'physics', 'chemistry'] as ScouredSubject[]).map(
+                {(['math', 'physics', 'chemistry', 'english'] as ScouredSubject[]).map(
                   (subj) => {
                     const checked = newSubjects.includes(subj);
                     return (
@@ -996,10 +997,11 @@ export const AdminTab: React.FC = () => {
             </span>
             {(
               [
-                ['ALL', 'Tất cả (Toán • Lý • Hóa)'],
+                ['ALL', 'Tất cả các môn'],
                 ['math', `Toán (${countsBySubject.math})`],
                 ['physics', `Vật Lí (${countsBySubject.physics})`],
                 ['chemistry', `Hóa Học (${countsBySubject.chemistry})`],
+                ['english', `Tiếng Anh (${countsBySubject.english})`],
               ] as const
             ).map(([key, label]) => {
               const active = subjectFilter === key;

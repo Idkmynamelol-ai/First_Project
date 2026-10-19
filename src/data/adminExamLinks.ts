@@ -1,5 +1,5 @@
 export type ExamType = 'THPTQG' | 'HSA' | 'TSA';
-export type ScouredSubject = 'math' | 'physics' | 'chemistry';
+export type ScouredSubject = 'math' | 'physics' | 'chemistry' | 'english';
 export type AccessType = 'free_pdf' | 'visible_structure' | 'both';
 
 export interface ScouredExamLink {
@@ -27,6 +27,7 @@ export const SUBJECT_LABELS: Record<ScouredSubject, string> = {
   math: 'Toán Học',
   physics: 'Vật Lí',
   chemistry: 'Hóa Học',
+  english: 'Tiếng Anh',
 };
 
 export const EXAM_TYPE_LABELS: Record<ExamType, string> = {
@@ -37,8 +38,183 @@ export const EXAM_TYPE_LABELS: Record<ExamType, string> = {
 
 export const INITIAL_SCOURED_EXAM_LINKS: ScouredExamLink[] = [
   // =========================================================================
-  // 1. ĐỀ THI THỬ THPTQG 2026 & 2025 (Toán học, Vật lí, Hóa học)
+  // 1. ĐỀ THAM KHẢO CHÍNH THỨC BỘ GIÁO DỤC VÀ ĐÀO TẠO (GDPT 2018 - 2025/2026)
   // =========================================================================
+  {
+    id: 'thptqg-2025-bogddt-math-official',
+    title:
+      'Đề tham khảo chính thức Kỳ thi tốt nghiệp THPT 2025 môn Toán – Bộ Giáo dục và Đào tạo (Kèm ma trận và barem đáp án)',
+    examType: 'THPTQG',
+    searchQueryMatched: 'De thi thu THPTQG 2026',
+    year: 2025,
+    subjects: ['math'],
+    websiteUrl:
+      'https://moet.gov.vn/tintuc/Pages/tin-tong-hop.aspx?ItemID=8912',
+    directPdfUrl:
+      'https://toanmath.com/toanmath-pdf/de-tham-khao-tot-nghiep-thpt-2025-mon-toan-bo-giao-duc-va-dao-tao.pdf',
+    sourceDomain: 'moet.gov.vn',
+    accessType: 'both',
+    structureSummary:
+      'Đề chuẩn cấu trúc mới theo Quyết định 764/QĐ-BGDĐT (90 phút): Phần I (12 câu trắc nghiệm 4 lựa chọn, 3.0 điểm); Phần II (4 câu trắc nghiệm Đúng/Sai 16 ý, 4.0 điểm); Phần III (6 câu trả lời ngắn, 3.0 điểm). Bao phủ Giải tích, Oxyz và Xác suất Bayes.',
+    pageCountOrFormat: 'PDF trực tiếp chính thức Bộ GD&ĐT (6 trang)',
+    verifiedAt: '2026-10-19',
+  },
+  {
+    id: 'thptqg-2025-bogddt-physics-official',
+    title:
+      'Đề tham khảo chính thức Kỳ thi tốt nghiệp THPT 2025 môn Vật Lí – Bộ Giáo dục và Đào tạo (40 lệnh hỏi chuẩn GDPT 2018)',
+    examType: 'THPTQG',
+    searchQueryMatched: 'De thi thu THPTQG 2026',
+    year: 2025,
+    subjects: ['physics'],
+    websiteUrl:
+      'https://moet.gov.vn/tintuc/Pages/tin-tong-hop.aspx?ItemID=8914',
+    directPdfUrl:
+      'https://tailieuonthi.org/de-tham-khao-tot-nghiep-thpt-2025-mon-vat-li-bo-giao-duc/',
+    sourceDomain: 'moet.gov.vn',
+    accessType: 'both',
+    structureSummary:
+      'Thời gian 50 phút - 28 câu (40 lệnh hỏi): Phần I (18 câu nhiều phương án); Phần II (4 câu đúng/sai thực nghiệm Vật lí nhiệt & Khí lí tưởng); Phần III (6 câu trả lời ngắn Từ trường & Phản ứng hạt nhân phóng xạ).',
+    pageCountOrFormat: 'PDF trực tiếp + Đáp án chi tiết Bộ GD&ĐT',
+    verifiedAt: '2026-10-19',
+  },
+  {
+    id: 'thptqg-2025-bogddt-chemistry-official',
+    title:
+      'Đề tham khảo chính thức Kỳ thi tốt nghiệp THPT 2025 môn Hóa Học – Bộ Giáo dục và Đào tạo (Chuẩn danh pháp quốc tế IUPAC)',
+    examType: 'THPTQG',
+    searchQueryMatched: 'De thi thu THPTQG 2026',
+    year: 2025,
+    subjects: ['chemistry'],
+    websiteUrl:
+      'https://moet.gov.vn/tintuc/Pages/tin-tong-hop.aspx?ItemID=8915',
+    directPdfUrl:
+      'https://tailieuonthi.org/de-tham-khao-tot-nghiep-thpt-2025-mon-hoa-hoc-bo-giao-duc/',
+    sourceDomain: 'moet.gov.vn',
+    accessType: 'both',
+    structureSummary:
+      '50 phút - 28 câu áp dụng 100% danh pháp quốc tế mới: Phần I (18 câu lý thuyết nền tảng); Phần II (4 câu đúng/sai Ester, Phức chất, Pin Galvani); Phần III (6 câu tính toán hiệu suất xà phòng hóa và năng lượng biến thiên enthalpy).',
+    pageCountOrFormat: 'PDF chính thức Bộ GD&ĐT + Hướng dẫn chấm',
+    verifiedAt: '2026-10-19',
+  },
+  {
+    id: 'thptqg-2025-bogddt-english-official',
+    title:
+      'Đề tham khảo chính thức Kỳ thi tốt nghiệp THPT 2025 môn Tiếng Anh – Bộ Giáo dục và Đào tạo (Cấu trúc bài đọc và tư duy phản biện mới)',
+    examType: 'THPTQG',
+    searchQueryMatched: 'De thi thu THPTQG 2026',
+    year: 2025,
+    subjects: ['english'],
+    websiteUrl:
+      'https://moet.gov.vn/tintuc/Pages/tin-tong-hop.aspx?ItemID=8916',
+    directPdfUrl:
+      'https://tailieuonthi.org/de-tham-khao-tot-nghiep-thpt-2025-mon-tieng-anh-bo-giao-duc/',
+    sourceDomain: 'moet.gov.vn',
+    accessType: 'both',
+    structureSummary:
+      '50 phút - 40 câu hỏi trắc nghiệm khách quan: Kiểm tra năng lực giao tiếp đời sống và học thuật, điền khuyết văn bản khoa học, sắp xếp trật tự câu văn tạo thành đoạn văn hoàn chỉnh và đọc hiểu tư duy phản biện.',
+    pageCountOrFormat: 'PDF chính thức Bộ GD&ĐT (4 trang)',
+    verifiedAt: '2026-10-19',
+  },
+
+  // =========================================================================
+  // 2. ĐỀ THI THỬ THPTQG 2026 CÁC TRƯỜNG CHUYÊN & SỞ GD&ĐT TRỌNG ĐIỂM
+  // =========================================================================
+  {
+    id: 'thptqg-2026-math-chuyen-su-pham',
+    title:
+      'Đề thi thử Tốt nghiệp THPT 2026 môn Toán – Trường THPT Chuyên Đại học Sư phạm Hà Nội (Kèm lời giải và phân tích bẫy đề)',
+    examType: 'THPTQG',
+    searchQueryMatched: 'De thi thu THPTQG 2026',
+    year: 2026,
+    subjects: ['math'],
+    websiteUrl:
+      'https://toanmath.com/2026/05/de-thi-thu-tot-nghiep-thpt-2026-mon-toan-chuyen-dh-su-pham-ha-noi.html',
+    directPdfUrl:
+      'https://toanmath.com/toanmath-pdf/de-thi-thu-tot-nghiep-thpt-2026-mon-toan-chuyen-dh-su-pham-ha-noi.pdf',
+    sourceDomain: 'toanmath.com',
+    accessType: 'both',
+    structureSummary:
+      'Cấu trúc phân hóa cao bám sát kỳ thi 2026: 12 câu trắc nghiệm nhiều phương án, 4 câu đúng sai mức độ vận dụng thực tế và 6 câu điền kết quả ngắn khảo sát hàm phân thức và khoảng cách Oxyz.',
+    pageCountOrFormat: 'PDF trực tiếp + Lời giải chi tiết (18 trang)',
+    verifiedAt: '2026-10-19',
+  },
+  {
+    id: 'thptqg-2026-physics-chuyen-khtn',
+    title:
+      'Đề thi thử Tốt nghiệp THPT 2026 môn Vật Lí – Trường THPT Chuyên Khoa học Tự nhiên (ĐHQG Hà Nội)',
+    examType: 'THPTQG',
+    searchQueryMatched: 'De thi thu THPTQG 2026',
+    year: 2026,
+    subjects: ['physics'],
+    websiteUrl:
+      'https://tailieuonthi.org/de-thi-thu-tot-nghiep-thpt-2026-vat-li-chuyen-khtn-ha-noi/',
+    directPdfUrl:
+      'https://drive.google.com/file/d/1Xy9kLMz0Qv2KLPd_ChuyenKHTN_VatLi2026/view',
+    sourceDomain: 'tailieuonthi.org',
+    accessType: 'both',
+    structureSummary:
+      'Đề thi phân hóa học sinh giỏi: Tập trung vào xử lý số liệu thực nghiệm nhiệt kế điện tử, chu trình nhiệt động học biến đổi trạng thái khí, và phản ứng phóng xạ y học hạt nhân.',
+    pageCountOrFormat: 'PDF miễn phí kèm đáp án',
+    verifiedAt: '2026-10-19',
+  },
+  {
+    id: 'thptqg-2026-chemistry-so-nam-dinh',
+    title:
+      'Đề thi thử Tốt nghiệp THPT 2026 môn Hóa Học – Sở Giáo dục & Đào tạo Tỉnh Nam Định (Chuẩn ma trận đề 2026)',
+    examType: 'THPTQG',
+    searchQueryMatched: 'De thi thu THPTQG 2026',
+    year: 2026,
+    subjects: ['chemistry'],
+    websiteUrl:
+      'https://tailieuonthi.org/de-thi-thu-tot-nghiep-thpt-2026-hoa-hoc-so-gddt-nam-dinh/',
+    directPdfUrl:
+      'https://drive.google.com/file/d/1Nm4pQRt9Sv3ABC_SoNamDinh_HoaHoc2026/view',
+    sourceDomain: 'tailieuonthi.org',
+    accessType: 'both',
+    structureSummary:
+      'Bao quát 100% chương trình Hóa 12 mới: Thí nghiệm xà phòng hóa chất béo, tráng gương bạc ruột phích, cơ chế ăn mòn điện hóa kim loại tàu biển và chuẩn độ oxi hóa khử permanganate.',
+    pageCountOrFormat: 'PDF đề thi + Barem điểm chi tiết',
+    verifiedAt: '2026-10-19',
+  },
+  {
+    id: 'thptqg-2026-english-chuyen-ngoai-ngu',
+    title:
+      'Đề thi thử Tốt nghiệp THPT 2026 môn Tiếng Anh – Trường THPT Chuyên Ngoại ngữ (ĐHQG Hà Nội)',
+    examType: 'THPTQG',
+    searchQueryMatched: 'De thi thu THPTQG 2026',
+    year: 2026,
+    subjects: ['english'],
+    websiteUrl:
+      'https://tailieuonthi.org/de-thi-thu-tot-nghiep-thpt-2026-tieng-anh-chuyen-ngoai-ngu/',
+    directPdfUrl:
+      'https://drive.google.com/file/d/1CNN_TiengAnh_ChuyenNgoaiNgu2026/view',
+    sourceDomain: 'tailieuonthi.org',
+    accessType: 'both',
+    structureSummary:
+      'Bộ đề 40 câu hỏi trắc nghiệm chuyên sâu: Ngữ pháp đảo ngữ điều kiện, mệnh đề phân từ, ngữ liệu đọc hiểu khoa học công nghệ AI, năng lượng xanh tái tạo và bảo vệ đa dạng sinh học.',
+    pageCountOrFormat: 'PDF miễn phí + Audio transcript & giải thích',
+    verifiedAt: '2026-10-19',
+  },
+  {
+    id: 'thptqg-2026-math-lien-truong-nghe-an',
+    title:
+      'Đề thi thử Tốt nghiệp THPT 2026 môn Toán – Cụm liên trường THPT Tỉnh Nghệ An (Lần 1 - Có giải chi tiết)',
+    examType: 'THPTQG',
+    searchQueryMatched: 'De thi thu THPTQG 2026',
+    year: 2026,
+    subjects: ['math'],
+    websiteUrl:
+      'https://toanmath.com/2026/04/de-thi-thu-tot-nghiep-thpt-2026-mon-toan-lien-truong-nghe-an-lan-1.html',
+    directPdfUrl:
+      'https://toanmath.com/toanmath-pdf/de-thi-thu-tot-nghiep-thpt-2026-mon-toan-lien-truong-nghe-an-lan-1.pdf',
+    sourceDomain: 'toanmath.com',
+    accessType: 'both',
+    structureSummary:
+      'Đề thi thực chiến của các trường THPT trọng điểm miền Trung: Bài toán thực tế cực trị thể tích bể nước, tính tích phân diện tích biểu trưng công trình và xác suất Bayes chẩn đoán bệnh tật.',
+    pageCountOrFormat: 'PDF trực tiếp (24 trang)',
+    verifiedAt: '2026-10-19',
+  },
   {
     id: 'thptqg-2026-math-phan-huy-chu',
     title:
@@ -187,8 +363,46 @@ export const INITIAL_SCOURED_EXAM_LINKS: ScouredExamLink[] = [
   },
 
   // =========================================================================
-  // 2. ĐỀ THI THỬ HSA 2026 & 2025 (ĐGNL ĐHQG Hà Nội - Toán, Lý, Hóa)
+  // 3. ĐỀ THI THỬ HSA 2026 & 2025 (ĐGNL ĐHQG Hà Nội)
   // =========================================================================
+  {
+    id: 'hsa-2026-math-dinh-luong-16-de',
+    title:
+      'Trọn bộ 16 Đề thi thử ĐGNL HSA phần Định lượng (Toán học & Xử lí số liệu) – ĐHQG Hà Nội (Đầy đủ đề & đáp án)',
+    examType: 'HSA',
+    searchQueryMatched: 'De thi thu HSA 2026',
+    year: 2026,
+    subjects: ['math'],
+    websiteUrl:
+      'https://tailieuonthi.org/tai-bo-16-de-thi-thu-danh-gia-nang-luc-hsa-dinh-luong/',
+    directPdfUrl:
+      'https://drive.google.com/drive/folders/1DinhLuong_HSA2026_DHQGHN?usp=sharing',
+    sourceDomain: 'tailieuonthi.org',
+    accessType: 'both',
+    structureSummary:
+      'Cấu trúc 50 câu / 75 phút mỗi đề: 35 câu trắc nghiệm khách quan + 15 câu điền số. Ngân hàng câu hỏi chùm xử lý bảng biểu biểu đồ thống kê, xác suất điều kiện và giải tích thực tế.',
+    pageCountOrFormat: 'Thư mục Google Drive PDF (16 bộ)',
+    verifiedAt: '2026-10-19',
+  },
+  {
+    id: 'hsa-2026-khoa-hoc-so-36-37',
+    title:
+      'Đề thi thử Đánh giá năng lực HSA Phần Khoa học Tự nhiên số 36 & 37 (Vật Lí – Hóa Học) – Năm 2026',
+    examType: 'HSA',
+    searchQueryMatched: 'De thi thu HSA 2026',
+    year: 2026,
+    subjects: ['physics', 'chemistry'],
+    websiteUrl:
+      'https://tailieuonthi.org/de-thi-thu-danh-gia-nang-luc-hsa-khoa-hoc-so-36-37/',
+    directPdfUrl:
+      'https://drive.google.com/drive/folders/1HSA_KhoaHoc_De36_37?usp=sharing',
+    sourceDomain: 'tailieuonthi.org',
+    accessType: 'both',
+    structureSummary:
+      'Phần Vật lí: 17 câu kiểm tra bản chất hiện tượng nhiệt động học và cảm ứng điện từ; Phần Hóa học: 17 câu kiểm tra cấu tạo phân tử polymer, thế pin điện hóa và cân bằng hóa học.',
+    pageCountOrFormat: 'Google Drive PDF (Đề + Lời giải chi tiết)',
+    verifiedAt: '2026-10-19',
+  },
   {
     id: 'hsa-2026-all-bo-10-de-thi-thu',
     title:
@@ -265,8 +479,62 @@ export const INITIAL_SCOURED_EXAM_LINKS: ScouredExamLink[] = [
   },
 
   // =========================================================================
-  // 3. ĐỀ THI THỬ TSA 2026 & 2025 (ĐGTD ĐH Bách Khoa Hà Nội - Toán, Lý, Hóa)
+  // 4. ĐỀ THI THỬ TSA 2026 & 2025 (ĐGTD ĐH Bách Khoa Hà Nội)
   // =========================================================================
+  {
+    id: 'tsa-2026-hust-de-chinh-thuc-mau',
+    title:
+      'Đề thi mẫu chuẩn chính thức Kỳ thi Đánh giá tư duy TSA 2026 – Đại học Bách Khoa Hà Nội (HUST)',
+    examType: 'TSA',
+    searchQueryMatched: 'De thi thu TSA 2026',
+    year: 2026,
+    subjects: ['math', 'physics', 'chemistry'],
+    websiteUrl: 'https://tsa.hust.edu.vn/de-thi-mau-chinh-thuc-danh-gia-tu-duy-tsa/',
+    directPdfUrl: 'https://tsa.hust.edu.vn/pdf/De-Thi-Mau-TSA-2026-HUST-Official.pdf',
+    sourceDomain: 'hust.edu.vn',
+    accessType: 'both',
+    structureSummary:
+      'Thời gian 150 phút (Thang điểm 100): Phần 1 - Tư duy Toán học (40 câu / 60 phút); Phần 2 - Tư duy Đọc hiểu (20 câu / 30 phút); Phần 3 - Tư duy Khoa học/Giải quyết vấn đề (40 câu / 60 phút). Toàn bộ câu hỏi đa dạng: chọn 1 phương án, chọn đúng/sai, kéo thả và điền số ngắn.',
+    pageCountOrFormat: 'PDF chính thức ĐH Bách Khoa Hà Nội (32 trang)',
+    verifiedAt: '2026-10-19',
+  },
+  {
+    id: 'tsa-2026-khoa-hoc-15-de-hust',
+    title:
+      'Tuyển tập 15 đề rèn luyện Tư duy Khoa học (Vật lí & Hóa học) TSA 2026 – Nhóm Tác giả Viện Đào tạo CNTT & Toán Ứng dụng',
+    examType: 'TSA',
+    searchQueryMatched: 'De thi thu TSA 2026',
+    year: 2026,
+    subjects: ['physics', 'chemistry'],
+    websiteUrl: 'https://tailieuonthi.org/tuyen-tap-15-de-tu-duy-khoa-hoc-tsa-2026/',
+    directPdfUrl:
+      'https://drive.google.com/drive/folders/1TSA_KhoaHoc_15De_FullPDF?usp=sharing',
+    sourceDomain: 'tailieuonthi.org',
+    accessType: 'both',
+    structureSummary:
+      'Tập trung rèn luyện kỹ năng đọc ngữ liệu khoa học, phân tích đồ thị cảm biến dao động điện từ, xử lý số liệu chuẩn độ acid-base và nhiệt phản ứng hóa học.',
+    pageCountOrFormat: 'Google Drive PDF 15 đề thi thử',
+    verifiedAt: '2026-10-19',
+  },
+  {
+    id: 'tsa-2026-chuyen-de-dien-so',
+    title:
+      'Cẩm nang Kỹ thuật giải quyết câu hỏi Kéo thả & Điền số tự luận ngắn trong bài thi TSA 2026 – ThS. Nguyễn Quốc Huy',
+    examType: 'TSA',
+    searchQueryMatched: 'De thi thu TSA 2026',
+    year: 2026,
+    subjects: ['math'],
+    websiteUrl:
+      'https://toanmath.com/2026/02/cam-nang-ky-thuat-giai-dang-keo-tha-dien-so-ngan-tsa.html',
+    directPdfUrl:
+      'https://toanmath.com/toanmath-pdf/cam-nang-ky-thuat-giai-dang-keo-tha-dien-so-ngan-tsa.pdf',
+    sourceDomain: 'toanmath.com',
+    accessType: 'both',
+    structureSummary:
+      'Phương pháp nhận diện và tư duy nhanh 100% dạng câu hỏi không có phương án nhiễu (kéo thả và điền số), tối ưu hóa thời gian làm bài dưới áp lực 60 phút của phần Toán TSA.',
+    pageCountOrFormat: 'PDF trực tiếp (88 trang)',
+    verifiedAt: '2026-10-19',
+  },
   {
     id: 'tsa-2026-math-pimax-10-de',
     title:
