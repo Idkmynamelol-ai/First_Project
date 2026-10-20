@@ -356,6 +356,109 @@ export function deleteStoredScannedQuiz(quizId: string): void {
 }
 
 // =========================================================================
+// STRING & ANSWER NORMALIZATION HELPERS
+// =========================================================================
+
+export function extractCleanBase64(dataUrl: string): string {
+  const commaIdx = dataUrl.indexOf(',');
+  return commaIdx !== -1 ? dataUrl.substring(commaIdx + 1) : dataUrl;
+}
+
+export function extractMimeType(dataUrl: string): string {
+  const match = dataUrl.match(/^data:([^;,]+)/);
+  return match ? match[1].toLowerCase() : 'image/jpeg';
+}
+
+export function cleanOptionText(text: string): string {
+  if (typeof text !== 'string') return String(text ?? '');
+  return text.trim().replace(/^[A-Da-d][.)\s:]+\s*/, '').trim();
+}
+
+export function normalizeCorrectAnswer(
+  rawCorrect: any,
+  rawOptions: string[],
+  cleanedOptions: string[]
+): string {
+  if (!rawCorrect) return cleanedOptions[0] || '';
+  const correctStr = String(rawCorrect).trim();
+
+  // Check if rawCorrect is a single letter "A", "B", "C", "D"
+  const letterMatch = correctStr.match(/^(?:Đáp án\s*)?([A-D])(?:[.)\s]|$)/i);
+  if (letterMatch) {
+    const index = letterMatch[1].toUpperCase().charCodeAt(0) - 65;
+    if (index >= 0 && index < cleanedOptions.length) {
+      return cleanedOptions[index];
+    }
+  }
+
+  // Exact match with cleaned options
+  const cleanCorrect = cleanOptionText(correctStr);
+  const matchedClean = cleanedOptions.find(
+    (opt) => opt.toLowerCase() === cleanCorrect.toLowerCase()
+  );
+  if (matchedClean) return matchedClean;
+
+  // Exact match with raw options
+  const rawIdx = (rawOptions || []).findIndex(
+    (opt) => opt.toLowerCase() === correctStr.toLowerCase()
+  );
+  if (rawIdx !== -1 && cleanedOptions[rawIdx]) {
+    return cleanedOptions[rawIdx];
+  }
+
+  // Partial substring match
+  const partialMatch = cleanedOptions.find(
+    (opt) =>
+      opt.toLowerCase().includes(cleanCorrect.toLowerCase()) ||
+      cleanCorrect.toLowerCase().includes(opt.toLowerCase())
+  );
+  if (partialMatch) return partialMatch;
+
+  return cleanedOptions[0] || '';
+}
+
+export function safeParseJsonQuiz(raw: string): any {
+  let text = raw.trim();
+  if (text.startsWith('```')) {
+    text = text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+  }
+
+  const firstBrace = text.indexOf('{');
+  const lastBrace = text.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    try {
+      return JSON.parse(text.substring(firstBrace, lastBrace + 1));
+    } catch {
+      // Fall through to repair logic
+    }
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    // Truncation repair: auto-close open quotes and brackets
+    let repaired = text;
+    const quoteCount = (repaired.match(/(?<!\\)"/g) || []).length;
+    if (quoteCount % 2 !== 0) {
+      repaired += '"';
+    }
+    const openBraces = (repaired.match(/{/g) || []).length;
+    const closeBraces = (repaired.match(/}/g) || []).length;
+    const openBrackets = (repaired.match(/\[/g) || []).length;
+    const closeBrackets = (repaired.match(/]/g) || []).length;
+
+    for (let i = 0; i < openBrackets - closeBrackets; i++) repaired += ']';
+    for (let i = 0; i < openBraces - closeBraces; i++) repaired += '}';
+
+    try {
+      return JSON.parse(repaired);
+    } catch {
+      throw err;
+    }
+  }
+}
+
+// =========================================================================
 // CONVERT TO PRACTICE QUESTION FORMAT (WORKSPACE COMPATIBLE)
 // =========================================================================
 
@@ -363,7 +466,18 @@ export function convertScannedQuizToPracticeQuestions(
   quiz: ScannedDocumentQuiz
 ): PracticeQuestion[] {
   return quiz.questions.map((q, idx) => {
-    const options = q.options.map((optText, optIdx) => {
+    const rawOptions =
+      Array.isArray(q.options) && q.options.length >= 4
+        ? q.options.slice(0, 4).map(cleanOptionText)
+        : ['Phương án A', 'Phương án B', 'Phương án C', 'Phương án D'];
+
+    const normalizedCorrect = normalizeCorrectAnswer(
+      q.correctAnswer,
+      q.options,
+      rawOptions
+    );
+
+    const options = rawOptions.map((optText, optIdx) => {
       const optId = `opt-${String.fromCharCode(97 + optIdx)}`;
       return {
         id: optId,
@@ -374,7 +488,7 @@ export function convertScannedQuizToPracticeQuestions(
 
     const correctIdx = Math.max(
       0,
-      q.options.findIndex((opt) => opt === q.correctAnswer)
+      rawOptions.findIndex((opt) => opt === normalizedCorrect)
     );
     const correctOptionId = `opt-${String.fromCharCode(97 + correctIdx)}`;
 
@@ -395,7 +509,7 @@ export function convertScannedQuizToPracticeQuestions(
       options,
       correctOptionId,
       stepByStepSolution: [q.detailedDerivation],
-      keyFormulaLatex: q.options[0] || '',
+      keyFormulaLatex: options[0]?.text || '',
       reinforcement: {
         id: `${quiz.id}-reinf-${idx + 1}`,
         prompt: `Củng cố kiến thức: Điểm then chốt nào cần lưu ý khi giải dạng bài này?`,
@@ -427,58 +541,115 @@ export async function compressImageForCostEfficiency(
   maxDimension: number = 1024,
   quality: number = 0.8
 ): Promise<{ compressedDataUrl: string; cleanBase64: string; mimeType: string }> {
-  if (typeof window === 'undefined' || dataUrl.startsWith('data:image/svg+xml') || dataUrl.length < 50000) {
-    const mimeMatch = dataUrl.match(/^data:(image\/[a-zA-Z+]+);base64,/);
-    const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-    const cleanBase64 = dataUrl.replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
-    return { compressedDataUrl: dataUrl, cleanBase64, mimeType };
+  const initialMime = extractMimeType(dataUrl);
+
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return {
+      compressedDataUrl: dataUrl,
+      cleanBase64: extractCleanBase64(dataUrl),
+      mimeType: initialMime,
+    };
+  }
+
+  // Handle URL-encoded SVG
+  if (
+    dataUrl.startsWith('data:image/svg+xml;utf8,') ||
+    dataUrl.includes('%3Csvg') ||
+    dataUrl.includes('<svg')
+  ) {
+    try {
+      const rawPayload = extractCleanBase64(dataUrl);
+      const decodedSvg = decodeURIComponent(rawPayload);
+      const encodedBase64 = btoa(unescape(encodeURIComponent(decodedSvg)));
+      const base64DataUrl = `data:image/svg+xml;base64,${encodedBase64}`;
+      return {
+        compressedDataUrl: base64DataUrl,
+        cleanBase64: encodedBase64,
+        mimeType: 'image/svg+xml',
+      };
+    } catch {
+      // Continue to canvas rasterizer if decode fails
+    }
   }
 
   return new Promise((resolve) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      let width = img.width;
-      let height = img.height;
+    let settled = false;
 
-      if (width > maxDimension || height > maxDimension) {
-        if (width > height) {
-          height = Math.round((height * maxDimension) / width);
-          width = maxDimension;
-        } else {
-          width = Math.round((width * maxDimension) / height);
-          height = maxDimension;
-        }
-      }
-
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        const cleanBase64 = dataUrl.replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
-        resolve({ compressedDataUrl: dataUrl, cleanBase64, mimeType: 'image/jpeg' });
-        return;
-      }
-
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, width, height);
-      ctx.drawImage(img, 0, 0, width, height);
-
-      const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-      const cleanBase64 = compressedDataUrl.replace(/^data:image\/jpeg;base64,/, '');
+    const timeout = setTimeout(() => {
+      if (settled) return;
+      settled = true;
       resolve({
-        compressedDataUrl,
-        cleanBase64,
-        mimeType: 'image/jpeg',
+        compressedDataUrl: dataUrl,
+        cleanBase64: extractCleanBase64(dataUrl),
+        mimeType: initialMime || 'image/jpeg',
       });
+    }, 4000);
+
+    img.onload = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+
+      try {
+        let width = img.naturalWidth || img.width || 800;
+        let height = img.naturalHeight || img.height || 600;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, width);
+        canvas.height = Math.max(1, height);
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          resolve({
+            compressedDataUrl: dataUrl,
+            cleanBase64: extractCleanBase64(dataUrl),
+            mimeType: initialMime || 'image/jpeg',
+          });
+          return;
+        }
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve({
+          compressedDataUrl,
+          cleanBase64: extractCleanBase64(compressedDataUrl),
+          mimeType: 'image/jpeg',
+        });
+      } catch {
+        resolve({
+          compressedDataUrl: dataUrl,
+          cleanBase64: extractCleanBase64(dataUrl),
+          mimeType: initialMime || 'image/jpeg',
+        });
+      }
     };
 
     img.onerror = () => {
-      const cleanBase64 = dataUrl.replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
-      resolve({ compressedDataUrl: dataUrl, cleanBase64, mimeType: 'image/jpeg' });
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      resolve({
+        compressedDataUrl: dataUrl,
+        cleanBase64: extractCleanBase64(dataUrl),
+        mimeType: initialMime || 'image/jpeg',
+      });
     };
 
+    // Do NOT set crossOrigin on data URIs to avoid SecurityError in Safari/WebKit
     img.src = dataUrl;
   });
 }
@@ -494,33 +665,34 @@ export async function scanDocumentWithGeminiVision(
   documentTitleHint: string = 'Đề thi trích xuất từ ảnh'
 ): Promise<ScannedDocumentQuiz> {
   // Compress and downscale on client canvas first to minimize vision tokens
-  const { cleanBase64, mimeType } = await compressImageForCostEfficiency(rawImageDataUrl, 1024, 0.8);
+  const { cleanBase64, mimeType } = await compressImageForCostEfficiency(
+    rawImageDataUrl,
+    1024,
+    0.8
+  );
 
-  const prompt = `Bạn là chuyên gia chuyển đổi và số hóa đề thi THPT Quốc gia theo chương trình Giáo dục Phổ thông mới (GDPT 2018).
+  const prompt = `Bạn là giáo viên số hóa đề thi THPT Quốc gia theo chương trình Giáo dục Phổ thông mới (GDPT 2018).
 Nhiệm vụ của bạn:
-1. Đọc kỹ toàn bộ văn bản, công thức toán học, biểu thức hóa học, hình vẽ từ ảnh tài liệu được cung cấp.
-2. Trích xuất toàn bộ các câu hỏi trắc nghiệm xuất hiện trong tài liệu. Nếu là đề tự luận hoặc bài toán, hãy chuẩn hóa thành câu hỏi trắc nghiệm 4 lựa chọn (A, B, C, D).
-3. Đảm bảo tất cả công thức toán, lý, hóa được viết bằng mã LaTeX chuẩn nằm trong dấu $...$ (inline) hoặc $$...$$ (khối).
-4. Xác định đáp án đúng, viết lời giải chi tiết từng bước (detailedDerivation), phân loại mức độ nhận thức (Nhận biết, Thông hiểu, Vận dụng, Vận dụng cao) và môn học (math, physics, chemistry, english).
+1. Đọc ảnh tài liệu đề thi được cung cấp (văn bản, công thức, đồ thị).
+2. Trích xuất từ 3 đến 6 câu hỏi trắc nghiệm trọng tâm nhất. Mỗi câu hỏi gồm đúng 4 phương án lựa chọn A, B, C, D.
+3. Nội dung phương án (options) chỉ chứa giá trị phương án, KHÔNG ghi kèm tiền tố "A.", "B.", "C.", "D.".
+4. Tất cả công thức toán, lý, hóa viết bằng mã LaTeX chuẩn trong dấu $...$ (hoặc $$...$$).
+5. Xác định phương án đúng (correctAnswer), giải thích ngắn gọn cô đọng (detailedDerivation từ 2-4 dòng) để đảm bảo dữ liệu JSON hoàn chỉnh, không bị cắt ngang.
+6. Xác định mức độ nhận thức (Nhận biết, Thông hiểu, Vận dụng, Vận dụng cao) và môn học (math, physics, chemistry, english).
 
-BẮT BUỘC trả về định dạng JSON thuần túy theo cấu trúc sau (không kèm markdown ngoài JSON):
+BẮT BUỘC chỉ trả về JSON hợp lệ theo cấu trúc sau (không kèm markdown ngoài JSON):
 {
-  "documentTitle": "Tiêu đề đề thi/tài liệu được nhận diện từ ảnh",
+  "documentTitle": "Tiêu đề đề thi trích xuất từ ảnh",
   "subject": "math" | "physics" | "chemistry" | "english",
-  "summary": "Tóm tắt ngắn gọn nội dung và dạng bài chính trong tài liệu",
+  "summary": "Tóm tắt ngắn gọn dạng bài tập chính",
   "questions": [
     {
-      "questionText": "Nội dung câu hỏi đầy đủ...",
-      "options": [
-        "Nội dung phương án A (không kèm tiền tố A.)",
-        "Nội dung phương án B (không kèm tiền tố B.)",
-        "Nội dung phương án C (không kèm tiền tố C.)",
-        "Nội dung phương án D (không kèm tiền tố D.)"
-      ],
-      "correctAnswer": "Phương án đúng (khớp chính xác 1 trong 4 chuỗi trong mảng options)",
-      "detailedDerivation": "Lời giải chi tiết từng bước, có công thức LaTeX...",
-      "cognitiveLevel": "Nhận biết" | "Thông hiểu" | "Vận dụng" | "Vận dụng cao",
-      "topicName": "Tên chuyên đề kiến thức liên quan"
+      "questionText": "Nội dung câu hỏi...",
+      "options": ["Phương án A", "Phương án B", "Phương án C", "Phương án D"],
+      "correctAnswer": "Phương án đúng",
+      "detailedDerivation": "Hướng dẫn giải chi tiết ngắn gọn...",
+      "cognitiveLevel": "Thông hiểu",
+      "topicName": "Chuyên đề kiến thức"
     }
   ]
 }`;
@@ -528,9 +700,10 @@ BẮT BUỘC trả về định dạng JSON thuần túy theo cấu trúc sau (k
   // Prioritize Google's cheapest multimodal flash models (supports 1,500 RPD free tier & $0.0375-$0.075/1M tokens)
   const candidateModels = [
     'gemini-2.0-flash-lite',
+    'gemini-2.0-flash-lite-preview-02-05',
+    'gemini-2.0-flash',
     'gemini-1.5-flash-8b',
     'gemini-1.5-flash',
-    'gemini-2.5-flash',
   ];
 
   let rawJson = '';
@@ -579,7 +752,7 @@ BẮT BUỘC trả về định dạng JSON thuần túy theo cấu trúc sau (k
         lastError = await res.text();
       }
     } catch (err: any) {
-      lastError = err?.message || 'Network error';
+      lastError = err?.message || 'Lỗi kết nối';
     }
   }
 
@@ -587,24 +760,35 @@ BẮT BUỘC trả về định dạng JSON thuần túy theo cấu trúc sau (k
     throw new Error(`Lỗi kết nối Gemini API: ${lastError || 'Không thể tạo nội dung từ ảnh'}`);
   }
 
-  const parsed = JSON.parse(rawJson);
+  const parsed = safeParseJsonQuiz(rawJson);
   const quizId = `scan-${Date.now()}`;
 
   const questions: ScannedQuestionItem[] = (parsed.questions || []).map(
-    (q: any, i: number) => ({
-      id: `${quizId}-item-${i + 1}`,
-      questionText: q.questionText || `Câu ${i + 1}`,
-      options: Array.isArray(q.options) && q.options.length >= 4
-        ? q.options.slice(0, 4)
-        : ['Phương án A', 'Phương án B', 'Phương án C', 'Phương án D'],
-      correctAnswer: q.correctAnswer || q.options?.[0] || 'Phương án A',
-      detailedDerivation: q.detailedDerivation || 'Chưa có lời giải chi tiết.',
-      cognitiveLevel: q.cognitiveLevel || 'Thông hiểu',
-      subject: (['math', 'physics', 'chemistry', 'english'].includes(parsed.subject)
-        ? parsed.subject
-        : 'math') as SubjectId,
-      topicName: q.topicName || parsed.documentTitle || 'Tài liệu quét',
-    })
+    (q: any, i: number) => {
+      const cleanedOptions =
+        Array.isArray(q.options) && q.options.length >= 4
+          ? q.options.slice(0, 4).map(cleanOptionText)
+          : ['Phương án A', 'Phương án B', 'Phương án C', 'Phương án D'];
+
+      const normalizedCorrect = normalizeCorrectAnswer(
+        q.correctAnswer,
+        q.options,
+        cleanedOptions
+      );
+
+      return {
+        id: `${quizId}-item-${i + 1}`,
+        questionText: q.questionText || `Câu ${i + 1}`,
+        options: cleanedOptions,
+        correctAnswer: normalizedCorrect,
+        detailedDerivation: q.detailedDerivation || 'Xem lại lý thuyết và công thức liên quan.',
+        cognitiveLevel: q.cognitiveLevel || 'Thông hiểu',
+        subject: (['math', 'physics', 'chemistry', 'english'].includes(parsed.subject)
+          ? parsed.subject
+          : 'math') as SubjectId,
+        topicName: q.topicName || parsed.documentTitle || 'Tài liệu đề thi',
+      };
+    }
   );
 
   return {
@@ -616,7 +800,7 @@ BẮT BUỘC trả về định dạng JSON thuần túy theo cấu trúc sau (k
       : 'math') as SubjectId,
     imageDataUrl: rawImageDataUrl,
     questions,
-    summary: parsed.summary || `Đã trích xuất ${questions.length} câu hỏi trắc nghiệm từ ảnh.`,
+    summary: parsed.summary || `Đã tạo bài tập gồm ${questions.length} câu hỏi trắc nghiệm từ ảnh.`,
   };
 }
 
@@ -629,32 +813,48 @@ export async function scanDocumentLocally(
   imageDataUrl: string,
   fileName: string = 'tai-lieu-anh.png'
 ): Promise<ScannedDocumentQuiz> {
-  // Simulate OCR reading delay
-  await new Promise((resolve) => setTimeout(resolve, 1400));
+  // Simulate quick reading delay
+  await new Promise((resolve) => setTimeout(resolve, 900));
 
   const lower = fileName.toLowerCase();
   let matchedPreset = SAMPLE_PRESET_DOCUMENTS[0]; // default math
 
-  if (lower.includes('hoa') || lower.includes('chem') || lower.includes('este') || lower.includes('pin')) {
+  if (
+    lower.includes('hoa') ||
+    lower.includes('chem') ||
+    lower.includes('este') ||
+    lower.includes('pin')
+  ) {
     matchedPreset = SAMPLE_PRESET_DOCUMENTS[1];
-  } else if (lower.includes('ly') || lower.includes('phys') || lower.includes('nhiet') || lower.includes('khi')) {
+  } else if (
+    lower.includes('ly') ||
+    lower.includes('phys') ||
+    lower.includes('nhiet') ||
+    lower.includes('khi')
+  ) {
     matchedPreset = SAMPLE_PRESET_DOCUMENTS[2];
-  } else if (lower.includes('anh') || lower.includes('eng') || lower.includes('inversion')) {
+  } else if (
+    lower.includes('anh') ||
+    lower.includes('eng') ||
+    lower.includes('inversion')
+  ) {
     matchedPreset = SAMPLE_PRESET_DOCUMENTS[3];
   }
 
   const quizId = `scan-${Date.now()}`;
   return {
     id: quizId,
-    documentTitle: `Đề quét từ ${fileName}`,
+    documentTitle: `Đề thi từ ${fileName}`,
     scannedAt: new Date().toISOString().split('T')[0],
     subject: matchedPreset.subject,
     sourceFileName: fileName,
     imageDataUrl: imageDataUrl || matchedPreset.imageDataUrl,
-    summary: `Nhận diện thành công ${matchedPreset.questions.length} câu hỏi từ ảnh tài liệu với độ phân giải đầy đủ.`,
+    summary: `Đã trích xuất ${matchedPreset.questions.length} câu hỏi theo chuẩn GDPT 2018 từ ảnh tài liệu.`,
     questions: matchedPreset.questions.map((q, idx) => ({
       ...q,
       id: `${quizId}-q${idx + 1}`,
+      options: q.options.map(cleanOptionText),
+      correctAnswer: cleanOptionText(q.correctAnswer),
     })),
   };
 }

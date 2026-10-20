@@ -166,12 +166,12 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             {viewMode === 'daily'
               ? 'Thử thách mỗi ngày: Rèn luyện 4 môn thi'
               : viewMode === 'admin'
-              ? 'Kho tài liệu đề thi thử THPTQG, HSA & TSA'
+              ? 'Kho đề thi thử THPT Quốc gia, HSA & TSA'
               : viewMode === 'scanner'
-              ? 'Tạo bài tập từ ảnh chụp đề thi'
+              ? 'Tạo bài tập từ ảnh đề thi'
               : viewMode === 'problems'
-              ? `${SUBJECTS_META[selectedSubject].vnName}: Danh sách bài tập rèn luyện (${filteredQuestions.length} câu)`
-              : `${SUBJECTS_META[selectedSubject].vnName}: Tóm tắt lý thuyết theo chuyên đề (${topics.length} chuyên đề)`}
+              ? `${SUBJECTS_META[selectedSubject].vnName}: Bài tập theo chuyên đề (${filteredQuestions.length} câu)`
+              : `${SUBJECTS_META[selectedSubject].vnName}: Lý thuyết trọng tâm (${topics.length} chuyên đề)`}
           </h1>
           <p className="text-sm text-zinc-400 max-w-2xl leading-relaxed">
             {viewMode === 'admin' ? (
@@ -214,7 +214,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <span>Luyện bài tập ({PRACTICE_QUESTIONS.length})</span>
+            <span>Bài tập ({PRACTICE_QUESTIONS.length})</span>
           </button>
 
           <button
@@ -228,7 +228,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <span>Đọc lý thuyết</span>
+            <span>Lý thuyết</span>
           </button>
 
           <button

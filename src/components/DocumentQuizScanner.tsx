@@ -25,7 +25,9 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
 }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
+  const [imageFileSize, setImageFileSize] = useState<string>('');
   const [imageMimeType, setImageMimeType] = useState<string>('image/jpeg');
+  const [isDragging, setIsDragging] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scanStep, setScanStep] = useState<string>('');
   const [currentQuiz, setCurrentQuiz] = useState<ScannedDocumentQuiz | null>(null);
@@ -38,7 +40,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Check BYOK API Key
+  // Check personal API Key
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const key = window.localStorage.getItem('apexstem_gemini_byok_key') ?? '';
@@ -50,6 +52,15 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
   // Listen for Clipboard Paste (Ctrl+V) anywhere on the component
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') &&
+        !(e.clipboardData?.items?.[0]?.type.startsWith('image/'))
+      ) {
+        return;
+      }
+
       const items = e.clipboardData?.items;
       if (!items) return;
 
@@ -71,24 +82,55 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
   }, []);
 
   const handleFileSelect = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      alert('Vui lòng chọn tệp hình ảnh (PNG, JPG, WEBP).');
+    const isImage =
+      file.type.startsWith('image/') ||
+      /\.(png|jpe?g|webp|bmp|gif|svg|heic|heif)$/i.test(file.name);
+
+    if (!isImage) {
+      alert('Vui lòng chọn tệp hình ảnh (PNG, JPG, JPEG, WEBP).');
       return;
     }
 
-    setImageMimeType(file.type);
+    const detectedMime =
+      file.type || (file.name.endsWith('.png') ? 'image/png' : 'image/jpeg');
+    setImageMimeType(detectedMime);
     setSelectedFileName(file.name);
+
+    const sizeKb = Math.round(file.size / 1024);
+    const sizeStr = sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`;
+    setImageFileSize(sizeStr);
 
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
-      setSelectedImage(dataUrl);
+      if (dataUrl) {
+        setSelectedImage(dataUrl);
+        setNotification(`Đã tải ảnh: ${file.name} (${sizeStr})`);
+        setTimeout(() => setNotification(null), 3000);
+      }
+    };
+    reader.onerror = () => {
+      alert('Không thể đọc tệp hình ảnh. Vui lòng thử lại với ảnh khác.');
     };
     reader.readAsDataURL(file);
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleFileSelect(e.dataTransfer.files[0]);
     }
@@ -97,6 +139,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
   const loadPreset = (preset: ScannedDocumentQuiz) => {
     setSelectedImage(preset.imageDataUrl);
     setSelectedFileName(preset.sourceFileName || `${preset.documentTitle}.png`);
+    setImageFileSize('Đề mẫu');
     setImageMimeType('image/svg+xml');
     setCurrentQuiz(preset);
     setNotification(`Đã tải tài liệu mẫu: "${preset.documentTitle}"`);
@@ -111,11 +154,13 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
 
     try {
       let result: ScannedDocumentQuiz;
-      const apiKey = typeof window !== 'undefined'
-        ? window.localStorage.getItem('apexstem_gemini_byok_key') ?? ''
-        : '';
+      const apiKey =
+        typeof window !== 'undefined'
+          ? window.localStorage.getItem('apexstem_gemini_byok_key') ?? ''
+          : '';
 
-      const isLiveByok = apiKey.startsWith('AIza') && apiKey !== 'AIzaSyDemoHighSchoolStemKey2026';
+      const isLiveByok =
+        apiKey.startsWith('AIza') && apiKey !== 'AIzaSyDemoHighSchoolStemKey2026';
 
       if (isLiveByok) {
         setScanStep('Đang đọc đề bài và nhận diện công thức toán học...');
@@ -127,7 +172,10 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
         );
       } else {
         setScanStep('Đang đọc nội dung đề bài và trích xuất phương án...');
-        result = await scanDocumentLocally(selectedImage, selectedFileName || 'tai-lieu-anh.png');
+        result = await scanDocumentLocally(
+          selectedImage,
+          selectedFileName || 'tai-lieu-anh.png'
+        );
       }
 
       setScanStep('Đang sắp xếp các câu hỏi và phương án lựa chọn...');
@@ -137,9 +185,15 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
       setNotification(`Đã tạo thành công bài tập gồm ${result.questions.length} câu hỏi!`);
       setTimeout(() => setNotification(null), 4000);
     } catch (err: any) {
-      alert(`Không thể xử lý hình ảnh: ${err?.message || 'Lỗi không xác định'}. Đang chuyển sang chế độ tạo đề cơ bản.`);
-      const fallback = await scanDocumentLocally(selectedImage, selectedFileName || 'tai-lieu.png');
+      const errMsg = err?.message || 'Lỗi không xác định';
+      console.warn('Scan error, switching to fallback:', errMsg);
+      setNotification(`Đang dùng chế độ tạo đề cơ bản...`);
+      const fallback = await scanDocumentLocally(
+        selectedImage,
+        selectedFileName || 'tai-lieu.png'
+      );
       setCurrentQuiz(fallback);
+      setTimeout(() => setNotification(null), 4000);
     } finally {
       setIsScanning(false);
       setScanStep('');
@@ -150,7 +204,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
     if (!currentQuiz) return;
     saveScannedQuiz(currentQuiz);
     setSavedQuizzes(getStoredScannedQuizzes());
-    setNotification('Đã lưu bài Quiz vào thư viện cá nhân!');
+    setNotification('Đã lưu bài tập vào thư viện cá nhân!');
     setTimeout(() => setNotification(null), 3000);
   };
 
@@ -234,12 +288,12 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
         </div>
       )}
 
-      {/* Top Banner & BYOK Status */}
+      {/* Top Banner & API Status */}
       <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono uppercase tracking-wider text-sky-400">
-              TẠO BÀI TẬP TỪ ẢNH CHỤP • NHẬN DIỆN CÔNG THỨC
+            <span className="text-xs font-mono uppercase tracking-wider text-sky-400 font-bold">
+              [TẠO ĐỀ TỪ ẢNH]
             </span>
             <span className="text-zinc-600">|</span>
             <span className="text-xs font-mono text-zinc-400">GDPT 2018</span>
@@ -259,7 +313,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
             </div>
           ) : (
             <div className="px-3 py-1.5 rounded-md border border-zinc-700 bg-zinc-800 text-zinc-300 text-xs font-mono">
-              Chế độ Demo / Cổng chung
+              Chế độ mẫu mặc định
             </div>
           )}
 
@@ -269,7 +323,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
               onClick={onOpenByok}
               className="h-8 px-3 rounded-md border border-zinc-750 hover:border-zinc-700 bg-zinc-850 hover:bg-zinc-800 text-xs text-zinc-200 transition-colors cursor-pointer"
             >
-              Cấu hình khóa API
+              Cài đặt khóa API
             </button>
           )}
         </div>
@@ -287,7 +341,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            Tải ảnh tạo đề
+            Tạo đề từ ảnh
           </button>
           <button
             type="button"
@@ -298,7 +352,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            Đề đã tạo ({savedQuizzes.length})
+            Bộ đề đã lưu ({savedQuizzes.length})
           </button>
         </div>
 
@@ -348,8 +402,11 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/bmp,image/*"
                 className="hidden"
+                onClick={(e) => {
+                  (e.target as HTMLInputElement).value = '';
+                }}
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     handleFileSelect(e.target.files[0]);
@@ -358,27 +415,35 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
               />
 
               <div
-                onDragOver={(e) => e.preventDefault()}
+                onDragOver={handleDragOver}
+                onDragEnter={handleDragOver}
+                onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
                 className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer flex flex-col items-center justify-center min-h-[220px] ${
-                  selectedImage
+                  isDragging
+                    ? 'border-sky-400 bg-sky-950/25 ring-2 ring-sky-500/20'
+                    : selectedImage
                     ? 'border-sky-500/60 bg-sky-950/10'
                     : 'border-zinc-750 hover:border-zinc-600 bg-zinc-900/40 hover:bg-zinc-900/70'
                 }`}
               >
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-zinc-200">
-                    {selectedFileName
+                    {isDragging
+                      ? 'Thả ảnh vào đây để tải lên ngay'
+                      : selectedFileName
                       ? `Đã chọn: ${selectedFileName}`
-                      : 'Kéo và thả ảnh tài liệu vào đây'}
+                      : 'Kéo và thả ảnh đề thi vào đây'}
                   </p>
                   <p className="text-xs text-zinc-400 max-w-xs mx-auto">
-                    Hỗ trợ định dạng PNG, JPG, JPEG, WEBP. Bạn cũng có thể bấm vào đây để chọn tệp từ máy tính.
+                    {selectedFileName && imageFileSize
+                      ? `Dung lượng: ${imageFileSize} • Đã sẵn sàng đọc đề`
+                      : 'Hỗ trợ ảnh chụp điện thoại hoặc ảnh màn hình (PNG, JPG, WEBP). Bấm để chọn tệp.'}
                   </p>
                   <div className="pt-2">
                     <span className="inline-block px-3 py-1.5 rounded-md border border-zinc-700 bg-zinc-800 text-xs font-mono text-zinc-300">
-                      Chọn tệp hình ảnh
+                      {selectedImage ? 'Chọn ảnh khác' : 'Chọn ảnh từ thiết bị'}
                     </span>
                   </div>
                 </div>
@@ -390,7 +455,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
                     type="button"
                     disabled={isScanning}
                     onClick={runScan}
-                    className="w-full h-11 px-4 rounded-lg bg-sky-500 hover:bg-sky-400 disabled:opacity-50 text-zinc-950 text-sm font-semibold tracking-tight transition-all cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full h-11 px-4 rounded-lg bg-sky-500 hover:bg-sky-400 disabled:opacity-50 text-zinc-950 text-sm font-semibold tracking-tight transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-sky-500/10"
                   >
                     {isScanning ? (
                       <span>Đang xử lý đề bài...</span>
@@ -442,26 +507,26 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 space-y-3">
                 <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
                   <span className="text-xs font-mono text-zinc-400 uppercase">
-                    XEM TRƯỚC TÀI LIỆU GỐC
+                    XEM TRƯỚC ẢNH ĐỀ THI
                   </span>
                   {selectedFileName && (
-                    <span className="text-xs font-mono text-zinc-500 truncate max-w-[200px]">
-                      {selectedFileName}
+                    <span className="text-xs font-mono text-zinc-400 truncate max-w-[240px]">
+                      {selectedFileName} {imageFileSize ? `(${imageFileSize})` : ''}
                     </span>
                   )}
                 </div>
 
                 {selectedImage ? (
-                  <div className="relative rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950 flex items-center justify-center max-h-[460px] overflow-y-auto">
+                  <div className="relative rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950 flex items-center justify-center max-h-[460px] overflow-y-auto p-2">
                     <img
                       src={selectedImage}
-                      alt="Ảnh tài liệu đã tải lên"
+                      alt="Ảnh đề thi đã tải lên"
                       className="max-w-full h-auto object-contain rounded"
                     />
                   </div>
                 ) : (
-                  <div className="h-64 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center text-xs text-zinc-500 font-mono">
-                    Chưa có tài liệu nào được chọn
+                  <div className="h-64 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center text-xs text-zinc-500 font-mono text-center px-4">
+                    Chưa có ảnh nào được chọn. Hãy chọn ảnh đề thi hoặc bấm thử một đề mẫu ở trên.
                   </div>
                 )}
               </div>
