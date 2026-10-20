@@ -207,7 +207,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     }
   };
 
-  // Mobile segmented tab ('wiki' | 'practice') & Mobile slide-up Socratic sheet
+  // Mobile segmented tab ('wiki' | 'practice') & Mobile slide-up Assistant sheet
   const [mobileTab, setMobileTab] = useState<'wiki' | 'practice'>('practice');
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
@@ -335,7 +335,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
         if (selected && !verdict) {
           e.preventDefault();
           submit();
-        } else if (verdict && autoAdvancePaused) {
+        } else if (verdict) {
           e.preventDefault();
           goToNextQuestion();
         }
@@ -565,7 +565,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
           )}
         </div>
 
-        {/* 5. Unified Solution & Socratic Tutor Card */}
+        {/* 5. Unified Solution & Assistant Card */}
         <div className="mt-6 rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
           {verdict ? (
             <>
@@ -835,7 +835,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
               </>
             )}
             <span className="bg-zinc-900 border border-zinc-800 rounded-full px-2 py-0.5 text-[11px] font-mono text-zinc-300">
-              <span className="text-amber-400">🔥{streak}</span>
+              <span className="text-amber-400 font-semibold">Streak: {streak}</span>
             </span>
           </div>
         </div>

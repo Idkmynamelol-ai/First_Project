@@ -140,9 +140,10 @@ export const ProblemList: React.FC<ProblemListProps> = ({
 
   const displayedQuestions = useMemo(() => {
     if (pageSize === -1) return filteredQuestions;
-    const start = (currentPage - 1) * pageSize;
+    const safePage = Math.min(Math.max(1, currentPage), totalPages);
+    const start = (safePage - 1) * pageSize;
     return filteredQuestions.slice(start, start + pageSize);
-  }, [filteredQuestions, currentPage, pageSize]);
+  }, [filteredQuestions, currentPage, totalPages, pageSize]);
 
   const solvedStats = useMemo(() => {
     let ac = 0;

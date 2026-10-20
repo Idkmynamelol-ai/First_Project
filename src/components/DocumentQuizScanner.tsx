@@ -275,7 +275,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
     a.href = url;
     a.download = `quiz-${currentQuiz.id}.${ext}`;
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   return (
