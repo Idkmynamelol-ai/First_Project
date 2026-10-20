@@ -219,8 +219,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const [verdict, setVerdict] = useState<'AC' | 'WA' | null>(null);
   const [reinfPick, setReinfPick] = useState<string | null>(null);
 
-  // Auto-advance configuration & timer state
-  const COUNTDOWN_SECONDS = 4;
+  // Auto-advance configuration & timer state (7s allows students to read verdict & react)
+  const COUNTDOWN_SECONDS = 7;
   const [autoAdvanceEnabled, setAutoAdvanceEnabled] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('scalar_auto_advance_enabled');
@@ -422,22 +422,22 @@ export const Workspace: React.FC<WorkspaceProps> = ({
             </button>
 
             {onSelectQuestion && (
-              <div className="flex items-center gap-1 mr-1">
+              <div className="flex items-center gap-1.5 mr-1">
                 <button
                   type="button"
                   onClick={goToPrevQuestion}
                   aria-label="Câu trước"
-                  className="px-2 py-1 text-xs rounded-md border border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 cursor-pointer"
+                  className="h-8 px-2.5 rounded-lg border border-zinc-750 bg-zinc-900 hover:bg-zinc-850 text-xs text-zinc-300 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
                 >
-                  Trước
+                  <span>‹ Trước</span>
                 </button>
                 <button
                   type="button"
                   onClick={goToNextQuestion}
                   aria-label="Câu tiếp theo"
-                  className="px-2 py-1 text-xs rounded-md border border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 cursor-pointer"
+                  className="h-8 px-2.5 rounded-lg border border-zinc-750 bg-zinc-900 hover:bg-zinc-850 text-xs text-zinc-300 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
                 >
-                  Tiếp
+                  <span>Tiếp ›</span>
                 </button>
               </div>
             )}
@@ -445,7 +445,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
             <button
               type="button"
               onClick={handleRedo}
-              className="text-xs text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 border border-transparent hover:border-zinc-800 px-2.5 py-1 rounded-md transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+              className="h-8 px-3 rounded-lg border border-zinc-750 bg-zinc-900 hover:bg-zinc-850 text-xs text-zinc-300 hover:text-white transition-colors inline-flex items-center gap-1.5 cursor-pointer"
               title="Làm lại với vị trí đáp án được đảo ngẫu nhiên"
             >
               <span>Đổi vị trí đáp án</span>
@@ -454,7 +454,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
         </div>
 
         {/* 2. Problem Prompt Card */}
-        <div className="text-[15px] leading-7 text-zinc-100 mb-6 bg-zinc-900/60 border border-zinc-800 rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+        <div className="text-[15px] sm:text-base leading-7 sm:leading-8 text-zinc-100 mb-6 bg-zinc-900/60 border border-zinc-800 rounded-xl p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
           <MathText content={q.prompt} />
         </div>
 
@@ -462,7 +462,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
         <div
           role="radiogroup"
           aria-label="Các phương án trả lời"
-          className="space-y-2.5"
+          className="space-y-3"
         >
           {attempt.options.map((o) => {
             const isSelected = selected === o.id;
@@ -476,17 +476,17 @@ export const Workspace: React.FC<WorkspaceProps> = ({
 
             if (isRight) {
               cardStateClasses =
-                'border-emerald-500 bg-emerald-950/25 text-emerald-100 shadow-[0_0_12px_rgba(16,185,129,0.15)]';
+                'border-emerald-500 bg-emerald-950/25 text-emerald-100 shadow-[0_0_12px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/30';
               badgeClasses =
                 'bg-emerald-500 border border-emerald-400 text-zinc-950 font-bold';
             } else if (isWrong) {
               cardStateClasses =
-                'border-rose-500 bg-rose-950/25 text-rose-100 shadow-[0_0_12px_rgba(244,63,94,0.15)]';
+                'border-rose-500 bg-rose-950/25 text-rose-100 shadow-[0_0_12px_rgba(244,63,94,0.15)] ring-1 ring-rose-500/30';
               badgeClasses =
                 'bg-rose-500 border border-rose-400 text-zinc-950 font-bold';
             } else if (isSelected) {
               cardStateClasses =
-                'border-sky-500 bg-sky-950/25 text-white shadow-[0_0_12px_rgba(56,189,248,0.15)]';
+                'border-sky-500 bg-sky-950/25 text-white shadow-[0_0_12px_rgba(56,189,248,0.15)] ring-1 ring-sky-500/40';
               badgeClasses =
                 'bg-sky-500 border border-sky-400 text-zinc-950 font-bold';
             }
@@ -501,14 +501,14 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                   setSelected(o.id);
                   setVerdict(null);
                 }}
-                className={`w-full min-h-[52px] flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-colors cursor-pointer text-left ${cardStateClasses}`}
+                className={`w-full min-h-[56px] flex items-center gap-3.5 px-4 py-3.5 sm:py-4 rounded-xl border transition-all cursor-pointer text-left ${cardStateClasses}`}
               >
                 <span
-                  className={`w-7 h-7 rounded-lg font-mono text-xs font-semibold flex items-center justify-center shrink-0 tracking-tight ${badgeClasses}`}
+                  className={`w-8 h-8 rounded-lg font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 tracking-tight ${badgeClasses}`}
                 >
                   {o.keycap}
                 </span>
-                <span className="min-w-0 flex-1 overflow-x-auto text-[15px] leading-7">
+                <span className="min-w-0 flex-1 overflow-x-auto text-[15px] sm:text-base leading-7">
                   {o.latex ? (
                     <MathRenderer latex={o.latex} />
                   ) : (
@@ -521,40 +521,32 @@ export const Workspace: React.FC<WorkspaceProps> = ({
         </div>
 
         {/* 4. Primary Action Bar (Desktop) */}
-        <div className="hidden lg:flex items-center justify-between gap-4 pt-1">
+        <div className="hidden lg:flex items-center justify-between gap-4 pt-2">
           {verdict ? (
             <div className="w-full flex items-center justify-between gap-4">
-              {autoAdvancePaused || !autoAdvanceEnabled ? (
-                <button
-                  type="button"
-                  onClick={goToNextQuestion}
-                  className="min-h-[44px] bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors cursor-pointer"
-                >
-                  Câu tiếp theo
-                </button>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={goToNextQuestion}
-                    className="min-h-[44px] bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-sm px-5 py-2.5 rounded-lg transition-colors cursor-pointer"
-                  >
-                    Chuyển ngay
-                  </button>
+              <button
+                type="button"
+                onClick={goToNextQuestion}
+                className="min-h-[46px] bg-sky-500 hover:bg-sky-400 text-zinc-950 font-bold text-sm px-7 py-2.5 rounded-xl transition-all shadow-md shadow-sky-500/10 cursor-pointer flex items-center gap-1.5"
+              >
+                <span>Câu tiếp theo →</span>
+              </button>
+              <div className="flex items-center gap-3">
+                {autoAdvanceEnabled && !autoAdvancePaused ? (
                   <button
                     type="button"
                     onClick={pauseAutoAdvance}
-                    className="text-xs text-zinc-300 hover:text-white bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-3 py-2 rounded-lg transition-colors cursor-pointer"
+                    className="text-xs text-zinc-300 hover:text-white bg-zinc-900 border border-zinc-750 hover:border-zinc-700 px-3.5 py-2 rounded-lg transition-colors cursor-pointer"
                   >
-                    Tạm dừng
+                    Tạm dừng đếm ngược
                   </button>
-                </div>
-              )}
-              <span className="text-xs text-zinc-400 font-mono">
-                {autoAdvancePaused || !autoAdvanceEnabled
-                  ? '[Enter] hoặc click nút để sang câu tiếp theo'
-                  : `Tự động chuyển tiếp sau ${countdown}s...`}
-              </span>
+                ) : null}
+                <span className="text-xs text-zinc-400 font-mono">
+                  {autoAdvancePaused || !autoAdvanceEnabled
+                    ? '[Enter] để sang câu tiếp theo'
+                    : `Tự động chuyển tiếp sau ${countdown}s...`}
+                </span>
+              </div>
             </div>
           ) : (
             <>
@@ -562,9 +554,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 type="button"
                 onClick={submit}
                 disabled={!selected}
-                className="w-full sm:w-auto bg-zinc-100 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed"
+                className="w-full sm:w-auto min-h-[46px] bg-sky-500 hover:bg-sky-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-bold text-sm px-8 py-2.5 rounded-xl transition-all shadow-md shadow-sky-500/10 cursor-pointer disabled:cursor-not-allowed"
               >
-                Nộp bài
+                {selected ? 'Nộp bài ngay' : 'Chọn đáp án để nộp'}
               </button>
               <span className="text-xs text-zinc-400 font-mono">
                 Phím tắt: A–D • Enter nộp
@@ -602,38 +594,52 @@ export const Workspace: React.FC<WorkspaceProps> = ({
 
               {/* Auto-Advance Countdown Bar OR Bigger Next Question Button */}
               {autoAdvanceEnabled && !autoAdvancePaused ? (
-                <div className="bg-sky-950/40 border-b border-sky-500/25 px-4 sm:px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-sm">
-                  <div className="flex items-center gap-2.5 text-sky-200">
-                    <span className="font-medium text-xs sm:text-sm">
-                      Tự động chuyển tiếp sau{' '}
-                      <span className="font-mono text-sky-300 font-bold px-1.5 py-0.5 rounded-md bg-sky-500/20 border border-sky-500/30">
-                        {countdown}s
+                <div className="bg-sky-950/40 border-b border-sky-500/25 px-4 sm:px-5 py-3.5 space-y-2.5">
+                  <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                    <div className="flex items-center gap-2 text-sky-200">
+                      <span className="font-medium text-xs sm:text-sm">
+                        Tự động chuyển tiếp sau{' '}
+                        <span className="font-mono text-sky-300 font-bold px-2 py-0.5 rounded-md bg-sky-500/20 border border-sky-500/30 text-sm">
+                          {countdown}s
+                        </span>
                       </span>
-                    </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={pauseAutoAdvance}
+                        className="h-8 px-3 rounded-lg bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-750 text-zinc-200 text-xs font-medium transition-colors cursor-pointer"
+                        title="Tạm dừng đếm ngược để xem lời giải hoặc hỏi Trợ lý"
+                      >
+                        <span>Tạm dừng</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={goToNextQuestion}
+                        className="h-8 px-3.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-zinc-950 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
+                      >
+                        <span>Chuyển ngay ›</span>
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={pauseAutoAdvance}
-                      className="px-3 py-1.5 rounded-lg bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-medium transition-colors cursor-pointer"
-                      title="Tạm dừng tự động chuyển câu để xem lời giải hoặc hỏi Trợ lý"
-                    >
-                      <span>Tạm dừng</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={goToNextQuestion}
-                      className="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-zinc-950 text-xs font-semibold transition-colors cursor-pointer"
-                    >
-                      <span>Chuyển ngay</span>
-                    </button>
+                  {/* Visual 7s Progress Bar */}
+                  <div className="h-1.5 w-full bg-zinc-850 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-sky-400 transition-all duration-1000 ease-linear rounded-full"
+                      style={{
+                        width: `${Math.max(
+                          0,
+                          (countdown / COUNTDOWN_SECONDS) * 100
+                        )}%`,
+                      }}
+                    />
                   </div>
                 </div>
               ) : (
                 <div className="bg-zinc-900/80 border-b border-sky-500/30 p-4 sm:p-5 space-y-3">
                   <div className="flex items-center justify-between text-xs text-sky-300">
                     <span className="font-medium">
-                      <span>Đã tạm dừng tự động chuyển câu</span>
+                      <span>Đã tạm dừng tự động chuyển câu để bạn đọc kỹ lời giải</span>
                     </span>
                     <span className="font-mono text-zinc-400 text-[11px] hidden sm:inline">
                       [Enter] chuyển tiếp
@@ -642,9 +648,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                   <button
                     type="button"
                     onClick={goToNextQuestion}
-                    className="w-full min-h-[48px] py-3 px-6 rounded-xl bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold text-base transition-colors cursor-pointer"
+                    className="w-full min-h-[50px] py-3.5 px-6 rounded-xl bg-sky-500 hover:bg-sky-400 text-zinc-950 font-bold text-base transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-sky-500/10"
                   >
-                    <span>Câu tiếp theo</span>
+                    <span>Câu tiếp theo →</span>
                   </button>
                 </div>
               )}
@@ -760,9 +766,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                     <button
                       type="button"
                       onClick={goToNextQuestion}
-                      className="w-full min-h-[48px] py-3 px-6 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-sm sm:text-base shadow-sm transition-colors cursor-pointer"
+                      className="w-full min-h-[50px] py-3.5 px-6 rounded-xl bg-sky-500 hover:bg-sky-400 text-zinc-950 font-bold text-base shadow-lg shadow-sky-500/10 transition-colors cursor-pointer flex items-center justify-center gap-2"
                     >
-                      <span>Câu tiếp theo</span>
+                      <span>Câu tiếp theo →</span>
                     </button>
                   </div>
                 )}
@@ -791,14 +797,14 @@ export const Workspace: React.FC<WorkspaceProps> = ({
       {/* ====================================================================
        * 6. SLEEK MOBILE STICKY HEADER & 2-TAB SEGMENTED SWITCHER (< 1024px)
        * ==================================================================== */}
-      <div className="lg:hidden bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80 sticky top-12 z-30 px-4 py-2.5 space-y-2">
+      <div className="lg:hidden bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800 sticky top-12 z-30 px-3.5 py-2.5 space-y-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <button
               type="button"
               onClick={onBack}
               aria-label="Quay lại danh sách"
-              className="px-2.5 py-1 text-xs rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 shrink-0 cursor-pointer"
+              className="h-8 px-2.5 text-xs rounded-lg border border-zinc-750 bg-zinc-900 hover:bg-zinc-850 text-zinc-200 shrink-0 cursor-pointer flex items-center"
             >
               ← Quay lại
             </button>
@@ -806,15 +812,37 @@ export const Workspace: React.FC<WorkspaceProps> = ({
               {q.topic}
             </span>
           </div>
-          <span className="bg-zinc-900 border border-zinc-800 rounded-full px-2.5 py-0.5 text-[11px] font-mono text-zinc-300 shrink-0">
-            <span className="text-emerald-400">AC: {ac}</span> •{' '}
-            <span className="text-amber-400">Streak: {streak}</span>
-          </span>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {onSelectQuestion && (
+              <>
+                <button
+                  type="button"
+                  onClick={goToPrevQuestion}
+                  aria-label="Câu trước"
+                  className="h-8 px-2.5 rounded-lg border border-zinc-750 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-200 flex items-center justify-center cursor-pointer font-mono"
+                >
+                  ‹ Trước
+                </button>
+                <button
+                  type="button"
+                  onClick={goToNextQuestion}
+                  aria-label="Câu tiếp theo"
+                  className="h-8 px-2.5 rounded-lg border border-zinc-750 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-200 flex items-center justify-center cursor-pointer font-mono"
+                >
+                  Tiếp ›
+                </button>
+              </>
+            )}
+            <span className="bg-zinc-900 border border-zinc-800 rounded-full px-2 py-0.5 text-[11px] font-mono text-zinc-300">
+              <span className="text-amber-400">🔥{streak}</span>
+            </span>
+          </div>
         </div>
 
         {/* 2-Tab Segmented Pill Switcher */}
         <div
-          className="bg-zinc-900 p-1 rounded-lg grid grid-cols-2 text-xs font-medium"
+          className="bg-zinc-900 p-1 rounded-xl grid grid-cols-2 text-xs font-medium border border-zinc-800"
           role="tablist"
         >
           <button
@@ -822,26 +850,26 @@ export const Workspace: React.FC<WorkspaceProps> = ({
             role="tab"
             aria-selected={mobileTab === 'wiki'}
             onClick={() => setMobileTab('wiki')}
-            className={`py-1.5 rounded-md transition-colors cursor-pointer ${
+            className={`py-2 rounded-lg transition-colors cursor-pointer text-center font-medium ${
               mobileTab === 'wiki'
-                ? 'bg-zinc-800 text-zinc-100 shadow-sm'
+                ? 'bg-zinc-800 text-zinc-100 font-semibold shadow-sm'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            Lý thuyết (Wiki)
+            Lý thuyết
           </button>
           <button
             type="button"
             role="tab"
             aria-selected={mobileTab === 'practice'}
             onClick={() => setMobileTab('practice')}
-            className={`py-1.5 rounded-md transition-colors cursor-pointer ${
+            className={`py-2 rounded-lg transition-colors cursor-pointer text-center font-medium ${
               mobileTab === 'practice'
-                ? 'bg-zinc-800 text-zinc-100 shadow-sm'
+                ? 'bg-zinc-800 text-zinc-100 font-semibold shadow-sm text-sky-400'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            Luyện tập (Bài tập)
+            Luyện tập ({currentTopicIndex + 1}/{topicQuestions.length})
           </button>
         </div>
       </div>
@@ -895,26 +923,47 @@ export const Workspace: React.FC<WorkspaceProps> = ({
 
       {/* Mobile Sticky Bottom Action Bar */}
       {mobileTab === 'practice' && (
-        <div className="lg:hidden fixed bottom-0 inset-x-0 p-3 pb-safe bg-zinc-950/95 backdrop-blur border-t border-zinc-800 z-20 flex items-center gap-2.5">
+        <div className="lg:hidden fixed bottom-0 inset-x-0 p-3 pb-safe bg-zinc-950/95 backdrop-blur-md border-t border-zinc-800 z-20 flex items-center gap-2.5">
           {verdict ? (
             <>
-              <button
-                type="button"
-                onClick={goToNextQuestion}
-                className="flex-1 h-12 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold text-sm sm:text-base rounded-xl transition-colors flex items-center justify-center cursor-pointer"
-              >
-                <span>Câu hỏi tiếp theo</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  pauseAutoAdvance();
-                  setMobileSheetOpen(true);
-                }}
-                className="h-12 px-3.5 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs font-medium inline-flex items-center shrink-0 cursor-pointer"
-              >
-                <span>Hỏi gợi ý</span>
-              </button>
+              {autoAdvanceEnabled && !autoAdvancePaused ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={goToNextQuestion}
+                    className="flex-1 h-12 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-bold text-sm sm:text-base rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-sky-500/10"
+                  >
+                    <span>Câu tiếp ({countdown}s) →</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={pauseAutoAdvance}
+                    className="h-12 px-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-750 text-zinc-200 text-xs font-semibold inline-flex items-center shrink-0 cursor-pointer"
+                  >
+                    <span>Tạm dừng</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={goToNextQuestion}
+                    className="flex-1 h-12 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-bold text-sm sm:text-base rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-sky-500/10"
+                  >
+                    <span>Câu tiếp theo →</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      pauseAutoAdvance();
+                      setMobileSheetOpen(true);
+                    }}
+                    className="h-12 px-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-750 text-zinc-200 text-xs font-semibold inline-flex items-center shrink-0 cursor-pointer"
+                  >
+                    <span>Hỏi Trợ lý</span>
+                  </button>
+                </>
+              )}
             </>
           ) : (
             <>
@@ -922,9 +971,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 type="button"
                 onClick={submit}
                 disabled={!selected}
-                className="flex-1 h-11 bg-zinc-100 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-medium text-sm rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed"
+                className="flex-1 h-12 bg-sky-500 hover:bg-sky-400 disabled:bg-zinc-850 disabled:text-zinc-500 text-zinc-950 font-bold text-sm sm:text-base rounded-xl transition-colors cursor-pointer disabled:cursor-not-allowed shadow-lg shadow-sky-500/10 flex items-center justify-center"
               >
-                {selected ? 'Nộp bài' : 'Chọn một đáp án'}
+                {selected ? 'Nộp bài ngay' : 'Chọn một đáp án'}
               </button>
               <button
                 type="button"
@@ -932,9 +981,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                   pauseAutoAdvance();
                   setMobileSheetOpen(true);
                 }}
-                className="h-11 px-4 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs font-medium inline-flex items-center shrink-0 cursor-pointer"
+                className="h-12 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-750 text-zinc-200 text-xs font-semibold inline-flex items-center shrink-0 cursor-pointer"
               >
-                <span>Hỏi gợi ý</span>
+                <span>Hỏi Trợ lý</span>
               </button>
             </>
           )}

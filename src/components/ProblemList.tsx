@@ -200,7 +200,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
 
         {/* Segmented Mode Pill Bar */}
         <div
-          className="bg-zinc-900/90 border border-zinc-800 p-1 rounded-xl flex flex-wrap sm:flex-nowrap gap-1 shrink-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)]"
+          className="bg-zinc-900/90 border border-zinc-800 p-1 rounded-xl flex items-center gap-1 shrink-0 overflow-x-auto max-w-full shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)]"
           role="tablist"
           aria-label="Chế độ học tập"
         >
@@ -209,7 +209,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'problems'}
             onClick={() => setViewMode('problems')}
-            className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+            className={`h-9 px-3.5 rounded-lg text-xs font-medium cursor-pointer transition-colors whitespace-nowrap shrink-0 flex items-center justify-center ${
               viewMode === 'problems'
                 ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -223,7 +223,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'knowledge'}
             onClick={() => setViewMode('knowledge')}
-            className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+            className={`h-9 px-3.5 rounded-lg text-xs font-medium cursor-pointer transition-colors whitespace-nowrap shrink-0 flex items-center justify-center ${
               viewMode === 'knowledge'
                 ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -237,7 +237,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'daily'}
             onClick={() => setViewMode('daily')}
-            className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+            className={`h-9 px-3.5 rounded-lg text-xs font-medium cursor-pointer transition-colors whitespace-nowrap shrink-0 flex items-center justify-center ${
               viewMode === 'daily'
                 ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -251,7 +251,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'scanner'}
             onClick={() => setViewMode('scanner')}
-            className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+            className={`h-9 px-3.5 rounded-lg text-xs font-medium cursor-pointer transition-colors whitespace-nowrap shrink-0 flex items-center justify-center ${
               viewMode === 'scanner'
                 ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700 text-sky-400'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -265,7 +265,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
             role="tab"
             aria-selected={viewMode === 'admin'}
             onClick={() => setViewMode('admin')}
-            className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+            className={`h-9 px-3.5 rounded-lg text-xs font-medium cursor-pointer transition-colors whitespace-nowrap shrink-0 flex items-center justify-center ${
               viewMode === 'admin'
                 ? 'bg-zinc-800 text-zinc-100 font-semibold border border-zinc-700'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -346,7 +346,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
           {/* Grade & Difficulty Filters */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div
-              className="flex flex-wrap items-center gap-1.5"
+              className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 sm:pb-0 sm:flex-wrap"
               role="group"
               aria-label="Lọc theo khối lớp"
             >
@@ -358,7 +358,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                     type="button"
                     aria-pressed={active}
                     onClick={() => setGradeFilter(g)}
-                    className={`px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-all ${
+                    className={`h-9 px-3.5 rounded-lg border text-xs font-medium cursor-pointer transition-all shrink-0 whitespace-nowrap flex items-center justify-center ${
                       active
                         ? 'border-zinc-700 bg-zinc-800 text-zinc-100 shadow-[0_1px_2px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]'
                         : 'border-zinc-800/80 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200'
@@ -372,7 +372,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
 
             {viewMode === 'problems' && (
               <div
-                className="flex flex-wrap items-center gap-1.5"
+                className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 sm:pb-0 sm:flex-wrap"
                 role="group"
                 aria-label="Lọc theo mức độ nhận thức"
               >
@@ -384,7 +384,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                       type="button"
                       aria-pressed={active}
                       onClick={() => setCogFilter(lvl)}
-                      className={`px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-all ${
+                      className={`h-9 px-3.5 rounded-lg border text-xs font-medium cursor-pointer transition-all shrink-0 whitespace-nowrap flex items-center justify-center ${
                         active
                           ? 'border-sky-500/60 bg-sky-500/15 text-sky-200 shadow-[0_0_10px_rgba(56,189,248,0.2),inset_0_1px_0_rgba(255,255,255,0.1)] font-semibold'
                           : 'border-zinc-800/80 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200'
