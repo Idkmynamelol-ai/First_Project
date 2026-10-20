@@ -757,7 +757,7 @@ BẮT BUỘC chỉ trả về JSON hợp lệ theo cấu trúc sau (không kèm 
   }
 
   if (!rawJson) {
-    throw new Error(`Lỗi kết nối Gemini API: ${lastError || 'Không thể tạo nội dung từ ảnh'}`);
+    throw new Error(`Lỗi kết nối: ${lastError || 'Không thể đọc nội dung từ ảnh'}`);
   }
 
   const parsed = safeParseJsonQuiz(rawJson);

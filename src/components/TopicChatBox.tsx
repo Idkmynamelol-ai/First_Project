@@ -257,8 +257,8 @@ interface TopicChatBoxProps {
 }
 
 /**
- * Unified Context-Aware Socratic Assistant Thread
- * - Replaces dual redundant chat panels with a single sleek thread + pill chips + minimal input bar
+ * Unified Context-Aware Assistant Thread
+ * - Single sleek thread + pill chips + minimal input bar
  */
 export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
   topic,
@@ -314,14 +314,14 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
     }
 
     return (
-      `**Gợi mở Socratic cho chuyên đề "${topic.topicName}":**\n` +
+      `**Gợi ý phương pháp (${topic.topicName}):**\n` +
       (firstRule
         ? `• **Công thức trọng tâm (${firstRule.name}):** $${firstRule.latexOrRule}$ — ${firstRule.description}\n`
         : '') +
       (secondRule
         ? `• **Quy tắc bổ trợ (${secondRule.name}):** $${secondRule.latexOrRule}$ — ${secondRule.description}\n`
         : '') +
-      `• **Lưu ý tránh bẫy:** ${topic.commonPitfalls[0]?.correction ?? topic.workedExample.logicReasoning}`
+      `• **Lưu ý:** ${topic.commonPitfalls[0]?.correction ?? topic.workedExample.logicReasoning}`
     );
   };
 
@@ -377,7 +377,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
                     parts: [
                       {
                         text:
-                          `Bạn là giáo viên hướng dẫn chuyên sâu Chương trình GDPT 2018 theo phương pháp gợi mở từng bước.\n` +
+                          `Bạn là giáo viên hướng dẫn Chương trình GDPT 2018 theo phương pháp giải thích từng bước.\n` +
                           `Chuyên đề: ${topic.chapter} - ${topic.topicName}.\n` +
                           `Công thức trọng tâm:\n${formulasContext}` +
                           problemCtx +
@@ -436,8 +436,8 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
       className="space-y-3 pt-3 border-t border-zinc-800/60"
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-zinc-400">
-          Trợ lý học tập • Gợi ý giải &amp; Kiến thức trọng tâm
+        <span className="text-xs font-medium text-zinc-300">
+          Trợ lý • Gợi ý giải &amp; Kiến thức trọng tâm
         </span>
       </div>
 
@@ -452,7 +452,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
               onInteraction?.();
               sendQuestion(qq);
             }}
-            className="text-xs text-zinc-300 bg-zinc-800/80 hover:bg-zinc-750 hover:text-white border border-zinc-700/80 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
+            className="text-xs text-zinc-200 bg-zinc-800 hover:bg-zinc-700 hover:text-white border border-zinc-700 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
           >
             {qq}
           </button>
@@ -464,7 +464,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
         <div
           role="log"
           aria-live="polite"
-          aria-label={`Hộp thoại Trợ lý học tập chuyên đề ${topic.topicName}`}
+          aria-label={`Hộp thoại Trợ lý chuyên đề ${topic.topicName}`}
           className="max-h-64 overflow-y-auto space-y-2.5 pr-1"
         >
           {messages.map((m) => (
@@ -473,11 +473,11 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
               className={`p-3.5 rounded-xl text-sm leading-7 border ${
                 m.role === 'user'
                   ? 'bg-sky-950/40 text-zinc-100 border-sky-500/40 ml-6'
-                  : 'bg-zinc-900 text-zinc-200 border-zinc-800 mr-2'
+                  : 'bg-zinc-900 text-zinc-100 border-zinc-800 mr-2'
               }`}
             >
               <p className="text-[11px] font-mono text-zinc-400 mb-1">
-                {m.role === 'user' ? 'Bạn' : 'Trợ lý học tập'}
+                {m.role === 'user' ? 'Bạn' : 'Trợ lý'}
               </p>
               <div className="whitespace-pre-line">
                 <MathText content={m.text} />
@@ -508,7 +508,7 @@ export const TopicChatBox: React.FC<TopicChatBoxProps> = ({
             onInteraction?.();
             setInput(e.target.value);
           }}
-          placeholder="Đặt câu hỏi về bước giải hoặc kiến thức cần giải đáp..."
+          placeholder="Hỏi Trợ lý về bước giải hoặc kiến thức..."
           autoComplete="off"
           className="flex-1 min-w-0 bg-transparent text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none"
         />

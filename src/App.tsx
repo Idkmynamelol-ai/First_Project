@@ -197,15 +197,15 @@ export function App() {
             onClick={() => setByokOpen(true)}
             aria-label={
               byok
-                ? 'Khóa API: Đã kết nối khóa cá nhân'
+                ? 'Khóa API: Đã kết nối khóa riêng'
                 : 'Khóa API: Đang dùng chế độ mặc định'
             }
             className="h-8 px-2.5 rounded-md border border-zinc-750 bg-zinc-900 hover:bg-zinc-850 flex items-center justify-center text-xs font-medium text-zinc-300 hover:text-zinc-100 transition-colors cursor-pointer"
           >
             {byok ? (
-              <span className="text-emerald-400 font-medium">Khóa cá nhân</span>
+              <span className="text-emerald-400 font-medium">Khóa riêng</span>
             ) : (
-              <span className="text-zinc-300">Cài đặt API</span>
+              <span className="text-zinc-300">Khóa API</span>
             )}
           </button>
         </div>

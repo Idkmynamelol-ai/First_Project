@@ -150,7 +150,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
     if (!selectedImage) return;
 
     setIsScanning(true);
-    setScanStep('Đang chuẩn bị và tối ưu ảnh đề bài...');
+    setScanStep('Đang tối ưu ảnh đề bài...');
 
     try {
       let result: ScannedDocumentQuiz;
@@ -163,7 +163,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
         apiKey.startsWith('AIza') && apiKey !== 'AIzaSyDemoHighSchoolStemKey2026';
 
       if (isLiveByok) {
-        setScanStep('Đang đọc đề bài và nhận diện công thức toán học...');
+        setScanStep('Đang đọc đề bài và nhận diện công thức...');
         result = await scanDocumentWithGeminiVision(
           selectedImage,
           imageMimeType,
@@ -178,7 +178,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
         );
       }
 
-      setScanStep('Đang sắp xếp các câu hỏi và phương án lựa chọn...');
+      setScanStep('Đang hoàn tất các câu hỏi...');
       await new Promise((r) => setTimeout(r, 400));
 
       setCurrentQuiz(result);
@@ -302,18 +302,18 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
             Tạo bài tập tương tác từ ảnh chụp đề thi
           </h2>
           <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-            Tải ảnh chụp đề kiểm tra, phiếu bài tập hoặc sách giáo khoa (Toán, Vật lí, Hóa học, Tiếng Anh). Hệ thống sẽ tự động đọc câu hỏi, nhận diện công thức và chuyển thành bài làm trắc nghiệm trực tiếp.
+            Tải ảnh chụp đề thi hoặc bài tập trên giấy. Hệ thống sẽ tự động đọc câu hỏi, giữ nguyên công thức và tạo bài làm trắc nghiệm tương tác.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {hasByokKey ? (
             <div className="px-3 py-1.5 rounded-md border border-emerald-500/40 bg-emerald-950/30 text-emerald-300 text-xs font-mono">
-              Khóa API cá nhân: Đã kết nối
+              Khóa riêng: Đã kết nối
             </div>
           ) : (
             <div className="px-3 py-1.5 rounded-md border border-zinc-700 bg-zinc-800 text-zinc-300 text-xs font-mono">
-              Chế độ mẫu mặc định
+              Chế độ mặc định
             </div>
           )}
 
@@ -323,7 +323,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
               onClick={onOpenByok}
               className="h-8 px-3 rounded-md border border-zinc-750 hover:border-zinc-700 bg-zinc-850 hover:bg-zinc-800 text-xs text-zinc-200 transition-colors cursor-pointer"
             >
-              Cài đặt khóa API
+              Khóa API
             </button>
           )}
         </div>
@@ -559,7 +559,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
                     onClick={() => handleStartPracticing(currentQuiz)}
                     className="h-10 px-5 rounded-lg bg-sky-500 hover:bg-sky-400 text-zinc-950 text-xs font-semibold tracking-tight transition-all cursor-pointer flex items-center gap-1.5"
                   >
-                    Bắt đầu làm bài ngay →
+                    Làm bài ngay →
                   </button>
 
                   <button
@@ -567,7 +567,7 @@ export const DocumentQuizScanner: React.FC<DocumentQuizScannerProps> = ({
                     onClick={handleSaveToLibrary}
                     className="h-10 px-4 rounded-lg border border-zinc-700 hover:border-zinc-600 bg-zinc-850 hover:bg-zinc-800 text-xs font-medium text-zinc-200 transition-colors cursor-pointer"
                   >
-                    Lưu đề bài này
+                    Lưu đề
                   </button>
 
                   <button

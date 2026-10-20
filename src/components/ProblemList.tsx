@@ -164,34 +164,35 @@ export const ProblemList: React.FC<ProblemListProps> = ({
           </p>
           <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-zinc-100">
             {viewMode === 'daily'
-              ? 'Thử thách mỗi ngày: Rèn luyện 4 môn thi'
+              ? 'Thử thách mỗi ngày (4 môn thi)'
               : viewMode === 'admin'
-              ? 'Kho đề thi thử THPT Quốc gia, HSA & TSA'
+              ? 'Kho đề thi THPT, HSA & TSA'
               : viewMode === 'scanner'
               ? 'Tạo bài tập từ ảnh đề thi'
               : viewMode === 'problems'
-              ? `${SUBJECTS_META[selectedSubject].vnName}: Bài tập theo chuyên đề (${filteredQuestions.length} câu)`
-              : `${SUBJECTS_META[selectedSubject].vnName}: Lý thuyết trọng tâm (${topics.length} chuyên đề)`}
+              ? `${SUBJECTS_META[selectedSubject].vnName}: Bài tập (${filteredQuestions.length} câu)`
+              : `${SUBJECTS_META[selectedSubject].vnName}: Lý thuyết (${topics.length} chuyên đề)`}
           </h1>
-          <p className="text-sm text-zinc-400 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-zinc-300 max-w-2xl leading-relaxed">
             {viewMode === 'admin' ? (
               <>
-                Tổng hợp liên kết đề thi thử{' '}
-                <span className="font-semibold text-zinc-200">
-                  THPTQG 2026, HSA 2026, TSA 2026
-                </span>{' '}
-                (kèm năm 2025) có file PDF hoặc cấu trúc đề rõ ràng.
+                Tổng hợp liên kết đề thi thử THPTQG, HSA, TSA 2025–2026 kèm file PDF và barem chuẩn.
               </>
             ) : viewMode === 'scanner' ? (
               <>
-                Tải ảnh chụp đề thi hoặc bài tập trên giấy. Hệ thống sẽ tự động đọc câu hỏi, nhận diện công thức toán học và tạo bài trắc nghiệm để bạn luyện tập trực tiếp.
+                Tải ảnh đề bài để tạo bài trắc nghiệm tương tác và rèn luyện trực tiếp.
+              </>
+            ) : viewMode === 'daily' ? (
+              <>
+                Mỗi ngày một bộ câu hỏi chọn lọc giúp rèn phản xạ đọc đề và tư duy giải nhanh.
+              </>
+            ) : viewMode === 'problems' ? (
+              <>
+                Bài tập bám sát 4 mức độ nhận thức: Nhận biết, Thông hiểu, Vận dụng và Vận dụng cao.
               </>
             ) : (
               <>
-                Học theo lộ trình chuyên đề, phân loại bài tập từ cơ bản đến nâng cao:{' '}
-                <span className="font-semibold text-zinc-200">
-                  Nhận biết, Thông hiểu, Vận dụng và Vận dụng cao
-                </span>.
+                Tóm tắt lý thuyết, công thức then chốt và sơ đồ tư duy theo chuẩn GDPT 2018.
               </>
             )}
           </p>
@@ -334,7 +335,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                         : `${subjTopicsCount} CĐ`}
                     </span>
                   </div>
-                  <p className="text-xs text-zinc-500 truncate mt-1.5">
+                  <p className="text-xs text-zinc-400 truncate mt-1.5">
                     {subjMeta.activeTopic}
                   </p>
                 </button>
@@ -410,15 +411,15 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Tìm kiếm nội dung bài tập, công thức, dạng toán..."
-                      className="w-full h-9 px-3.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-700"
+                      placeholder="Tìm bài tập, công thức..."
+                      className="w-full h-9 px-3.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-700"
                     />
                   </div>
 
                   <select
                     value={topicFilter}
                     onChange={(e) => setTopicFilter(e.target.value)}
-                    className="h-9 px-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 focus:outline-none focus:border-zinc-700 max-w-[220px] truncate cursor-pointer"
+                    className="h-9 px-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 focus:outline-none focus:border-zinc-700 max-w-[220px] truncate cursor-pointer"
                   >
                     <option value="all">Tất cả chuyên đề ({topics.length})</option>
                     {topics.map((t) => (
@@ -434,11 +435,11 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                   <select
                     value={pageSize}
                     onChange={(e) => setPageSize(Number(e.target.value))}
-                    className="h-9 px-2.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 focus:outline-none focus:border-zinc-700 cursor-pointer"
+                    className="h-9 px-2.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 focus:outline-none focus:border-zinc-700 cursor-pointer"
                   >
-                    <option value={25}>25 câu/trang</option>
-                    <option value={50}>50 câu/trang</option>
-                    <option value={100}>100 câu/trang</option>
+                    <option value={25}>25 câu</option>
+                    <option value={50}>50 câu</option>
+                    <option value={100}>100 câu</option>
                     <option value={-1}>Tất cả</option>
                   </select>
                 </div>
@@ -506,12 +507,12 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                             onClick={() => onOpen(q.id)}
                             className="w-full px-5 py-4 text-left flex items-start sm:items-center gap-4 hover:bg-zinc-850/70 cursor-pointer transition-colors"
                           >
-                            <span className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 font-mono text-xs font-semibold text-zinc-200 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                            <span className="w-8 h-8 rounded-lg bg-zinc-850 border border-zinc-700 font-mono text-xs font-bold text-zinc-100 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
                               #{globalNumber}
                             </span>
 
                             <span className="flex-1 min-w-0 space-y-1.5">
-                              <span className="block text-[15px] text-zinc-200 line-clamp-2 leading-7">
+                              <span className="block text-[15px] text-zinc-100 line-clamp-2 leading-7">
                                 <MathText content={q.prompt} />
                               </span>
                               <span className="flex flex-wrap items-center gap-2">
@@ -521,7 +522,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                                 <Tag>Lớp {q.grade}</Tag>
                                 <Tag>{q.topic}</Tag>
                                 {q.chapter && (
-                                  <span className="text-[11px] font-mono text-zinc-500">
+                                  <span className="text-[11px] font-mono text-zinc-400">
                                     {q.chapter}
                                   </span>
                                 )}

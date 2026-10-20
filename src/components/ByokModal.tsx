@@ -41,7 +41,7 @@ export const ByokModal: React.FC<ByokModalProps> = ({
     const trimmed = draftKey.trim();
     if (trimmed.length > 0 && !trimmed.startsWith('AIza') && trimmed.length < 16) {
       setValidationError(
-        'Vui lòng nhập khóa Google AI Studio hợp lệ bắt đầu bằng "AIza..." hoặc để trống để dùng cổng nhóm chung.'
+        'Vui lòng nhập khóa API hợp lệ bắt đầu bằng "AIza..." hoặc để trống để dùng cổng chung.'
       );
       return;
     }
@@ -78,10 +78,10 @@ export const ByokModal: React.FC<ByokModalProps> = ({
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 id="byok-modal-title" className="text-base font-semibold text-zinc-100">
-              Kết nối khóa Gemini API cá nhân
+              Cài đặt khóa API cá nhân
             </h2>
             <p className="text-xs text-zinc-400">
-              Sử dụng khóa cá nhân để trò chuyện thoải mái cùng trợ lý học tập
+              Sử dụng khóa riêng để trao đổi không giới hạn cùng Trợ lý
             </p>
           </div>
 
@@ -117,7 +117,7 @@ export const ByokModal: React.FC<ByokModalProps> = ({
               htmlFor="gemini-api-key-input"
               className="block text-xs font-medium text-zinc-300 mb-1.5"
             >
-              Khóa API Google AI Studio
+              Khóa API cá nhân (Google)
             </label>
             <div className="relative flex items-center">
               <input
@@ -152,14 +152,14 @@ export const ByokModal: React.FC<ByokModalProps> = ({
 
           <div className="p-3.5 rounded-lg bg-zinc-950 border border-zinc-800 space-y-1 text-xs text-zinc-400 leading-relaxed">
             <p className="text-zinc-200 font-medium">
-              Bảo mật tuyệt đối trên trình duyệt của bạn
+              Bảo mật trực tiếp trên thiết bị của bạn
             </p>
             <p>
-              Khóa API chỉ được lưu cục bộ trong{' '}
+              Khóa API chỉ được lưu trong{' '}
               <code className="px-1 py-0.5 rounded bg-zinc-800 text-zinc-200 font-mono text-[11px]">
                 localStorage
               </code>{' '}
-              của trình duyệt và không bao giờ gửi về máy chủ trung gian.
+              của trình duyệt và không bao giờ gửi qua máy chủ trung gian.
             </p>
             <a
               href="https://aistudio.google.com/app/apikey"
@@ -167,7 +167,7 @@ export const ByokModal: React.FC<ByokModalProps> = ({
               rel="noopener noreferrer"
               className="inline-flex items-center text-zinc-300 hover:text-white hover:underline font-medium pt-0.5"
             >
-              Lấy khóa Gemini API miễn phí tại Google AI Studio ↗
+              Lấy khóa API miễn phí từ Google ↗
             </a>
           </div>
 
@@ -178,7 +178,7 @@ export const ByokModal: React.FC<ByokModalProps> = ({
                 onClick={handleClear}
                 className="h-10 px-3.5 rounded-lg border border-rose-500/25 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 text-xs font-medium inline-flex items-center justify-center transition-colors cursor-pointer"
               >
-                <span>Xóa khóa &amp; dùng cổng chung</span>
+                <span>Dùng cổng chung</span>
               </button>
             ) : (
               <button

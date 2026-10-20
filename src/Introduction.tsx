@@ -131,7 +131,7 @@ export const Introduction: React.FC = () => {
             Giới thiệu Nền tảng Luyện thi STEM THPT Scalar
           </h1>
           <p className="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-3xl">
-            Scalar được xây dựng bám sát Chương trình Giáo dục Phổ thông mới (GDPT 2018), hỗ trợ học sinh ôn thi Tốt nghiệp THPT và các kỳ thi Đánh giá năng lực (HSA), Đánh giá tư duy (TSA). Nền tảng tổng hợp hơn 860 câu hỏi theo 4 mức độ nhận thức, công cụ tạo bài tập từ ảnh chụp đề thi và trợ lý gợi ý phương pháp giải từng bước.
+            Scalar được xây dựng bám sát Chương trình Giáo dục Phổ thông mới (GDPT 2018), hỗ trợ học sinh ôn thi Tốt nghiệp THPT và các kỳ thi Đánh giá năng lực (HSA), Đánh giá tư duy (TSA). Nền tảng tổng hợp hơn 860 câu hỏi theo 4 mức độ nhận thức, công cụ tạo bài tập từ ảnh chụp đề thi và Trợ lý gợi ý giải bài từng bước.
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
